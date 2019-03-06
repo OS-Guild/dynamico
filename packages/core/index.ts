@@ -1,71 +1,70 @@
-interface Component {
-  code: string,
-  version: string
-  appVersion: string
+import buildUrl from 'build-url';
+import fetch from 'node-fetch';
+
+interface Storage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
 }
 
 export interface InitOptions {
+  prefix?: string;
   url: string,
   appVersion: string,
-  cache: Map<string, Component>
+  cache: Storage
   dependencies: any;
+  httpClient?: GlobalFetch['fetch'];
 }
 
 interface GetOptions {
   componentVersion?: string,
   userData?: any
   ignoreCache?: boolean,
-  globals?: Map<string, any>;
+  globals?: {[key: string]: any};
 }
 
 export class Dynamico {
+  prefix: string = '@dynamico';
   url: string;
   appVersion: string;
   dependencies: any;
-
-  cache: Map<string, Component>;
+  cache: Storage;
+  httpClient: any;
 
   constructor(options: InitOptions) {
+    this.prefix = options.prefix || this.prefix;
     this.url = options.url;
     this.appVersion = options.appVersion;
-    this.cache = options.cache || new Map();
+    this.cache = options.cache;
     this.dependencies = options.dependencies;
-  }
+    this.httpClient = options.httpClient || fetch;
+  }  
 
-  async fetchJs(name: string, options: GetOptions): Promise<Component> {
-    if (!this.cache.has(name) || options.ignoreCache) {
-      const url = new URL(this.url);
-      const componentVersion = options.componentVersion || 'latest';
-
-      const params: { [key: string]: string } = {
-        name,
+  async fetchJs(name: string, {ignoreCache, componentVersion = undefined}: GetOptions): Promise<string> {    
+    const buildPath = (base: string) : string => buildUrl(base, {
+      path: name,
+      queryParams: {
         appVersion: this.appVersion,
-        componentVersion
-      };
+        ...(componentVersion && {componentVersion})
+      }
+    });
 
-      Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-      
-      const code = await fetch(url.href)
-        .then(res => res.text())
-        
-      const component = {
-        code,
-        appVersion: this.appVersion,
-        version: componentVersion
-      };
+    const url = buildPath(this.url);
+    const cacheKey = buildPath(this.prefix);
 
-      this.cache.set(name, component);
+    let code = await this.cache.getItem(cacheKey);
 
-      return component;
+    if (!code || ignoreCache) {    
+      code = await this.httpClient(url)
+        .then((res: Response) => res.text()) as string;
+
+      await this.cache.setItem(cacheKey, code);
     }
 
-    console.log(this.cache.get(name));
-
-    return this.cache.get(name) as Component;
+    return code;
   }
 
   async get(name: string, options: GetOptions) {
-    const { code } = await this.fetchJs(name, options);
+    const code = await this.fetchJs(name, options);
 
     const require = (dep: string) => this.dependencies[dep];
     const exports : any = {};
@@ -80,15 +79,3 @@ export class Dynamico {
     return exports.default;
   }
 }
-
-// let dynamico : Dynamico;
-
-// export default {
-//   instance(options: InitOptions) {
-//     if (!dynamico) {
-//       dynamico = new Dynamico(options);
-//     }
-
-//     return dynamico;
-//   }
-// }

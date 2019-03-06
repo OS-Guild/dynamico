@@ -5,14 +5,14 @@ import { Dynamico } from '@dynamico/core';
 
 import { DynamicoContext, DynamicComponent } from '../lib';
 
-const Comp = `
+const code = `
 const React = require('react');
 
 const ReactDOM = require('react-dom');
 
 class Hello extends React.Component {  
   render() {
-    console.log(this);
+    // console.log(this);
     return React.createElement('div', null, this.props.yo);
   }
 
@@ -21,23 +21,23 @@ class Hello extends React.Component {
 exports.default = Hello;
 `;
 
-const cache = new Map();
-
-cache.set('mycomp', {code: Comp});
+localStorage.setItem('@dynamico/mycomp?appVersion=1', code);
 
 const App = () => {
-  const dynamico = new Dynamico({
+  const dynamico = new Dynamico({    
     url: 'http://localhost:3000/components',
     appVersion: '1',
     dependencies: {
       'react': React,
       'react-dom': ReactDOM
     },
-    cache
+    cache: localStorage
   })
   return (
     <DynamicoContext.Provider value={dynamico}>
-      <DynamicComponent component="mycomp" props={{yo: 'zxcv'}}></DynamicComponent>
+      <DynamicComponent component="mycomp" props={{yo: 'elad'}}>
+        <div>Loading...</div>
+      </DynamicComponent>
     </DynamicoContext.Provider>
   )
 };
