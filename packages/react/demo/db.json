@@ -1,0 +1,8 @@
+{
+    "components": [
+        {
+            "code": "export.default = 2",
+            "name": "mycomp" 
+        }
+    ]
+  }

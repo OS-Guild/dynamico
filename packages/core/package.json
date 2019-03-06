@@ -1,0 +1,13 @@
+{
+  "name": "@dynamico/core",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "ts-lint": "^4.5.1",
+    "typescript": "^3.3.3333"
+  }
+}
