@@ -1,39 +1,37 @@
-import React, { useState, useEffect, useContext, FunctionComponent, ReactElement } from 'react';
-import { Dynamico, KeyValue } from '@dynamico/core';
-
-export interface ComponentProps {
-    component: string;
-    props?: any;
-    children: ReactElement;
-    ignoreCache?: boolean;
-    globals?: KeyValue;
-}
+import React, { useState, useEffect, useContext, FunctionComponent } from 'react';
+import { DynamicoClient, Options } from '@dynamico/core';
 
 interface Component {
-    view?: FunctionComponent;
+  view?: FunctionComponent;
 }
 
 interface setComponent {
-    (component: Component): void;
+  (component: Component): void;
 }
 
-export const DynamicComponent : FunctionComponent<ComponentProps> = ({ component, props, ignoreCache, globals }) => {
-    const [Component, setComponent] : [Component, setComponent]= useState({});
-    const dynamico = useContext(DynamicoContext);
+interface ComponentOptions extends Options {
+  fallback?: JSX.Element | null;
+}
+
+export const DynamicoContext = React.createContext<DynamicoClient | undefined>(undefined);
+
+export const dynamico = function <T = any>(name: string, { fallback = null, ...options }: ComponentOptions = {}): FunctionComponent<T> {
+  return (props: T) => {
+    const [Component, setComponent]: [Component, setComponent] = useState({});
+    const dynamicoClient = useContext(DynamicoContext);
 
     const getComponent = async () => {
-        if (!dynamico) {
-            throw 'mi no dynamico';
-        }
+      if (!dynamicoClient) {
+        throw `Couldn't find dynamico client in the context, make sure you use DynamicoContext.Provider`;
+      }
 
-        setComponent({view: await dynamico.get(component, {ignoreCache, globals})});
+      setComponent({ view: await dynamicoClient.get(name, options) });
     }
 
     useEffect(() => {
-        getComponent();
-    }, []);    
+      getComponent();
+    }, []);
 
-    return Component.view ? <Component.view {...props}/> : null;
-}
-
-export const DynamicoContext = React.createContext<Dynamico | undefined>(undefined);
+    return Component.view ? <Component.view {...props} /> : fallback;
+  };
+};

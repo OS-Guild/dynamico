@@ -6,7 +6,7 @@ const ReactDOM = require('react-dom');
 class Hello extends React.Component {
 
   render() {
-    return React.createElement('div', null, 'syp');
+    return React.createElement('div', null, this.props.test, this.props.children);
   }
 
 }
@@ -14,7 +14,6 @@ class Hello extends React.Component {
 exports.default = Hello;
 `
 
-module.exports = (req, res, next) => {
-    console.log(req.body)
-    res.status(200).send(code)
-  }
+module.exports = (req, res, next) => {  
+  res.status(200).send(code)
+}

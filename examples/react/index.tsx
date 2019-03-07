@@ -1,12 +1,19 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { Dynamico } from '@dynamico/core';
-import { DynamicoContext, DynamicComponent } from '@dynamico/react';
+import { DynamicoClient } from '@dynamico/core';
+import { DynamicoContext, dynamico } from '@dynamico/react';
 
+interface MyCompProps {
+  test: string;
+}
+
+const MyComp = dynamico<MyCompProps>('mycomp', {
+  fallback: <div>Loading...</div>
+});
 
 const App = () => {
-  const dynamico = new Dynamico({    
+  const dynamico = new DynamicoClient({
     url: 'http://localhost:3000/components',
     appVersion: '1',
     dependencies: {
@@ -16,10 +23,10 @@ const App = () => {
     cache: localStorage
   })
   return (
-    <DynamicoContext.Provider value={dynamico}>      
-      <DynamicComponent component="mycomp" props={{yo: 'elad'}}>
-        <div>Loading...</div>
-      </DynamicComponent>
+    <DynamicoContext.Provider value={dynamico}>
+      <MyComp test="testProp">
+        <span>testSpan</span>
+      </MyComp>
     </DynamicoContext.Provider>
   )
 };

@@ -1,31 +1,30 @@
 import buildUrl from 'build-url';
 
 export interface KeyValue {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface InitOptions {
   prefix?: string;
-  url: string,
-  appVersion: string,
-  cache: Storage
-  dependencies: any;
+  url: string;
+  appVersion: string;
+  cache: Storage;
+  dependencies: KeyValue;
   fetcher?: GlobalFetch['fetch'];
   globals?: KeyValue;
 }
 
-interface GetOptions {
-  componentVersion?: string,
-  userData?: any
-  ignoreCache?: boolean,
+export interface Options {
+  componentVersion?: string;
+  ignoreCache?: boolean;
   globals?: KeyValue;
 }
 
-export class Dynamico {
+export class DynamicoClient {
   prefix: string = '@dynamico';
   url: string;
   appVersion: string;
-  dependencies: any;
+  dependencies: KeyValue;
   cache: Storage;
   fetcher: GlobalFetch['fetch'];
   globals: KeyValue;
@@ -54,12 +53,12 @@ export class Dynamico {
     }
   };
 
-  async fetchJs(name: string, {ignoreCache, componentVersion = undefined}: GetOptions): Promise<string> {    
-    const buildPath = (base: string) : string => buildUrl(base, {
+  async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
+    const buildPath = (base: string): string => buildUrl(base, {
       path: name,
       queryParams: {
         appVersion: this.appVersion,
-        ...(componentVersion && {componentVersion})
+        ...(componentVersion && { componentVersion })
       }
     });
 
@@ -68,7 +67,7 @@ export class Dynamico {
 
     let code = await this.cache.getItem(cacheKey);
 
-    if (!code || ignoreCache) {    
+    if (!code || ignoreCache) {
       code = await this.fetcher(url)
         .then((res: Response) => res.text()) as string;
 
@@ -78,11 +77,10 @@ export class Dynamico {
     return code;
   }
 
-  async get(name: string, options: GetOptions) {
+  async get(name: string, options: Options) {
     const code = await this.fetchJs(name, options);
-
     const require = (dep: string) => this.dependencies[dep];
-    const exports : any = {};
+    const exports: any = {};
     const args = {
       exports,
       require,
@@ -91,7 +89,7 @@ export class Dynamico {
     }
 
     new Function(...Object.keys(args), code)(...Object.values(args));
-    
+
     return exports.default;
   }
 }
