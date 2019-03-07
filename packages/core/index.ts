@@ -1,9 +1,7 @@
 import buildUrl from 'build-url';
-import fetch from 'node-fetch';
 
-interface Storage {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
+export interface KeyValue {
+  [key: string]: any
 }
 
 export interface InitOptions {
@@ -12,14 +10,15 @@ export interface InitOptions {
   appVersion: string,
   cache: Storage
   dependencies: any;
-  httpClient?: GlobalFetch['fetch'];
+  fetcher?: GlobalFetch['fetch'];
+  globals?: KeyValue;
 }
 
 interface GetOptions {
   componentVersion?: string,
   userData?: any
   ignoreCache?: boolean,
-  globals?: {[key: string]: any};
+  globals?: KeyValue;
 }
 
 export class Dynamico {
@@ -28,7 +27,8 @@ export class Dynamico {
   appVersion: string;
   dependencies: any;
   cache: Storage;
-  httpClient: any;
+  fetcher: GlobalFetch['fetch'];
+  globals: KeyValue;
 
   constructor(options: InitOptions) {
     this.prefix = options.prefix || this.prefix;
@@ -36,8 +36,23 @@ export class Dynamico {
     this.appVersion = options.appVersion;
     this.cache = options.cache;
     this.dependencies = options.dependencies;
-    this.httpClient = options.httpClient || fetch;
-  }  
+    this.globals = options.globals || {};
+
+    this.checkFetcher(options.fetcher);
+
+    this.fetcher = options.fetcher || fetch.bind(window);
+  }
+
+  checkFetcher(fetcher?: GlobalFetch['fetch']) {
+    if (!fetcher && typeof fetch === 'undefined') {
+      let library: string = 'unfetch';
+      if (typeof window === 'undefined') library = 'node-fetch';
+      throw new Error(`
+        fetch is not found globally and no fetcher passed, to fix pass a fetch for 
+        your environment like https://www.npmjs.com/package/${library}.
+      `);
+    }
+  };
 
   async fetchJs(name: string, {ignoreCache, componentVersion = undefined}: GetOptions): Promise<string> {    
     const buildPath = (base: string) : string => buildUrl(base, {
@@ -54,7 +69,7 @@ export class Dynamico {
     let code = await this.cache.getItem(cacheKey);
 
     if (!code || ignoreCache) {    
-      code = await this.httpClient(url)
+      code = await this.fetcher(url)
         .then((res: Response) => res.text()) as string;
 
       await this.cache.setItem(cacheKey, code);
@@ -71,6 +86,7 @@ export class Dynamico {
     const args = {
       exports,
       require,
+      ...this.globals,
       ...options.globals
     }
 
