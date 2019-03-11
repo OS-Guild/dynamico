@@ -9,13 +9,15 @@ interface MyCompProps {
 }
 
 const MyComp = dynamico<MyCompProps>('mycomp', {
+  // componentVersion: '1.1.2',
+  // ignoreCache: true,
   fallback: <div>Loading...</div>
 });
 
 const App = () => {
   const dynamico = new DynamicoClient({
-    url: 'http://localhost:3000/components',
-    appVersion: '1',
+    url: '/api/components',
+    appVersion: '1.2.1',        
     dependencies: {
       'react': React,
       'react-dom': ReactDOM

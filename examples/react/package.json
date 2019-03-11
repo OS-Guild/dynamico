@@ -3,20 +3,28 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "db": "json-server --watch db.json --middlewares db.js",
-    "start": "parcel ./index.html"
+    "start": "ts-node proxy.ts"
   },
   "license": "MIT",
   "dependencies": {
     "@dynamico/core": "^0.0.1",
+    "@dynamico/express-middleware": "^0.0.1",
+    "@dynamico/fs-storage": "^0.0.1",
     "@dynamico/react": "^0.0.1",
     "react": "^16.8.3",
     "react-dom": "^16.8.3"
   },
   "devDependencies": {
+    "@types/http-proxy-middleware": "^0.19.2",
+    "@types/parcel-bundler": "^1.10.2",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.2",
+    "dotenv-extended": "^2.4.0",
+    "express": "^4.16.4",
+    "http-proxy-middleware": "^0.19.1",
     "json-server": "^0.14.2",
-    "parcel-bundler": "^1.11.0"
+    "parcel-bundler": "^1.11.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
   }
 }

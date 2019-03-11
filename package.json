@@ -3,9 +3,11 @@
   "private": true,
   "workspaces": [
     "examples/*",
-    "packages/*"
+    "client/*",
+    "server/*"
   ],
   "scripts": {
+    "react-demo": "lerna run start --scope=react-dynamico-example --parallel",
     "lerna": "lerna"
   },
   "devDependencies": {

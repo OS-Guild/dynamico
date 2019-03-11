@@ -1,0 +1,36 @@
+{
+  "name": "@dynamico/fs-storage",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "Elad Bezalel <elad.bezalel@gmail.com>",
+  "homepage": "https://github.com/soluto-private/dynamico#readme",
+  "license": "MIT",
+  "main": "lib/index.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluto-private/dynamico.git"
+  },
+  "scripts": {
+    "test": "ts-node index.ts"
+  },
+  "bugs": {
+    "url": "https://github.com/soluto-private/dynamico/issues"
+  },
+  "dependencies": {
+    "@dynamico/driver": "^0.0.1",
+    "klaw-sync": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/klaw-sync": "^6.0.0",
+    "typescript": "^3.3.3333"
+  }
+}

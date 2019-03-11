@@ -1,0 +1,35 @@
+{
+  "name": "@dynamico/driver",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "Elad Bezalel <elad.bezalel@gmail.com>",
+  "homepage": "https://github.com/soluto-private/dynamico#readme",
+  "license": "MIT",
+  "main": "lib/index.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluto-private/dynamico.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/soluto-private/dynamico/issues"
+  },
+  "dependencies": {
+    "compare-versions": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/compare-versions": "^3.0.0",
+    "typescript": "^3.3.3333"
+  }
+}

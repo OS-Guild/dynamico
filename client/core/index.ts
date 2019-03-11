@@ -1,7 +1,9 @@
 import buildUrl from 'build-url';
 
-export interface KeyValue {
-  [key: string]: any;
+import { StorageController } from './StorageController';
+
+export interface KeyValue<T> {
+  [key: string]: T;
 }
 
 export interface InitOptions {
@@ -9,31 +11,29 @@ export interface InitOptions {
   url: string;
   appVersion: string;
   cache: Storage;
-  dependencies: KeyValue;
+  dependencies: KeyValue<any>;
   fetcher?: GlobalFetch['fetch'];
-  globals?: KeyValue;
+  globals?: KeyValue<any>;
 }
 
 export interface Options {
   componentVersion?: string;
   ignoreCache?: boolean;
-  globals?: KeyValue;
+  globals?: KeyValue<any>;
 }
 
 export class DynamicoClient {
-  prefix: string = '@dynamico';
   url: string;
   appVersion: string;
-  dependencies: KeyValue;
-  cache: Storage;
+  dependencies: KeyValue<any>;
+  cache: StorageController;
   fetcher: GlobalFetch['fetch'];
-  globals: KeyValue;
+  globals: KeyValue<any>;
 
   constructor(options: InitOptions) {
-    this.prefix = options.prefix || this.prefix;
     this.url = options.url;
     this.appVersion = options.appVersion;
-    this.cache = options.cache;
+    this.cache = new StorageController(options.prefix || '@dynamico', options.appVersion, options.cache);
     this.dependencies = options.dependencies;
     this.globals = options.globals || {};
 
@@ -54,30 +54,40 @@ export class DynamicoClient {
   };
 
   async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
-    const buildPath = (base: string): string => buildUrl(base, {
+    let latestComponentVersion: string | undefined;
+
+    if (!componentVersion) {
+      latestComponentVersion = this.cache.getLatestVersion(name);
+    }
+    else if(this.cache.has(name, componentVersion) && !ignoreCache) {
+      return await this.cache.getItem(name, componentVersion) as string;
+    }
+
+    const url = buildUrl(this.url, {
       path: name,
       queryParams: {
         appVersion: this.appVersion,
-        ...(componentVersion && { componentVersion })
+        ...(componentVersion ? { componentVersion } : (latestComponentVersion && !ignoreCache && { latestComponentVersion }))
       }
     });
 
-    const url = buildPath(this.url);
-    const cacheKey = buildPath(this.prefix);
+    const { statusCode, version, code } = await this.fetcher(url)
+      .then(async (res: Response) => ({
+        statusCode: res.status,
+        version: res.headers.get('dynamico-component-version') as string,
+        code: await res.text()
+      }));
 
-    let code = await this.cache.getItem(cacheKey);
-
-    if (!code || ignoreCache) {
-      code = await this.fetcher(url)
-        .then((res: Response) => res.text()) as string;
-
-      await this.cache.setItem(cacheKey, code);
+    if (statusCode === 204) {
+      return await this.cache.getItem(name, version) as string;
     }
+
+    await this.cache.setItem(name, version, code);
 
     return code;
   }
 
-  async get(name: string, options: Options) {
+  async get(name: string, options: Options = {}) {
     const code = await this.fetchJs(name, options);
     const require = (dep: string) => this.dependencies[dep];
     const exports: any = {};
