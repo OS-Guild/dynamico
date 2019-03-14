@@ -1,0 +1,51 @@
+{
+  "name": "@dynamico/cli",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "Elad Bezalel <elad.bezalel@gmail.com>",
+  "homepage": "https://github.com/soluto-private/dynamico#readme",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluto-private/dynamico.git"
+  },
+  "scripts": {
+    "plop": "plop",
+    "copy:hbs": "copyfiles plop/**/*.hbs dist/",
+    "build": "rm -rf dist && tsc && npm run copy:hbs",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/soluto-private/dynamico/issues"
+  },
+  "bin": {
+    "dcm": "bin/dcm"
+  },
+  "devDependencies": {
+    "@types/execa": "^0.9.0",
+    "@types/p-try": "^2.0.0",
+    "@types/update-notifier": "^2.5.0",
+    "@types/uppercamelcase": "^3.0.0",
+    "copyfiles": "^2.1.0"
+  },
+  "dependencies": {
+    "caporal": "^1.1.0",
+    "execa": "^1.0.0",
+    "live-server": "^1.2.1",
+    "p-try": "^2.0.0",
+    "plop": "^2.3.0",
+    "update-notifier": "^2.5.0",
+    "uppercamelcase": "^3.0.0"
+  }
+}

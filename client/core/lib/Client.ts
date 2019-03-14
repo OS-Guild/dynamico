@@ -1,34 +1,30 @@
 import buildUrl from 'build-url';
 
-import { StorageController } from './StorageController';
-
-export interface KeyValue<T> {
-  [key: string]: T;
-}
+import { StorageController } from './utils/StorageController';
 
 export interface InitOptions {
   prefix?: string;
   url: string;
   appVersion: string;
   cache: Storage;
-  dependencies: KeyValue<any>;
+  dependencies: Record<string, any>;
   fetcher?: GlobalFetch['fetch'];
-  globals?: KeyValue<any>;
+  globals?: Record<string, any>;
 }
 
 export interface Options {
   componentVersion?: string;
   ignoreCache?: boolean;
-  globals?: KeyValue<any>;
+  globals?: Record<string, any>;
 }
 
 export class DynamicoClient {
   url: string;
   appVersion: string;
-  dependencies: KeyValue<any>;
+  dependencies: Record<string, any>;
   cache: StorageController;
   fetcher: GlobalFetch['fetch'];
-  globals: KeyValue<any>;
+  globals: Record<string, any>;
 
   constructor(options: InitOptions) {
     this.url = options.url;
@@ -45,7 +41,11 @@ export class DynamicoClient {
   checkFetcher(fetcher?: GlobalFetch['fetch']) {
     if (!fetcher && typeof fetch === 'undefined') {
       let library: string = 'unfetch';
-      if (typeof window === 'undefined') library = 'node-fetch';
+
+      if (typeof window === 'undefined') {
+        library = 'node-fetch';
+      }
+      
       throw new Error(`
         fetch is not found globally and no fetcher passed, to fix pass a fetch for 
         your environment like https://www.npmjs.com/package/${library}.

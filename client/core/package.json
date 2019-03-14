@@ -1,7 +1,7 @@
 {
   "name": "@dynamico/core",
   "version": "0.0.1",
-  "main": "index.ts",
+  "main": "lib/index.ts",
   "license": "MIT",
   "devDependencies": {
     "@types/compare-versions": "^3.0.0",

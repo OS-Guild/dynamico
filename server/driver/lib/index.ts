@@ -1,25 +1,21 @@
 import compareVersions from 'compare-versions';
 
+interface GetComponentCallback {
+  (): string;
+}
+
 export interface Component {
   name: string;
   appVersion: string;
   version?: string;
 }
 
-export interface BetterComponent {
+export interface ComponentGetter {
   version: string,
   getComponentCode: GetComponentCallback
 }
 
-interface GetComponentCallback {
-  (): string;
-}
-
-export interface VersionTree {
-  [appVersion: string]: {
-    [componentVersion: string]: GetComponentCallback;
-  };
-}
+export type VersionTree = Record<string, Record<string, GetComponentCallback>>;
 
 export interface Storage {
   getComponentVersionTree(name: string): VersionTree;
@@ -43,7 +39,7 @@ export class Driver {
     return list.sort((x, y) => compareVersions(y, x));
   }
 
-  private getBestVersion(versionTree: VersionTree, target: Component): BetterComponent {
+  private getBestVersion(versionTree: VersionTree, target: Component): ComponentGetter {
     const exactAppVersion = versionTree[target.appVersion];
 
     if (exactAppVersion && target.version) {
@@ -75,7 +71,7 @@ export class Driver {
     };
   }
 
-  getComponent(component: Component): BetterComponent {
+  getComponent(component: Component): ComponentGetter {
     const componentTree = this.storage.getComponentVersionTree(component.name);
 
     return this.getBestVersion(componentTree, component);

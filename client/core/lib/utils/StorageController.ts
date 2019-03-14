@@ -1,12 +1,11 @@
 import deepmerge from 'deepmerge';
 import compareVersions from 'compare-versions';
 
-import {KeyValue} from './';
 
 export class StorageController {
   separator = '/';
 
-  componentTree: KeyValue<KeyValue<string[]>> = {};
+  componentTree: Record<string, Record<string, string[]>> = {};
 
   constructor(private prefix: string, private appVersion: string, private storage: Storage) {
     this.componentTree = Object.keys(this.storage)
@@ -28,7 +27,7 @@ export class StorageController {
 
   getLatestVersion(name: string): string | undefined {
     if (!this.componentTree[name] || !this.componentTree[name][this.appVersion]) {
-      return '';
+      return;
     }
 
     const [latestComponentVersion] = this.componentTree[name][this.appVersion]
