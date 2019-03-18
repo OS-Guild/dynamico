@@ -16,6 +16,11 @@ interface ComponentOptions extends Options {
 
 export const DynamicoContext = React.createContext<DynamicoClient | undefined>(undefined);
 
+export const DynamicoProvider: FunctionComponent<{client: DynamicoClient}> = ({client, children}) => (
+  <DynamicoContext.Provider value={client}>
+      {children}
+  </DynamicoContext.Provider> 
+)
 export const dynamico =
   function <T = any>(name: string, { fallback = null, devMode = false, ...options }: ComponentOptions = {}): FunctionComponent<T> {
     return (props: T) => {

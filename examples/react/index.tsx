@@ -2,7 +2,7 @@ import React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { DynamicoClient } from '@dynamico/core';
-import { DynamicoContext, dynamico } from '@dynamico/react';
+import { DynamicoProvider, dynamico } from '@dynamico/react';
 
 interface MyCompProps {
   test: string;
@@ -25,11 +25,11 @@ const App = () => {
     cache: localStorage
   })
   return (
-    <DynamicoContext.Provider value={dynamico}>
+    <DynamicoProvider client={dynamico}>      
       <MyComp test="testProp">
         <span>testSpan</span>
       </MyComp>
-    </DynamicoContext.Provider>
+    </DynamicoProvider>
   )
 };
 
