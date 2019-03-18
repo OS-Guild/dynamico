@@ -24,7 +24,7 @@ interface Generator {
 }
 
 interface Helper {
-  (name: string): string
+  (name: string): string;
 }
 
 export interface Plop {

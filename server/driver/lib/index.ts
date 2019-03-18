@@ -11,8 +11,8 @@ export interface Component {
 }
 
 export interface ComponentGetter {
-  version: string,
-  getComponentCode: GetComponentCallback
+  version: string;
+  getComponentCode: GetComponentCallback;
 }
 
 export type VersionTree = Record<string, Record<string, GetComponentCallback>>;
@@ -23,7 +23,7 @@ export interface Storage {
 }
 
 export class Driver {
-  constructor(private storage: Storage) { }
+  constructor(private storage: Storage) {}
 
   private noComponentError(component: Component) {
     let message = `No result for ${component.name} with app version: ${component.appVersion}`;
@@ -33,7 +33,7 @@ export class Driver {
     }
 
     throw new Error(message);
-  };
+  }
 
   private sortByVersion(list: string[]): string[] {
     return list.sort((x, y) => compareVersions(y, x));
@@ -55,15 +55,15 @@ export class Driver {
       };
     }
 
-    const matchingAppVersion = this.sortByVersion(Object.keys(versionTree))
-      .find(version => compareVersions(target.appVersion, version) >= 0);
+    const matchingAppVersion = this.sortByVersion(Object.keys(versionTree)).find(
+      version => compareVersions(target.appVersion, version) >= 0
+    );
 
     if (!matchingAppVersion) {
       throw this.noComponentError(target);
     }
 
-    const [matchingComponentVersion] =
-      this.sortByVersion(Object.keys(versionTree[matchingAppVersion]));
+    const [matchingComponentVersion] = this.sortByVersion(Object.keys(versionTree[matchingAppVersion]));
 
     return {
       version: matchingComponentVersion,

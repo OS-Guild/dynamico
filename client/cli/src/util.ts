@@ -4,7 +4,7 @@ import pTry from 'p-try';
 
 import pkg from '../package.json';
 
-export const notifier = updateNotifier({pkg});
+export const notifier = updateNotifier({ pkg });
 
 interface Command {
   name: string;
@@ -12,11 +12,11 @@ interface Command {
   description: string;
   action: Function;
   args?: string[][];
-  options?: string[][]
+  options?: string[][];
 }
 
 interface ProcessError extends Error {
-   isFatal : boolean
+  isFatal: boolean;
 }
 
 const errorHandler = (err: ProcessError) => {
@@ -26,7 +26,7 @@ const errorHandler = (err: ProcessError) => {
   }
 };
 
-export const registerCommand = ({name, alias, description, action, args = [], options = []} : Command) => {
+export const registerCommand = ({ name, alias, description, action, args = [], options = [] }: Command) => {
   const command = program.command(name, description);
 
   if (alias) {
@@ -37,10 +37,9 @@ export const registerCommand = ({name, alias, description, action, args = [], op
 
   options.forEach(([synopsis, description, ...options]) => command.option(synopsis, description, ...options));
 
-  command
-    .action((args, options, logger) =>
-      pTry(() => action({args, options, logger}))
-        .then(() => notifier.notify())
-        .catch(errorHandler)
-    );
+  command.action((args, options, logger) =>
+    pTry(() => action({ args, options, logger }))
+      .then(() => notifier.notify())
+      .catch(errorHandler)
+  );
 };

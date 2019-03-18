@@ -45,41 +45,41 @@ export class DynamicoClient {
       if (typeof window === 'undefined') {
         library = 'node-fetch';
       }
-      
+
       throw new Error(`
         fetch is not found globally and no fetcher passed, to fix pass a fetch for 
         your environment like https://www.npmjs.com/package/${library}.
       `);
     }
-  };
+  }
 
   async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
     let latestComponentVersion: string | undefined;
 
     if (!componentVersion) {
       latestComponentVersion = this.cache.getLatestVersion(name);
-    }
-    else if(this.cache.has(name, componentVersion) && !ignoreCache) {
-      return await this.cache.getItem(name, componentVersion) as string;
+    } else if (this.cache.has(name, componentVersion) && !ignoreCache) {
+      return (await this.cache.getItem(name, componentVersion)) as string;
     }
 
     const url = buildUrl(this.url, {
       path: name,
       queryParams: {
         appVersion: this.appVersion,
-        ...(componentVersion ? { componentVersion } : (latestComponentVersion && !ignoreCache && { latestComponentVersion }))
+        ...(componentVersion
+          ? { componentVersion }
+          : latestComponentVersion && !ignoreCache && { latestComponentVersion })
       }
     });
 
-    const { statusCode, version, code } = await this.fetcher(url)
-      .then(async (res: Response) => ({
-        statusCode: res.status,
-        version: res.headers.get('dynamico-component-version') as string,
-        code: await res.text()
-      }));
+    const { statusCode, version, code } = await this.fetcher(url).then(async (res: Response) => ({
+      statusCode: res.status,
+      version: res.headers.get('dynamico-component-version') as string,
+      code: await res.text()
+    }));
 
     if (statusCode === 204) {
-      return await this.cache.getItem(name, version) as string;
+      return (await this.cache.getItem(name, version)) as string;
     }
 
     await this.cache.setItem(name, version, code);
@@ -96,7 +96,7 @@ export class DynamicoClient {
       require,
       ...this.globals,
       ...options.globals
-    }
+    };
 
     new Function(...Object.keys(args), code)(...Object.values(args));
 

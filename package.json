@@ -8,9 +8,13 @@
   ],
   "scripts": {
     "react-demo": "lerna run start --scope=react-dynamico-example --parallel",
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "format": "prettier --write '**/*.{ts,js}'"
   },
   "devDependencies": {
-    "lerna": "^3.13.1"
+    "husky": "^1.3.1",
+    "lerna": "^3.13.1",
+    "lint-staged": "^8.1.5",
+    "prettier": "^1.16.4"
   }
 }

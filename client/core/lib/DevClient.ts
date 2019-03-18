@@ -40,7 +40,7 @@ export class DynamicoDevClient extends DynamicoClient {
 
     return () => {
       clearInterval(interval);
-    }
+    };
   }
 
   private async _fetcher(url: string) {
@@ -49,21 +49,20 @@ export class DynamicoDevClient extends DynamicoClient {
     return fetch(url, {
       method: 'get',
       signal: controller.signal
-    })
-      .then(res => {
-        const etag = res.headers.get('etag') as string;
+    }).then(res => {
+      const etag = res.headers.get('etag') as string;
 
-        if (this.etag === etag) {
-          this.shouldRefresh = false;
-          controller.abort();
+      if (this.etag === etag) {
+        this.shouldRefresh = false;
+        controller.abort();
 
-          return new Response();
-        }
+        return new Response();
+      }
 
-        this.shouldRefresh = true;
-        this.etag = etag;
+      this.shouldRefresh = true;
+      this.etag = etag;
 
-        return res;
-      });
+      return res;
+    });
   }
 }
