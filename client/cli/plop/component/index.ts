@@ -18,7 +18,7 @@ export default (plop: Plop) => {
         type: 'input',
         name: 'name',
         message: 'What is the name of your component?',
-        validate: ({ length }) => length ? true : 'name is required'
+        validate: ({ length }) => (length ? true : 'name is required')
       },
       {
         type: 'list',
@@ -27,22 +27,23 @@ export default (plop: Plop) => {
         choices: () => {
           console.log(__dirname);
           return readdirSync('./plop/component')
-          .filter(filename => statSync(join('./plop/component', filename)).isDirectory())
-          .map(value => ({ name: uppercamelcase(value), value }));
+            .filter(filename => statSync(join('./plop/component', filename)).isDirectory())
+            .map(value => ({ name: uppercamelcase(value), value }));
         }
       },
       {
         type: 'input',
         name: 'application-version',
         message: 'What is the supported application version of your component?',
-        validate: version => /^\d+\.\d+\.\d+/.test(version) ? true : 'version format is: [major].[minor].[patch] e.g (4.304.0)'
+        validate: version =>
+          /^\d+\.\d+\.\d+/.test(version) ? true : 'version format is: [major].[minor].[patch] e.g (4.304.0)'
       },
       {
         type: 'input',
         name: 'component-version',
         message: 'What is version of your component?',
         default: '1.0.0',
-        validate: version => /^\d+\.\d+\.\d+/.test(version) ? true : 'version format is: [major].[minor].[patch]'
+        validate: version => (/^\d+\.\d+\.\d+/.test(version) ? true : 'version format is: [major].[minor].[patch]')
       }
     ],
     actions: [
@@ -57,5 +58,5 @@ export default (plop: Plop) => {
         templateFile: 'plop/component/{{framework}}/package.hbs'
       }
     ]
-  })
-}
+  });
+};

@@ -1,5 +1,5 @@
-import {registerCommand} from '../util';
-import {start} from '../../lib';
+import { registerCommand } from '../util';
+import { start } from '../../lib';
 
 registerCommand({
   name: 'start',

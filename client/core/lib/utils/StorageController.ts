@@ -1,7 +1,6 @@
 import deepmerge from 'deepmerge';
 import compareVersions from 'compare-versions';
 
-
 export class StorageController {
   separator = '/';
 
@@ -16,7 +15,7 @@ export class StorageController {
           [comp]: {
             [appVersion]: [componentVersion]
           }
-        }
+        };
       })
       .reduce((tree, key) => deepmerge(tree, key), {});
   }
@@ -30,8 +29,9 @@ export class StorageController {
       return;
     }
 
-    const [latestComponentVersion] = this.componentTree[name][this.appVersion]
-      .sort((x: string, y: string) => compareVersions(y, x));
+    const [latestComponentVersion] = this.componentTree[name][this.appVersion].sort((x: string, y: string) =>
+      compareVersions(y, x)
+    );
 
     return latestComponentVersion;
   }
@@ -60,7 +60,7 @@ export class StorageController {
     if (!this.componentTree[name][this.appVersion].includes(componentVersion)) {
       this.componentTree[name][this.appVersion].push(componentVersion);
     }
-    
+
     await this.storage.setItem(this.getStorageKey(name, componentVersion), code);
   }
 }

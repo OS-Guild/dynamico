@@ -1,13 +1,11 @@
 const React = require('react');
-  
+
 const ReactDOM = require('react-dom');
 
 class Hello121 extends React.Component {
-
   render() {
-    return React.createElement('div', null, '1.2.1/1.1.2', this.props.test, this.props.children);    
+    return React.createElement('div', null, '1.2.1/1.1.2', this.props.test, this.props.children);
   }
-
 }
-  
+
 exports.default = Hello121;

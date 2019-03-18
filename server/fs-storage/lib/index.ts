@@ -4,7 +4,7 @@ import { resolve, join, sep } from 'path';
 import { Storage, VersionTree, Component } from '@dynamico/driver';
 
 export class FSStorage implements Storage {
-  constructor(private basePath: string = './') { }
+  constructor(private basePath: string = './') {}
 
   getComponentVersionTree(name: string): VersionTree {
     const componentPath = resolve(join(this.basePath, name));
@@ -22,9 +22,8 @@ export class FSStorage implements Storage {
             ...tree[appVersion],
             [componentVersion]: () => this.getComponent(file.path)
           }
-        }
-      }, {})
-
+        };
+      }, {});
   }
 
   getComponent(pkgJson: string): string {
@@ -34,6 +33,6 @@ export class FSStorage implements Storage {
   }
 
   saveComponent(component: Component, code: string): void {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }
