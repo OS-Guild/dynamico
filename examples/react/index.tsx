@@ -9,6 +9,7 @@ interface MyCompProps {
 }
 
 const MyComp = dynamico<MyCompProps>('mycomp', {
+  // devMode: true,
   // componentVersion: '1.1.2',
   // ignoreCache: true,
   fallback: <div>Loading...</div>
@@ -17,20 +18,21 @@ const MyComp = dynamico<MyCompProps>('mycomp', {
 const App = () => {
   const dynamico = new DynamicoClient({
     url: '/api/components',
-    appVersion: '1.2.1',        
+    appVersion: '1.2.1',
     dependencies: {
-      'react': React,
+      react: React,
       'react-dom': ReactDOM
     },
     cache: localStorage
-  })
+  });
+
   return (
-    <DynamicoProvider client={dynamico}>      
+    <DynamicoProvider client={dynamico}>
       <MyComp test="testProp">
         <span>testSpan</span>
       </MyComp>
     </DynamicoProvider>
-  )
+  );
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));

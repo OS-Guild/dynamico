@@ -90,8 +90,10 @@ export class DynamicoClient {
   async get(name: string, options: Options = {}) {
     const code = await this.fetchJs(name, options);
     const require = (dep: string) => this.dependencies[dep];
+    const module: any = {};
     const exports: any = {};
     const args = {
+      module,
       exports,
       require,
       ...this.globals,
@@ -99,6 +101,10 @@ export class DynamicoClient {
     };
 
     new Function(...Object.keys(args), code)(...Object.values(args));
+
+    if (module.exports) {
+      return module.exports;
+    }
 
     return exports.default;
   }

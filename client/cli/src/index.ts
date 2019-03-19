@@ -7,4 +7,4 @@ import './actions/start';
 
 program.version(version).description(description);
 
-export default argv => program.parse(argv);
+export default (argv: string[]) => program.parse(argv);

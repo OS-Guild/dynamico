@@ -12,7 +12,7 @@ interface Command {
   description: string;
   action: Function;
   args?: string[][];
-  options?: string[][];
+  options?: any[][];
 }
 
 interface ProcessError extends Error {
