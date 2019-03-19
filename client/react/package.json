@@ -9,12 +9,9 @@
     "clean": "rm -rf ./dist"
   },
   "directories": {
-    "lib": "lib",
+    "lib": "dist",
     "test": "__tests__"
   },
-  "files": [
-    "lib"
-  ],
   "dependencies": {
     "@dynamico/core": "^0.0.1"
   },

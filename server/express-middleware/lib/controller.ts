@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Driver } from '@dynamico/driver/lib';
+import { Driver } from '@dynamico/driver';
 
 export const get = (driver: Driver) => (req: Request, res: Response) => {
   const { name } = req.params;
