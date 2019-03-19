@@ -40,11 +40,15 @@
     "copyfiles": "^2.1.0"
   },
   "dependencies": {
+    "bili": "^4.5.2",
     "caporal": "^1.1.0",
     "execa": "^1.0.0",
     "live-server": "^1.2.1",
     "p-try": "^2.0.0",
     "plop": "^2.3.0",
+    "rollup-plugin-peer-deps-external": "^2.2.0",
+    "rollup-plugin-typescript2": "^0.20.1",
+    "typescript": "^3.3.3333",
     "update-notifier": "^2.5.0",
     "uppercamelcase": "^3.0.0"
   }

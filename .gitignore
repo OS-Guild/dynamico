@@ -5,3 +5,4 @@ dist
 .vscode
 .env
 .DS_Store
+.rpt2_cache
