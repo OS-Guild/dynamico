@@ -2,7 +2,12 @@
   "name": "@dynamico/react",
   "version": "0.0.1",
   "license": "MIT",
-  "main": "lib/index.tsx",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "compile": "tsc",
+    "clean": "rm -rf ./dist"
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"

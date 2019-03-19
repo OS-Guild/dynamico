@@ -1,8 +1,13 @@
 {
   "name": "@dynamico/core",
   "version": "0.0.1",
-  "main": "lib/index.ts",
+  "main": "./dist/index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "compile": "tsc",
+    "clean": "rm -rf ./dist"
+  },
   "devDependencies": {
     "@types/compare-versions": "^3.0.0",
     "@types/deepmerge": "^2.2.0",
