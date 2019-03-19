@@ -5,7 +5,11 @@
   "author": "Elad Bezalel <elad.bezalel@gmail.com>",
   "homepage": "https://github.com/soluto-private/dynamico#readme",
   "license": "MIT",
-  "main": "src/index.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "bin": {
+    "dcm": "bin/dcm"
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -28,9 +32,6 @@
   },
   "bugs": {
     "url": "https://github.com/soluto-private/dynamico/issues"
-  },
-  "bin": {
-    "dcm": "bin/dcm"
   },
   "devDependencies": {
     "@types/execa": "^0.9.0",

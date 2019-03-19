@@ -5,7 +5,8 @@
   "author": "Elad Bezalel <elad.bezalel@gmail.com>",
   "homepage": "https://github.com/soluto-private/dynamico#readme",
   "license": "MIT",
-  "main": "./dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "lib": "dist"
   },

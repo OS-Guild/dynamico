@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
