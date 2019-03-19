@@ -5,22 +5,21 @@
   "author": "Elad Bezalel <elad.bezalel@gmail.com>",
   "homepage": "https://github.com/soluto-private/dynamico#readme",
   "license": "MIT",
-  "main": "lib/index.ts",
-  "directories": {
-    "lib": "lib"
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "compile": "tsc",
+    "clean": "rm -rf ./dist"
   },
-  "files": [
-    "lib"
-  ],
+  "directories": {
+    "lib": "dist"
+  },
   "publishConfig": {
     "registry": "https://registry.yarnpkg.com"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/soluto-private/dynamico.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/soluto-private/dynamico/issues"
