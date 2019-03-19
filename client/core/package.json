@@ -1,12 +1,11 @@
 {
   "name": "@dynamico/core",
   "version": "0.0.1",
-  "main": "./index.js",
+  "main": "./dist/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "npm run clean && npm run compile && npm run copy-package-json",
+    "build": "npm run clean && npm run compile",
     "compile": "tsc",
-    "copy-package-json": "cp ./package.json ./dist/package.json",
     "clean": "rm -rf ./dist"
   },
   "devDependencies": {
