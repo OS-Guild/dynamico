@@ -4,6 +4,7 @@ import { version, description } from '../package.json';
 
 import './actions/init';
 import './actions/start';
+import './actions/build';
 
 program.version(version).description(description);
 
