@@ -10,8 +10,7 @@ export interface Component {
   version?: string;
 }
 
-export interface ComponentGetter {
-  version: string;
+export interface ComponentGetter extends Component {
   getComponentCode: GetComponentCallback;
 }
 
@@ -50,6 +49,8 @@ export class Driver {
       }
 
       return {
+        name: target.name,
+        appVersion: target.appVersion,
         version: target.version,
         getComponentCode: getExactVersionCode
       };
@@ -66,6 +67,8 @@ export class Driver {
     const [matchingComponentVersion] = this.sortByVersion(Object.keys(versionTree[matchingAppVersion]));
 
     return {
+      name: target.name,
+      appVersion: matchingAppVersion,
       version: matchingComponentVersion,
       getComponentCode: versionTree[matchingAppVersion][matchingComponentVersion]
     };

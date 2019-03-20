@@ -26,7 +26,7 @@ export class FSStorage implements Storage {
       }, {});
   }
 
-  getComponent(pkgJson: string): string {
+  private getComponent(pkgJson: string): string {
     const { main } = require(pkgJson);
 
     return fs.readFileSync(resolve(pkgJson, '..', main), 'utf8');
