@@ -18,7 +18,7 @@
     "url": "git+https://github.com/soluto-private/dynamico.git"
   },
   "scripts": {
-    "test": "ts-node index.ts",
+    "test": "jest",
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
     "clean": "rm -rf ./dist"
@@ -31,7 +31,13 @@
     "klaw-sync": "^6.0.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.5",
+    "@types/jest": "^24.0.11",
     "@types/klaw-sync": "^6.0.0",
+    "@types/node": "^11.11.3",
+    "fs-extra": "^7.0.1",
+    "jest": "^24.5.0",
+    "ts-jest": "^24.0.0",
     "typescript": "^3.3.3333"
   }
 }

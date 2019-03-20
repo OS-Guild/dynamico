@@ -9,6 +9,7 @@
   "scripts": {
     "react-demo": "lerna run start --scope=react-dynamico-example --parallel",
     "lerna": "lerna",
+    "test": "jest --projects server/* client/*",
     "format": "prettier --write '**/*.{ts,js}'"
   },
   "devDependencies": {
