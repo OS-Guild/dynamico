@@ -20,11 +20,11 @@ interface Validator {
 interface Generator {
   description: string;
   prompts: Prompt[];
-  actions: Action[];
+  actions: Action[] | any;
 }
 
 interface Helper {
-  (name: string): string;
+  (name: string, ...args): string;
 }
 
 export interface Plop {

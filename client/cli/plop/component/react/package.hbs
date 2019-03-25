@@ -1,7 +1,18 @@
 {
   "name": "{{upperCase name}}",
   "version": "{{component-version}}",
-  "main": "./index.js",
+  "hostVersion": "{{application-version}}",
+  "main": "./index.{{language}}x",
+  "devDependencies": {
+    {{#areEqual language "ts"}}    
+    "@types/react": "^16.8.3",
+    "@types/react-dom": "^16.8.3",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.4000",
+    {{/areEqual}}
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3"
+  },
   "peerDependencies": {
     "react": "^16.8.3",
     "react-dom": "^16.8.3"

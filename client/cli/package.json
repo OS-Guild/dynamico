@@ -34,22 +34,32 @@
   },
   "devDependencies": {
     "@types/execa": "^0.9.0",
+    "@types/form-data": "^2.2.1",
+    "@types/node-fetch": "^2.1.6",
     "@types/p-try": "^2.0.0",
+    "@types/tar": "^4.0.0",
     "@types/update-notifier": "^2.5.0",
     "@types/uppercamelcase": "^3.0.0",
+    "@types/url-join": "^4.0.0",
     "copyfiles": "^2.1.0"
   },
   "dependencies": {
     "bili": "^4.5.2",
     "caporal": "^1.1.0",
     "execa": "^1.0.0",
+    "form-data": "^2.3.3",
+    "interpret": "^1.2.0",
+    "liftoff": "^3.1.0",
     "live-server": "^1.2.1",
+    "node-fetch": "^2.3.0",
     "p-try": "^2.0.0",
     "plop": "^2.3.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-typescript2": "^0.20.1",
+    "tar": "^4.4.8",
     "typescript": "^3.3.3333",
     "update-notifier": "^2.5.0",
-    "uppercamelcase": "^3.0.0"
+    "uppercamelcase": "^3.0.0",
+    "url-join": "^4.0.0"
   }
 }

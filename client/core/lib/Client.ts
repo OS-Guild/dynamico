@@ -5,7 +5,7 @@ import { StorageController } from './utils/StorageController';
 export interface InitOptions {
   prefix?: string;
   url: string;
-  appVersion: string;
+  hostVersion: string;
   cache: Storage;
   dependencies: Record<string, any>;
   fetcher?: GlobalFetch['fetch'];
@@ -20,7 +20,7 @@ export interface Options {
 
 export class DynamicoClient {
   url: string;
-  appVersion: string;
+  hostVersion: string;
   dependencies: Record<string, any>;
   cache: StorageController;
   fetcher: GlobalFetch['fetch'];
@@ -28,8 +28,8 @@ export class DynamicoClient {
 
   constructor(options: InitOptions) {
     this.url = options.url;
-    this.appVersion = options.appVersion;
-    this.cache = new StorageController(options.prefix || '@dynamico', options.appVersion, options.cache);
+    this.hostVersion = options.hostVersion;
+    this.cache = new StorageController(options.prefix || '@dynamico', options.hostVersion, options.cache);
     this.dependencies = options.dependencies;
     this.globals = options.globals || {};
 
@@ -65,7 +65,7 @@ export class DynamicoClient {
     const url = buildUrl(this.url, {
       path: name,
       queryParams: {
-        appVersion: this.appVersion,
+        hostVersion: this.hostVersion,
         ...(componentVersion
           ? { componentVersion }
           : latestComponentVersion && !ignoreCache && { latestComponentVersion })

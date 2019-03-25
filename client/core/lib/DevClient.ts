@@ -2,7 +2,7 @@ import { DynamicoClient, Options } from '.';
 import { NoopStorage } from './utils/NoopStorage';
 
 export interface DevOptions {
-  appVersion: string;
+  hostVersion: string;
   dependencies: Record<string, any>;
   callback: Function;
   interval?: number;
@@ -16,10 +16,10 @@ export class DynamicoDevClient extends DynamicoClient {
   private shouldRefresh = false;
   private etag = '';
 
-  constructor({ appVersion, dependencies, urlOverride, callback, interval = 1000 }: DevOptions) {
+  constructor({ hostVersion, dependencies, urlOverride, callback, interval = 1000 }: DevOptions) {
     super({
       url: urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383',
-      appVersion,
+      hostVersion,
       dependencies,
       cache: new NoopStorage(),
       fetcher: (url: string) => this._fetcher(url)

@@ -18,7 +18,7 @@ const MyComp = dynamico<MyCompProps>('mycomp', {
 const App = () => {
   const dynamico = new DynamicoClient({
     url: '/api/components',
-    appVersion: '1.2.1',
+    hostVersion: '1.2.1',
     dependencies: {
       react: React,
       'react-dom': ReactDOM

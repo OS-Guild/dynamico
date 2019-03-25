@@ -6,14 +6,14 @@ export class StorageController {
 
   componentTree: Record<string, Record<string, string[]>> = {};
 
-  constructor(private prefix: string, private appVersion: string, private storage: Storage) {
+  constructor(private prefix: string, private hostVersion: string, private storage: Storage) {
     this.componentTree = Object.keys(this.storage)
       .map(key => {
-        const [, comp, appVersion, componentVersion] = key.split(this.separator);
+        const [, comp, hostVersion, componentVersion] = key.split(this.separator);
 
         return {
           [comp]: {
-            [appVersion]: [componentVersion]
+            [hostVersion]: [componentVersion]
           }
         };
       })
@@ -21,15 +21,15 @@ export class StorageController {
   }
 
   getStorageKey(name: string, componentVersion: string): string {
-    return [this.prefix, name, this.appVersion, componentVersion].join(this.separator);
+    return [this.prefix, name, this.hostVersion, componentVersion].join(this.separator);
   }
 
   getLatestVersion(name: string): string | undefined {
-    if (!this.componentTree[name] || !this.componentTree[name][this.appVersion]) {
+    if (!this.componentTree[name] || !this.componentTree[name][this.hostVersion]) {
       return;
     }
 
-    const [latestComponentVersion] = this.componentTree[name][this.appVersion].sort((x: string, y: string) =>
+    const [latestComponentVersion] = this.componentTree[name][this.hostVersion].sort((x: string, y: string) =>
       compareVersions(y, x)
     );
 
@@ -39,8 +39,8 @@ export class StorageController {
   has(name: string, componentVersion: string): boolean {
     return !!(
       this.componentTree[name] &&
-      this.componentTree[name][this.appVersion] &&
-      this.componentTree[name][this.appVersion].includes(componentVersion)
+      this.componentTree[name][this.hostVersion] &&
+      this.componentTree[name][this.hostVersion].includes(componentVersion)
     );
   }
 
@@ -53,12 +53,12 @@ export class StorageController {
       this.componentTree[name] = {};
     }
 
-    if (!this.componentTree[name][this.appVersion]) {
-      this.componentTree[name][this.appVersion] = [];
+    if (!this.componentTree[name][this.hostVersion]) {
+      this.componentTree[name][this.hostVersion] = [];
     }
 
-    if (!this.componentTree[name][this.appVersion].includes(componentVersion)) {
-      this.componentTree[name][this.appVersion].push(componentVersion);
+    if (!this.componentTree[name][this.hostVersion].includes(componentVersion)) {
+      this.componentTree[name][this.hostVersion].push(componentVersion);
     }
 
     await this.storage.setItem(this.getStorageKey(name, componentVersion), code);

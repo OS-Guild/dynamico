@@ -1,11 +1,30 @@
+import Liftoff from 'liftoff';
 import program from 'caporal';
+import { jsVariants } from 'interpret';
 
+import registerActions from './actions';
 import { version, description } from '../package.json';
-
-import './actions/init';
-import './actions/start';
-import './actions/build';
 
 program.version(version).description(description);
 
-export default (argv: string[]) => program.parse(argv);
+export interface DcmConfig {
+  baseUrl: string;
+  middleware?: Function;
+}
+
+const Dcm = new Liftoff({
+  name: 'dcm',
+  configName: 'dcmconfig',
+  extensions: jsVariants
+});
+
+export default (argv: string[]) =>
+  Dcm.prepare({}, env =>
+    Dcm.execute(env, () => {
+      const config: DcmConfig = env.configPath ? require(env.configPath).default : undefined;
+
+      registerActions(config);
+
+      program.parse(argv);
+    })
+  );

@@ -1,7 +1,7 @@
-import fs from 'fs';
+import { readFileSync, existsSync, createWriteStream, mkdirSync } from 'fs';
 import klaw, { Item } from 'klaw-sync';
 import { resolve, join, sep } from 'path';
-import { Storage, VersionTree, Component } from '@dynamico/driver';
+import { Storage, VersionTree, Component, File } from '@dynamico/driver';
 
 export class FSStorage implements Storage {
   constructor(private basePath: string = './') {}
@@ -9,17 +9,21 @@ export class FSStorage implements Storage {
   getComponentVersionTree(name: string): VersionTree {
     const componentPath = resolve(join(this.basePath, name));
 
+    if (!existsSync(componentPath)) {
+      return {};
+    }
+
     return klaw(componentPath, { nodir: true })
       .filter((dir: Item): boolean => dir.path.endsWith('package.json'))
       .reduce((tree: VersionTree, file: Item): VersionTree => {
         const [, versionPath] = file.path.split(join(componentPath, sep));
 
-        const [appVersion, componentVersion] = versionPath.split('/');
+        const [hostVersion, componentVersion] = versionPath.split('/');
 
         return {
           ...tree,
-          [appVersion]: {
-            ...tree[appVersion],
+          [hostVersion]: {
+            ...tree[hostVersion],
             [componentVersion]: () => this.getComponent(file.path)
           }
         };
@@ -29,10 +33,20 @@ export class FSStorage implements Storage {
   private getComponent(pkgJson: string): string {
     const { main } = require(pkgJson);
 
-    return fs.readFileSync(resolve(pkgJson, '..', main), 'utf8');
+    return readFileSync(resolve(pkgJson, '..', main), 'utf8');
   }
 
-  saveComponent(component: Component, code: string): void {
-    throw new Error('Method not implemented.');
+  saveComponent(component: Required<Component>, files: File[]): void {
+    if (!files.length) return;
+
+    const componentPath = resolve(join(this.basePath, component.name, component.hostVersion, component.version));
+
+    mkdirSync(componentPath, {
+      recursive: true
+    });
+
+    files.forEach(({ name, stream }) => {
+      stream.pipe(createWriteStream(join(componentPath, name)));
+    });
   }
 }

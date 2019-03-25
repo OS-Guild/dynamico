@@ -10,16 +10,23 @@ describe('File system storage provider', () => {
   beforeEach(() => fs.mkdirpSync(tmpdir));
   afterEach(() => fs.removeSync(tmpdir));
 
+  it('should return an empty version tree for a non-existing component', () => {
+    const storage = new FSStorage(tmpdir);
+    const result = storage.getComponentVersionTree('compname');
+
+    expect(result).toEqual({});
+  });
+
   it('Loads component from filesystem', () => {
-    const componentPath = path.join(tmpdir, 'compname', 'appversion', 'compversion');
+    const componentPath = path.join(tmpdir, 'compname', 'hostVersion', 'compversion');
     fs.outputFileSync(path.join(componentPath, 'index.js'), 'some code');
     fs.outputFileSync(path.join(componentPath, 'package.json'), JSON.stringify({ main: 'index.js' }));
 
     const storage = new FSStorage(tmpdir);
     const result = storage.getComponentVersionTree('compname');
 
-    expect(result).toHaveProperty('appversion');
-    expect(result.appversion).toHaveProperty('compversion');
-    expect(result.appversion.compversion()).toBe('some code');
+    expect(result).toHaveProperty('hostVersion');
+    expect(result.hostVersion).toHaveProperty('compversion');
+    expect(result.hostVersion.compversion()).toBe('some code');
   });
 });
