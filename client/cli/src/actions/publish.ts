@@ -17,8 +17,8 @@ export default (config: DcmConfig) =>
         return logger.error(`Couldn't find 'baseUrl' property in 'dcmconfig' file or it's empty`);
       }
 
-      return publish(url || config.baseUrl)
+      return publish(url || config.baseUrl, config.middleware)
         .then(({ url }: any) => logger.info('Successfully published to', url))
-        .catch(logger.error);
+        .catch(({ message }) => logger.error(message));
     }
   });

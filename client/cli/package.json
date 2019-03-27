@@ -54,6 +54,7 @@
     "node-fetch": "^2.3.0",
     "p-try": "^2.0.0",
     "plop": "^2.3.0",
+    "promisepipe": "^3.0.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-typescript2": "^0.20.1",
     "tar": "^4.4.8",
