@@ -45,10 +45,10 @@ export class Driver {
   }
 
   private getBestVersion(versionTree: VersionTree, target: Component): ComponentGetter {
-    const exacthostVersion = versionTree[target.hostVersion];
+    const exactHostVersion = versionTree[target.hostVersion];
 
-    if (exacthostVersion && target.version) {
-      const getExactVersionCode = exacthostVersion[target.version];
+    if (exactHostVersion && target.version) {
+      const getExactVersionCode = exactHostVersion[target.version];
 
       if (!getExactVersionCode) {
         throw this.noComponentError(target);
@@ -62,21 +62,21 @@ export class Driver {
       };
     }
 
-    const matchinghostVersion = this.sortByVersion(Object.keys(versionTree)).find(
+    const matchingHostVersion = this.sortByVersion(Object.keys(versionTree)).find(
       version => compareVersions(target.hostVersion, version) >= 0
     );
 
-    if (!matchinghostVersion) {
+    if (!matchingHostVersion) {
       throw this.noComponentError(target);
     }
 
-    const [matchingComponentVersion] = this.sortByVersion(Object.keys(versionTree[matchinghostVersion]));
+    const [matchingComponentVersion] = this.sortByVersion(Object.keys(versionTree[matchingHostVersion]));
 
     return {
       name: target.name,
-      hostVersion: matchinghostVersion,
+      hostVersion: matchingHostVersion,
       version: matchingComponentVersion,
-      getComponentCode: versionTree[matchinghostVersion][matchingComponentVersion]
+      getComponentCode: versionTree[matchingHostVersion][matchingComponentVersion]
     };
   }
 

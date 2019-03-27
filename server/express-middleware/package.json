@@ -30,6 +30,7 @@
     "express-async-router": "^0.1.15",
     "into-stream": "^5.0.0",
     "multer": "^1.4.1",
+    "promisepipe": "^3.0.0",
     "pump": "^3.0.0",
     "tar": "^4.4.8",
     "tar-stream": "^2.0.1"

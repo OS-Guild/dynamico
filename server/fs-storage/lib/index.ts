@@ -1,4 +1,5 @@
-import { readFileSync, existsSync, createWriteStream, mkdirSync } from 'fs';
+import { readFileSync, existsSync, createWriteStream } from 'fs';
+import { sync as mkdirpSync } from 'mkdirp';
 import klaw, { Item } from 'klaw-sync';
 import { resolve, join, sep } from 'path';
 import { Storage, VersionTree, Component, File } from '@dynamico/driver';
@@ -41,9 +42,7 @@ export class FSStorage implements Storage {
 
     const componentPath = resolve(join(this.basePath, component.name, component.hostVersion, component.version));
 
-    mkdirSync(componentPath, {
-      recursive: true
-    });
+    mkdirpSync(componentPath);
 
     files.forEach(({ name, stream }) => {
       stream.pipe(createWriteStream(join(componentPath, name)));
