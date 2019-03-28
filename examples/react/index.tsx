@@ -1,11 +1,12 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
+import moment from 'moment';
 
 import { DynamicoClient } from '@dynamico/core';
 import { DynamicoProvider, dynamico } from '@dynamico/react';
 
 interface MyCompProps {
-  test: string;
+  username: string;
 }
 
 const MyComp = dynamico<MyCompProps>('mycomp', {
@@ -18,17 +19,18 @@ const MyComp = dynamico<MyCompProps>('mycomp', {
 const App = () => {
   const dynamico = new DynamicoClient({
     url: '/api/components',
-    hostVersion: '1.2.1',
+    hostVersion: '1.2.0',
     dependencies: {
       react: React,
-      'react-dom': ReactDOM
+      'react-dom': ReactDOM,
+      moment: moment
     },
     cache: localStorage
   });
 
   return (
     <DynamicoProvider client={dynamico}>
-      <MyComp test="testProp">
+      <MyComp username="Test">
         <span>testSpan</span>
       </MyComp>
     </DynamicoProvider>

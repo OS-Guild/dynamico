@@ -1,0 +1,1 @@
+{"name":"Mycomp","version":"1.0.0","hostVersion":"1.2.0","main":"index.js","devDependencies":{"@types/react":"^16.8.3","@types/react-dom":"^16.8.3","react":"^16.8.3","react-dom":"^16.8.3","ts-node":"^8.0.3","tslib":"^1.9.3","typescript":"^3.3.4000"},"peerDependencies":{"react":"^16.8.3","react-dom":"^16.8.3"}}

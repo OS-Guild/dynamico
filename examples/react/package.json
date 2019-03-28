@@ -12,6 +12,7 @@
     "@dynamico/fs-storage": "^0.0.1",
     "@dynamico/react": "^0.0.1",
     "express-json-error-handler": "^2.0.1",
+    "moment": "^2.24.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3"
   },
