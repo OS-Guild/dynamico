@@ -86,10 +86,11 @@ export class Driver {
     return this.getBestVersion(componentTree, component);
   }
 
-  saveComponent(component: Component, files: File[]): void {
+  saveComponent(component: Required<Component>, files: File[]): void {
     if (!component.version) {
       throw new Error('Component version should be specified.');
     }
+
     const componentTree = this.storage.getComponentVersionTree(component.name);
 
     if (componentTree[component.hostVersion]) {

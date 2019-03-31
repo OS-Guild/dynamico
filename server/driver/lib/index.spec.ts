@@ -1,5 +1,6 @@
 import { Driver, Storage, Component, VersionTree, File } from '.';
 import { merge } from 'lodash';
+import { Readable } from 'stream';
 
 const getCode = () => '';
 const componentName = 'sheker';
@@ -21,7 +22,7 @@ class MockStorage implements Storage {
   constructor(private components: MemoryStorage = {}) {}
 
   getComponentVersionTree = (name: string) => this.components[name] || {};
-  saveComponent(component: Component) {
+  saveComponent(component: Component, files: File[]) {
     this.components = merge({}, this.components, {
       [component.name]: {
         [component.hostVersion]: {
@@ -229,5 +230,144 @@ describe('Driver', () => {
     });
   });
 
-  describe('saveComponent', () => {});
+  describe('saveComponent', () => {
+    it('should fail if no component version was specified', () => {
+      const mockedStorage = new MockStorage();
+      const driver = new Driver(mockedStorage);
+
+      const name = 'test';
+      const hostVersion = '1.0.0';
+
+      expect(() =>
+        driver.saveComponent(
+          {
+            name,
+            hostVersion
+          } as Required<Component>,
+          []
+        )
+      ).toThrow(`Component version should be specified`);
+    });
+
+    it('should fail if a component with the same version was already published', () => {
+      const name = 'test';
+      const hostVersion = '1.0.0';
+      const version = '1.0.0';
+
+      const mockedStorage = new MockStorage({
+        [name]: {
+          [hostVersion]: {
+            [version]: () => 'test'
+          }
+        }
+      });
+
+      const driver = new Driver(mockedStorage);
+
+      const file = new Readable();
+
+      expect(() =>
+        driver.saveComponent(
+          {
+            name,
+            hostVersion,
+            version
+          },
+          [
+            {
+              name: 'index.js',
+              stream: file
+            }
+          ]
+        )
+      ).toThrow(
+        `Can't publish '${name}' component version ${version} under app version ${hostVersion} since it already exists.`
+      );
+    });
+
+    it('should fail if no package.json file added to storage', () => {
+      const mockedStorage = new MockStorage();
+      const driver = new Driver(mockedStorage);
+
+      const file = new Readable();
+
+      const name = 'test';
+      const hostVersion = '1.0.0';
+      const version = '1.0.0';
+
+      expect(() =>
+        driver.saveComponent(
+          {
+            name,
+            hostVersion,
+            version
+          },
+          [
+            {
+              name: 'index.js',
+              stream: file
+            }
+          ]
+        )
+      ).toThrow(`missing 'package.json' file when trying to publish '${name}' component`);
+    });
+
+    it('should add package to storage', () => {
+      const mockedStorage = new MockStorage();
+      const driver = new Driver(mockedStorage);
+
+      mockedStorage.saveComponent = jest.fn();
+
+      const component = {
+        name: 'test',
+        hostVersion: '1.0.0',
+        version: '1.0.0'
+      };
+
+      const files = [
+        {
+          name: 'package.json',
+          stream: new Readable()
+        }
+      ];
+
+      driver.saveComponent(component, files);
+
+      expect(mockedStorage.saveComponent).toHaveBeenCalledWith(component, files);
+    });
+  });
+
+  it('should add package to storage when another version of component exist', () => {
+    const name = 'test';
+    const hostVersion = '1.0.0';
+    const version = '1.0.0';
+
+    const mockedStorage = new MockStorage({
+      [name]: {
+        [hostVersion]: {
+          [version]: () => 'test'
+        }
+      }
+    });
+    const driver = new Driver(mockedStorage);
+
+    mockedStorage.saveComponent = jest.fn();
+
+    const component = {
+      name,
+      hostVersion,
+      version: '1.0.1'
+    };
+
+    const files = [
+      {
+        name: 'package.json',
+        stream: new Readable()
+      }
+    ];
+
+    driver.saveComponent(component, files);
+
+    expect(mockedStorage.saveComponent).toHaveBeenCalledWith(component, files);
+  });
 });
