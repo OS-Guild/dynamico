@@ -1,6 +1,8 @@
-import { Driver, Storage, Component, VersionTree, File } from '.';
 import { merge } from 'lodash';
 import { Readable } from 'stream';
+
+import { Driver, Storage, Component, VersionTree, File } from './';
+import { NoComponentError, NoComponentVersionError, ComponentExistsError, NoPackageError } from './errors';
 
 const getCode = () => '';
 const componentName = 'sheker';
@@ -14,7 +16,7 @@ interface TestCase {
   requestedComponentVersion?: string;
   expected: {
     result?: Component;
-    error?: string;
+    error?: NoComponentError;
   };
 }
 
@@ -56,7 +58,7 @@ describe('Driver', () => {
   };
 
   describe('getComponent', () => {
-    const testCases: TestCase[] = [
+    const successTestCases: TestCase[] = [
       {
         title: 'Request version higher than every version, get the latest version.',
         storage: components,
@@ -131,14 +133,21 @@ describe('Driver', () => {
             version: '2.0.0'
           }
         }
-      },
+      }
+    ];
+
+    const errorTestCases: TestCase[] = [
       {
         title: 'Request version lower than every version, throw exception.',
         storage: components,
         requestedhostVersion: '0.4.0',
         requestedComponentVersion: '1.0.0',
         expected: {
-          error: `No result for ${componentName} with app version: 0.4.0 and component version: 1.0.0`
+          error: new NoComponentError({
+            name: componentName,
+            hostVersion: '0.4.0',
+            version: '1.0.0'
+          })
         }
       },
       {
@@ -146,7 +155,10 @@ describe('Driver', () => {
         storage: components,
         requestedhostVersion: '0.4.0',
         expected: {
-          error: `No result for ${componentName} with app version: 0.4.0`
+          error: new NoComponentError({
+            name: componentName,
+            hostVersion: '0.4.0'
+          })
         }
       },
       {
@@ -155,7 +167,11 @@ describe('Driver', () => {
         requestedhostVersion: '0.4.0',
         requestedComponentVersion: '1.0.0',
         expected: {
-          error: `No result for ${componentName} with app version: 0.4.0 and component version: 1.0.0`
+          error: new NoComponentError({
+            name: componentName,
+            hostVersion: '0.4.0',
+            version: '1.0.0'
+          })
         }
       },
       {
@@ -170,7 +186,11 @@ describe('Driver', () => {
         requestedhostVersion: '2.20.0',
         requestedComponentVersion: '1.0.0',
         expected: {
-          error: `No result for ${componentName} with app version: 2.20.0 and component version: 1.0.0`
+          error: new NoComponentError({
+            name: componentName,
+            hostVersion: '2.20.0',
+            version: '1.0.0'
+          })
         }
       },
       {
@@ -185,7 +205,11 @@ describe('Driver', () => {
         requestedhostVersion: '1.0.0',
         requestedComponentVersion: '0.0.0',
         expected: {
-          error: `No result for ${componentName} with app version: 1.0.0 and component version: 0.0.0`
+          error: new NoComponentError({
+            name: componentName,
+            hostVersion: '1.0.0',
+            version: '0.0.0'
+          })
         }
       },
       {
@@ -200,32 +224,54 @@ describe('Driver', () => {
         requestedhostVersion: '2.20.0',
         requestedComponentVersion: '3.0.0',
         expected: {
-          error: `No result for ${componentName} with app version: 2.20.0 and component version: 3.0.0`
+          error: new NoComponentError({
+            name: componentName,
+            hostVersion: '2.20.0',
+            version: '3.0.0'
+          })
         }
       }
     ];
 
-    testCases.forEach(({ title, storage, requestedhostVersion, requestedComponentVersion, expected }) => {
+    successTestCases.forEach(({ title, storage, requestedhostVersion, requestedComponentVersion, expected }) => {
       test(title, () => {
         const mockedStorage = new MockStorage(storage);
         const driver = new Driver(mockedStorage);
 
-        try {
-          const component = driver.getComponent({
-            name: componentName,
-            hostVersion: requestedhostVersion,
-            version: requestedComponentVersion
-          });
+        const component = driver.getComponent({
+          name: componentName,
+          hostVersion: requestedhostVersion,
+          version: requestedComponentVersion
+        });
 
-          if (expected.result) {
-            expect(component.version).toBe(expected.result.version);
-            expect(component.hostVersion).toBe(expected.result.hostVersion);
-          }
+        if (expected.result) {
+          expect(component.version).toBe(expected.result.version);
+          expect(component.hostVersion).toBe(expected.result.hostVersion);
+        }
+
+        try {
         } catch (error) {
           const result = (<Error>error).message;
 
           expect(result).toBe(expected.error);
         }
+      });
+    });
+
+    errorTestCases.forEach(({ title, storage, requestedhostVersion, requestedComponentVersion, expected }) => {
+      test(title, () => {
+        const mockedStorage = new MockStorage(storage);
+        const driver = new Driver(mockedStorage);
+
+        const result = expect(() => {
+          driver.getComponent({
+            name: componentName,
+            hostVersion: requestedhostVersion,
+            version: requestedComponentVersion
+          });
+        });
+
+        result.toThrowError(expected.error);
       });
     });
   });
@@ -235,18 +281,12 @@ describe('Driver', () => {
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
 
-      const name = 'test';
-      const hostVersion = '1.0.0';
+      const component = {
+        name: 'test',
+        hostVersion: '1.0.0'
+      } as Required<Component>;
 
-      expect(() =>
-        driver.saveComponent(
-          {
-            name,
-            hostVersion
-          } as Required<Component>,
-          []
-        )
-      ).toThrow(`Component version should be specified`);
+      expect(() => driver.saveComponent(component, [])).toThrow(new NoComponentVersionError(component));
     });
 
     it('should fail if a component with the same version was already published', () => {
@@ -263,26 +303,22 @@ describe('Driver', () => {
       });
 
       const driver = new Driver(mockedStorage);
-
       const file = new Readable();
 
+      const component = {
+        name,
+        hostVersion,
+        version
+      };
+
       expect(() =>
-        driver.saveComponent(
+        driver.saveComponent(component, [
           {
-            name,
-            hostVersion,
-            version
-          },
-          [
-            {
-              name: 'index.js',
-              stream: file
-            }
-          ]
-        )
-      ).toThrow(
-        `Can't publish '${name}' component version ${version} under app version ${hostVersion} since it already exists.`
-      );
+            name: 'index.js',
+            stream: file
+          }
+        ])
+      ).toThrow(new ComponentExistsError(component));
     });
 
     it('should fail if no package.json file added to storage', () => {
@@ -291,25 +327,20 @@ describe('Driver', () => {
 
       const file = new Readable();
 
-      const name = 'test';
-      const hostVersion = '1.0.0';
-      const version = '1.0.0';
+      const component = {
+        name: 'test',
+        hostVersion: '1.0.0',
+        version: '1.0.0'
+      };
 
       expect(() =>
-        driver.saveComponent(
+        driver.saveComponent(component, [
           {
-            name,
-            hostVersion,
-            version
-          },
-          [
-            {
-              name: 'index.js',
-              stream: file
-            }
-          ]
-        )
-      ).toThrow(`missing 'package.json' file when trying to publish '${name}' component`);
+            name: 'index.js',
+            stream: file
+          }
+        ])
+      ).toThrow(new NoPackageError(component));
     });
 
     it('should add package to storage', () => {
@@ -335,39 +366,39 @@ describe('Driver', () => {
 
       expect(mockedStorage.saveComponent).toHaveBeenCalledWith(component, files);
     });
-  });
 
-  it('should add package to storage when another version of component exist', () => {
-    const name = 'test';
-    const hostVersion = '1.0.0';
-    const version = '1.0.0';
+    it('should add package to storage when another version of component exist', () => {
+      const name = 'test';
+      const hostVersion = '1.0.0';
+      const version = '1.0.0';
 
-    const mockedStorage = new MockStorage({
-      [name]: {
-        [hostVersion]: {
-          [version]: () => 'test'
+      const mockedStorage = new MockStorage({
+        [name]: {
+          [hostVersion]: {
+            [version]: () => 'test'
+          }
         }
-      }
+      });
+      const driver = new Driver(mockedStorage);
+
+      mockedStorage.saveComponent = jest.fn();
+
+      const component = {
+        name,
+        hostVersion,
+        version: '1.0.1'
+      };
+
+      const files = [
+        {
+          name: 'package.json',
+          stream: new Readable()
+        }
+      ];
+
+      driver.saveComponent(component, files);
+
+      expect(mockedStorage.saveComponent).toHaveBeenCalledWith(component, files);
     });
-    const driver = new Driver(mockedStorage);
-
-    mockedStorage.saveComponent = jest.fn();
-
-    const component = {
-      name,
-      hostVersion,
-      version: '1.0.1'
-    };
-
-    const files = [
-      {
-        name: 'package.json',
-        stream: new Readable()
-      }
-    ];
-
-    driver.saveComponent(component, files);
-
-    expect(mockedStorage.saveComponent).toHaveBeenCalledWith(component, files);
   });
 });

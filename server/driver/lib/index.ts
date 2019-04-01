@@ -1,5 +1,6 @@
 import compareVersions from 'compare-versions';
 import { Stream } from 'stream';
+import { NoComponentError, NoComponentVersionError, ComponentExistsError, NoPackageError } from './errors';
 
 interface GetComponentCallback {
   (): string;
@@ -30,16 +31,6 @@ export interface Storage {
 export class Driver {
   constructor(private storage: Storage) {}
 
-  private noComponentError(component: Component) {
-    let message = `No result for ${component.name} with app version: ${component.hostVersion}`;
-
-    if (component.version) {
-      message = `${message} and component version: ${component.version}`;
-    }
-
-    throw new Error(message);
-  }
-
   private sortByVersion(list: string[]): string[] {
     return list.sort((x, y) => compareVersions(y, x));
   }
@@ -51,7 +42,7 @@ export class Driver {
       const getExactVersionCode = exactHostVersion[target.version];
 
       if (!getExactVersionCode) {
-        throw this.noComponentError(target);
+        throw new NoComponentError(target);
       }
 
       return {
@@ -67,7 +58,7 @@ export class Driver {
     );
 
     if (!matchingHostVersion) {
-      throw this.noComponentError(target);
+      throw new NoComponentError(target);
     }
 
     const [matchingComponentVersion] = this.sortByVersion(Object.keys(versionTree[matchingHostVersion]));
@@ -88,7 +79,7 @@ export class Driver {
 
   saveComponent(component: Required<Component>, files: File[]): void {
     if (!component.version) {
-      throw new Error('Component version should be specified.');
+      throw new NoComponentVersionError(component);
     }
 
     const componentTree = this.storage.getComponentVersionTree(component.name);
@@ -97,16 +88,15 @@ export class Driver {
       const componentGetter = componentTree[component.hostVersion][component.version];
 
       if (componentGetter) {
-        // TODO: Replace with tslint 🙌
-        //prettier-ignore
-        throw new Error(
-          `Can't publish '${component.name}' component version ${component.version} under app version ${component.hostVersion} since it already exists.`
-        );
+        throw new ComponentExistsError(component);
       }
     }
 
     if (!files.filter(({ name }) => name === 'package.json').length) {
-      throw new Error(`missing 'package.json' file when trying to publish '${component.name}' component`);
+      throw new NoPackageError({
+        component,
+        files
+      });
     }
 
     this.storage.saveComponent(component, files);
