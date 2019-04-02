@@ -13,11 +13,11 @@ export default (config: DcmConfig) =>
         return logger.error(`Couldn't find 'dcmconfig' file, did you forget to create it?`);
       }
 
-      if (!config.baseUrl) {
-        return logger.error(`Couldn't find 'baseUrl' property in 'dcmconfig' file or it's empty`);
+      if (!config.registry) {
+        return logger.error(`Couldn't find 'registry' property in 'dcmconfig' file or it's empty`);
       }
       logger.info('publishing...');
-      return publish(url || config.baseUrl, config.middleware)
+      return publish(url || config.registry, config.middleware)
         .then(({ url }: any) => logger.info('Successfully published to', url))
         .catch(({ message }) => logger.error(message));
     }
