@@ -14,8 +14,9 @@ program
   .version(version)
   .description(description)
   .logger(logger({ logDir, logFileName }) as any);
+
 export interface DcmConfig {
-  baseUrl: string;
+  registry: string;
   middleware?: Function;
 }
 

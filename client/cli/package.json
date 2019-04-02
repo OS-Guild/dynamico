@@ -1,7 +1,7 @@
 {
   "name": "@dynamico/cli",
   "version": "0.0.1",
-  "description": "> TODO: description",
+  "description": "Dynamic components manager",
   "author": "Elad Bezalel <elad.bezalel@gmail.com>",
   "homepage": "https://github.com/soluto-private/dynamico#readme",
   "license": "MIT",
