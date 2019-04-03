@@ -4,7 +4,6 @@ import tar from 'tar-stream';
 import zlib from 'zlib';
 import intoStream from 'into-stream';
 import { Stream } from 'stream';
-import { NextFunction } from 'express-async-router';
 import promisePipe from 'promisepipe';
 
 export const get = (driver: Driver) => (req: Request, res: Response) => {
@@ -26,7 +25,7 @@ export const get = (driver: Driver) => (req: Request, res: Response) => {
   return getComponentCode();
 };
 
-export const save = (driver: Driver) => async (req: Request, res: Response, next: NextFunction) => {
+export const save = (driver: Driver) => async (req: Request, res: Response) => {
   const { name, hostVersion, componentVersion } = req.params;
   const files: File[] = [];
   await promisePipe(
