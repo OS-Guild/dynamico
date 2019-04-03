@@ -1687,6 +1687,13 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
 
+"@types/tar-stream@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@types/tar-stream/-/tar-stream-1.6.0.tgz#e19893886625c4ec1c7c30a353b8dc10e205c742"
+  integrity sha512-XG7FGVmxUvC5NW4h63K3PbB0xdC21xZBfoqmEz7YP2DdiTeYKmYAg8quSHMndNP3iXfs7C73rg4Q0W1dOPHBXQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/tar@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/tar/-/tar-4.0.0.tgz#e3239d969eeb693a012200613860d0eb871c94f0"
@@ -1838,6 +1845,11 @@ ansi@^0.3.0, ansi@~0.3.1:
 any-observable@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/any-observable/-/any-observable-0.3.0.tgz#af933475e5806a67d0d7df090dd5e8bef65d119b"
+
+any-promise@^1.1.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/any-promise/-/any-promise-1.3.0.tgz#abc6afeedcea52e809cdc0376aed3ce39635d17f"
+  integrity sha1-q8av7tzqUugJzcA3au0845Y10X8=
 
 anymatch@^2.0.0:
   version "2.0.0"
@@ -9746,6 +9758,13 @@ stream-each@^1.1.0:
     end-of-stream "^1.1.0"
     stream-shift "^1.0.0"
 
+stream-equal@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/stream-equal/-/stream-equal-1.1.1.tgz#67cfa1958c96dd2143fe583e2d54637c47f3dec9"
+  integrity sha512-SaZxkvxujYBR6NTumhRTg/yztw2p30fzZ/jvSgQtlZFEGI7tdSNDaPbvT47QF92hx6Tar8hAhpr7ErpTNvtuCQ==
+  optionalDependencies:
+    "@types/node" "*"
+
 stream-http@^2.7.2:
   version "2.8.3"
   resolved "https://registry.yarnpkg.com/stream-http/-/stream-http-2.8.3.tgz#b2d242469288a5a27ec4fe8933acf623de6514fc"
@@ -9759,6 +9778,13 @@ stream-http@^2.7.2:
 stream-shift@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/stream-shift/-/stream-shift-1.0.0.tgz#d5c752825e5367e786f78e18e445ea223a155952"
+
+stream-to-array@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/stream-to-array/-/stream-to-array-2.3.0.tgz#bbf6b39f5f43ec30bc71babcb37557acecf34353"
+  integrity sha1-u/azn19D7DC8cbq8s3VXrOzzQ1M=
+  dependencies:
+    any-promise "^1.1.0"
 
 streamsearch@0.1.2:
   version "0.1.2"
