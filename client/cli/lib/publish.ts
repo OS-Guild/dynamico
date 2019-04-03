@@ -30,6 +30,10 @@ export default async (basePath: string, middleware?: Function) => {
     }
 
     request = await middleware(request);
+
+    if (!request) {
+      throw new Error(`Got an empty request object from middleware. Did you forget to return it from the middleware?`);
+    }
   }
 
   const response = await fetch(urlJoin(basePath, name.toLowerCase(), hostVersion, version), request);
