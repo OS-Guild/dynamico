@@ -131,4 +131,22 @@ This command will bundle your component in production mode and will publish it t
 
 ### dcmconfig file
 
-> TODO
+dcm gets its config settings from the command line, environment variables, and **dcmconfig** files.
+
+#### Config Settings
+
+##### registry
+
+- Type: url
+
+The base URL of the dynamico components registry.
+
+##### middleware
+
+- Type: function
+
+Middleware for the publish api, transform the request just before sending the code to the registry
+
+#### NOTE
+
+Since we use [Liftoff](https://github.com/js-cli/js-liftoff) dcm will automatically attempt to load the config via the correct module for any javascript variant supported by [interpret](https://github.com/js-cli/js-interpret) (as long as it does not require a register method).
