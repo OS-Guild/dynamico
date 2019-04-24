@@ -16,9 +16,11 @@ export default (config: DcmConfig) =>
       if (!config.registry) {
         return logger.error(`Couldn't find 'registry' property in 'dcmconfig' file or it's empty`);
       }
-      logger.info('publishing...');
+
+      logger.info('Publishing...');
+
       return publish(url || config.registry, config.middleware)
-        .then(({ url }: any) => logger.info('Successfully published to', url))
+        .then(({ name, version }: any) => logger.info(`Successfully published ${name}@${version}`))
         .catch(({ message }) => logger.error(message));
     }
   });

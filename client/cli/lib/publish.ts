@@ -45,5 +45,17 @@ export default async (basePath: string, middleware?: Function) => {
     throw new Error(`Failed uploading bundle with status code: ${response.status}`);
   }
 
-  return response;
+  const issues = Object.entries(await response.json()) as any;
+
+  if (issues.length) {
+    issues.forEach(([id, { mismatches }]) => {
+      Object.entries(mismatches).forEach(([dependency, { host, component }]: any) =>
+        console.warn(
+          `WARNING: ${id} requires ${dependency}@${component} but host provides ${host}. Please consider upgrade to version ${component}`
+        )
+      );
+    });
+  }
+
+  return { name, version };
 };

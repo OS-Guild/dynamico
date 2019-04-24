@@ -46,6 +46,7 @@
   "dependencies": {
     "@types/winston": "^2.4.4",
     "bili": "^4.5.2",
+    "body-parser": "^1.18.3",
     "caporal": "^1.1.0",
     "execa": "^1.0.0",
     "form-data": "^2.3.3",
