@@ -18,7 +18,7 @@
     "url": "git+https://github.com/soluto-private/dynamico.git"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
     "clean": "rm -rf ./dist"

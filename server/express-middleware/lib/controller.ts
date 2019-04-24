@@ -8,11 +8,11 @@ import promisePipe from 'promisepipe';
 
 export const get = (driver: Driver) => (req: Request, res: Response) => {
   const { name } = req.params;
-  const { hostVersion, componentVersion, latestComponentVersion } = req.query;
+  const { hostId, componentVersion, latestComponentVersion } = req.query;
 
-  const { version, getComponentCode } = driver.getComponent({
+  const { version, getCode } = driver.getComponent({
+    hostId,
     name,
-    hostVersion,
     version: componentVersion
   });
 
@@ -22,12 +22,15 @@ export const get = (driver: Driver) => (req: Request, res: Response) => {
     return res.sendStatus(204);
   }
 
-  return getComponentCode();
+  return getCode();
 };
 
+export const registerHost = (driver: Driver) => async (req: Request) => driver.registerHost(req.body);
+
 export const save = (driver: Driver) => async (req: Request, res: Response) => {
-  const { name, hostVersion, componentVersion } = req.params;
+  const { name, componentVersion } = req.params;
   const files: File[] = [];
+
   await promisePipe(
     intoStream(req.file.buffer),
     zlib.createGunzip(),
@@ -35,13 +38,15 @@ export const save = (driver: Driver) => async (req: Request, res: Response) => {
       files.push({ name: header.name, stream: stream.on('finish', next) });
     })
   );
+
   driver.saveComponent(
     {
       name,
-      hostVersion,
-      version: componentVersion
+      version: componentVersion,
+      dependencies: JSON.parse(req.body.peerDependencies)
     },
     files
   );
+
   res.sendStatus(201);
 };

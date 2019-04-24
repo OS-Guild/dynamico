@@ -13,10 +13,11 @@ export default async (basePath: string, middleware?: Function) => {
   const filename = `dcmtmp${new Date().getTime()}.tgz`;
   const file = join(tmpdir(), filename);
 
-  const { name, version, hostVersion, main } = await build({ mode: Mode.production });
+  const { name, version, main, peerDependencies } = await build({ mode: Mode.production });
 
   await promisePipe(tar.create({ gzip: true, cwd: './dist' }, [main, 'package.json']), createWriteStream(file));
 
+  body.append('peerDependencies', JSON.stringify(peerDependencies));
   body.append('package', createReadStream(file));
 
   let request = {
@@ -36,7 +37,7 @@ export default async (basePath: string, middleware?: Function) => {
     }
   }
 
-  const response = await fetch(urlJoin(basePath, name.toLowerCase(), hostVersion, version), request);
+  const response = await fetch(urlJoin(basePath, name.toLowerCase(), version), request);
 
   unlinkSync(file);
 

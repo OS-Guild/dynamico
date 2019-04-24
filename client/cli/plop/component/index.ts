@@ -37,18 +37,10 @@ export default (plop: Plop) => {
         name: 'framework',
         message: 'What framework are you using?',
         choices: () => {
-          console.log(__dirname);
           return readdirSync('./plop/component')
             .filter(filename => statSync(join('./plop/component', filename)).isDirectory())
             .map(value => ({ name: uppercamelcase(value), value }));
         }
-      },
-      {
-        type: 'input',
-        name: 'application-version',
-        message: 'What is the supported application version of your component?',
-        validate: version =>
-          /^\d+\.\d+\.\d+/.test(version) ? true : 'version format is: [major].[minor].[patch] e.g (4.304.0)'
       },
       {
         type: 'input',

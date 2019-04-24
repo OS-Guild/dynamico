@@ -2,12 +2,30 @@ import buildUrl from 'build-url';
 
 import { StorageController } from './utils/StorageController';
 
+export type Dependencies = Record<string, string>;
+
+export interface Mismatches {
+  [dependency: string]: {
+    host: string;
+    component: string;
+  };
+}
+
+export type Issues = {
+  [component: string]: {
+    mismatches: Mismatches;
+    version: string;
+  };
+};
+
 export interface InitOptions {
   prefix?: string;
   url: string;
-  hostVersion: string;
   cache: Storage;
-  dependencies: Record<string, any>;
+  dependencies: {
+    versions: Dependencies;
+    resolvers: Record<string, any>;
+  };
   fetcher?: GlobalFetch['fetch'];
   globals?: Record<string, any>;
 }
@@ -19,26 +37,46 @@ export interface Options {
 }
 
 export class DynamicoClient {
+  id: string = '';
   url: string;
-  hostVersion: string;
-  dependencies: Record<string, any>;
+  dependencies: {
+    versions: Dependencies;
+    resolvers: Record<string, any>;
+  };
   cache: StorageController;
   fetcher: GlobalFetch['fetch'];
   globals: Record<string, any>;
 
   constructor(options: InitOptions) {
     this.url = options.url;
-    this.hostVersion = options.hostVersion;
-    this.cache = new StorageController(options.prefix || '@dynamico', options.hostVersion, options.cache);
+    this.cache = new StorageController(options.prefix || '@dynamico', options.cache);
     this.dependencies = options.dependencies;
     this.globals = options.globals || {};
 
     this.checkFetcher(options.fetcher);
 
     this.fetcher = options.fetcher || fetch.bind(window);
+
+    const versions = this.filterMissingDependencies(options.dependencies);
+
+    this.register(versions).then(({ id, issues }: { id: string; issues: Issues }) => {
+      this.id = id;
+
+      this.handleIssues(issues);
+    });
   }
 
-  checkFetcher(fetcher?: GlobalFetch['fetch']) {
+  private handleIssues(issues: Issues): void {
+    Object.entries(issues).forEach(([comp, { version, mismatches }]) =>
+      Object.entries(mismatches).forEach(([dependency, { host, component }]) =>
+        console.warn(
+          `${comp}@${version} requires ${dependency}@${component} but host provides ${host}. Please consider upgrade to version ${component}`
+        )
+      )
+    );
+  }
+
+  private checkFetcher(fetcher?: GlobalFetch['fetch']) {
     if (!fetcher && typeof fetch === 'undefined') {
       let library: string = 'unfetch';
 
@@ -53,19 +91,46 @@ export class DynamicoClient {
     }
   }
 
-  async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
+  private filterMissingDependencies({ versions, resolvers }: DynamicoClient['dependencies']): Dependencies {
+    return Object.keys(resolvers).reduce((sum, name) => {
+      if (!versions[name]) {
+        console.warn(`Missing version specifier for ${name}`);
+      }
+
+      return {
+        ...sum,
+        ...(versions[name] ? { [name]: versions[name] } : undefined)
+      };
+    }, {});
+  }
+
+  private async register(dependencies: Dependencies) {
+    const url = buildUrl(this.url, {
+      path: '/host/register'
+    });
+
+    return await this.fetcher(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dependencies)
+    }).then(async (res: Response) => res.json());
+  }
+
+  private async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
     let latestComponentVersion: string | undefined;
 
     if (!componentVersion) {
       latestComponentVersion = this.cache.getLatestVersion(name);
-    } else if (this.cache.has(name, componentVersion) && !ignoreCache) {
+    } else if (!ignoreCache && this.cache.has(name, componentVersion)) {
       return (await this.cache.getItem(name, componentVersion)) as string;
     }
 
     const url = buildUrl(this.url, {
       path: name,
       queryParams: {
-        hostVersion: this.hostVersion,
+        hostId: this.id,
         ...(componentVersion
           ? { componentVersion }
           : latestComponentVersion && !ignoreCache && { latestComponentVersion })
@@ -89,7 +154,7 @@ export class DynamicoClient {
 
   async get(name: string, options: Options = {}) {
     const code = await this.fetchJs(name, options);
-    const require = (dep: string) => this.dependencies[dep];
+    const require = (dep: string) => this.dependencies.resolvers[dep];
     const module: any = {};
     const exports: any = {};
     const args = {

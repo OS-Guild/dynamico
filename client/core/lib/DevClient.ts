@@ -1,9 +1,11 @@
-import { DynamicoClient, Options } from '.';
+import { DynamicoClient, Options, Dependencies } from '.';
 import { NoopStorage } from './utils/NoopStorage';
 
 export interface DevOptions {
-  hostVersion: string;
-  dependencies: Record<string, any>;
+  dependencies: {
+    versions: Dependencies;
+    resolvers: Record<string, any>;
+  };
   callback: Function;
   interval?: number;
   urlOverride?: string;
@@ -16,10 +18,9 @@ export class DynamicoDevClient extends DynamicoClient {
   private shouldRefresh = false;
   private etag = '';
 
-  constructor({ hostVersion, dependencies, urlOverride, callback, interval = 1000 }: DevOptions) {
+  constructor({ dependencies, urlOverride, callback, interval = 1000 }: DevOptions) {
     super({
       url: urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383',
-      hostVersion,
       dependencies,
       cache: new NoopStorage(),
       fetcher: (url: string) => this._fetcher(url)

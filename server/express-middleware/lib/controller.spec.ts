@@ -10,10 +10,16 @@ import * as controller from './controller';
 
 class MockStorage {
   saveComponent;
-  getComponentVersionTree;
+  getComponentTree;
+  getIndex;
+  upsertIndex;
+  getComponent;
   constructor() {
     this.saveComponent = jest.fn();
-    this.getComponentVersionTree = jest.fn();
+    this.getComponentTree = jest.fn();
+    this.getIndex = jest.fn();
+    this.upsertIndex = jest.fn();
+    this.getComponent = jest.fn();
   }
 }
 
@@ -37,10 +43,11 @@ interface MockRequestParams {
   params?: any;
   query?: any;
   file?: any;
+  body?: any;
 }
 
-const getMockRequest = ({ params, query, file }: MockRequestParams) => {
-  return { params, query, file } as express.Request;
+const getMockRequest = ({ params, query, file, body }: MockRequestParams) => {
+  return { params, query, file, body } as express.Request;
 };
 
 const getMockResponse = () => {
@@ -57,6 +64,7 @@ const stringToStream = contents => {
   result.push(null);
   return result;
 };
+
 describe('controller', () => {
   describe('get', () => {
     it('should use driver to get component with parameters from query', () => {
@@ -64,17 +72,17 @@ describe('controller', () => {
       const response = getMockResponse();
 
       const query = {
-        hostVersion: '1.0.0',
+        hostId: 'someId',
         componentVersion: '0.0.1',
         latestComponentVersion: '0.0.2'
       };
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
-      mockDriver.getComponent.mockReturnValueOnce({ version: 1, getComponentCode: () => {} });
+      mockDriver.getComponent.mockReturnValueOnce({ version: 1, getCode: () => {} });
       controller.get(mockDriver)(request, response);
       expect(mockDriver.getComponent).toHaveBeenCalledWith({
         name: params.name,
-        hostVersion: query.hostVersion,
+        hostId: query.hostId,
         version: query.componentVersion
       });
     });
@@ -92,7 +100,7 @@ describe('controller', () => {
       const request = getMockRequest({ params, query });
       mockDriver.getComponent.mockReturnValueOnce({
         version: query.latestComponentVersion,
-        getComponentCode: () => {}
+        getCode: () => {}
       });
 
       controller.get(mockDriver)(request, response);
@@ -111,7 +119,7 @@ describe('controller', () => {
       };
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
-      mockDriver.getComponent.mockReturnValueOnce({ version: '1', getComponentCode: () => {} });
+      mockDriver.getComponent.mockReturnValueOnce({ version: '1', getCode: () => {} });
 
       controller.get(mockDriver)(request, response);
 
@@ -121,7 +129,7 @@ describe('controller', () => {
     it('returns component if latest component version is missing', () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
-      const getComponentCode = jest.fn();
+      const getCode = jest.fn();
 
       const query = {
         hostVersion: '1.0.0',
@@ -129,17 +137,17 @@ describe('controller', () => {
       };
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
-      mockDriver.getComponent.mockReturnValueOnce({ version: '1', getComponentCode });
+      mockDriver.getComponent.mockReturnValueOnce({ version: '1', getCode });
 
       controller.get(mockDriver)(request, response);
 
-      expect(getComponentCode).toBeCalled();
+      expect(getCode).toBeCalled();
     });
 
     it('returns component if latest component version is different than found component version', () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
-      const getComponentCode = jest.fn();
+      const getCode = jest.fn();
 
       const query = {
         hostVersion: '1.0.0',
@@ -149,11 +157,11 @@ describe('controller', () => {
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
       const returnedVersion = `${query.latestComponentVersion}.1`;
-      mockDriver.getComponent.mockReturnValueOnce({ version: returnedVersion, getComponentCode });
+      mockDriver.getComponent.mockReturnValueOnce({ version: returnedVersion, getCode });
 
       controller.get(mockDriver)(request, response);
 
-      expect(getComponentCode).toBeCalled();
+      expect(getCode).toBeCalled();
     });
   });
 
@@ -190,7 +198,8 @@ describe('controller', () => {
 
       const request = getMockRequest({
         params: { name: 'test', hostVersion: '1.0.0', componentVersion: '0.0.1' },
-        file: { buffer }
+        file: { buffer },
+        body: { peerDependencies: JSON.stringify({ depA: '1.2.3' }) }
       });
 
       const expectedPackageJson = stringToStream(packageJsonContents);

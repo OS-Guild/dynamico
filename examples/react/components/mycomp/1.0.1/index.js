@@ -3,10 +3,8 @@ function _interopDefault(e) {
   return e && 'object' == typeof e && 'default' in e ? e.default : e;
 }
 var React = _interopDefault(require('react')),
-  moment = _interopDefault(require('moment')),
-  name = 'Mycomp',
-  version = '1.0.0',
-  hostVersion = '1.3.0',
+  name = 'mycomp',
+  version = '1.0.1',
   main = './index.tsx',
   devDependencies = {
     '@types/moment': '^2.13.0',
@@ -19,11 +17,10 @@ var React = _interopDefault(require('react')),
     tslib: '^1.9.3',
     typescript: '^3.3.4000'
   },
-  peerDependencies = { moment: '^2.24.0', react: '^16.8.3', 'react-dom': '^16.8.3' },
+  peerDependencies = { moment: '^2.24.0', react: '^16.8.8', 'react-dom': '^16.8.3' },
   pkg = {
     name: name,
     version: version,
-    hostVersion: hostVersion,
     main: main,
     devDependencies: devDependencies,
     peerDependencies: peerDependencies
@@ -34,21 +31,8 @@ var React = _interopDefault(require('react')),
       'div',
       null,
       React.createElement('span', null, 'Hello ', n, ', this is your ', pkg.name, ' component'),
-      React.createElement('div', null, React.createElement('span', null, 'Host version ', pkg.hostVersion)),
       React.createElement('div', null, React.createElement('span', null, 'Component version ', pkg.version)),
-      React.createElement(
-        'div',
-        null,
-        React.createElement(
-          'button',
-          {
-            onClick: function() {
-              alert(moment.duration(24, 'hours').humanize());
-            }
-          },
-          'Click!'
-        )
-      )
+      React.createElement('div', null, React.createElement('button', { onClick: function() {} }, 'Click!'))
     );
   };
 module.exports = Mycomp;
