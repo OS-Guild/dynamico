@@ -35,7 +35,6 @@ export const dynamico = function<T = any>(
 
       if (devMode) {
         const devClient = new DynamicoDevClient({
-          hostVersion: dynamicoClient.hostVersion,
           dependencies: dynamicoClient.dependencies,
           callback: (view: any) => setComponent({ view })
         });

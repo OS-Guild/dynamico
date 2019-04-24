@@ -16,11 +16,13 @@ export default (storage: Storage, { readOnly }: Options = {}): AsyncRouterInstan
   const router = AsyncRouter();
   const driver = new Driver(storage);
 
+  router.post('/host/register', bodyParser.json(), controller.registerHost(driver));
+
   router.get('/:name', controller.get(driver));
 
   if (!readOnly) {
     router.use(bodyParser.raw());
-    router.post('/:name/:hostVersion/:componentVersion', upload.single('package'), controller.save(driver));
+    router.post('/:name/:componentVersion', upload.single('package'), controller.save(driver));
   }
 
   return router;

@@ -35,3 +35,11 @@ export class NoPackageError extends BaseError {
     this.name = 'NoPackageError';
   }
 }
+
+export class UnknownHostIdError extends BaseError {
+  constructor(data: any) {
+    super(`Unknown host id. Did you forget to register the host?`, data);
+
+    this.name = 'UnknownHostIdError';
+  }
+}

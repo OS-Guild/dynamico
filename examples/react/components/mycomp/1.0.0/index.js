@@ -3,9 +3,8 @@ function _interopDefault(e) {
   return e && 'object' == typeof e && 'default' in e ? e.default : e;
 }
 var React = _interopDefault(require('react')),
-  name = 'Mycomp',
+  name = 'mycomp',
   version = '1.0.0',
-  hostVersion = '1.2.0',
   main = './index.tsx',
   devDependencies = {
     '@types/react': '^16.8.3',
@@ -16,11 +15,10 @@ var React = _interopDefault(require('react')),
     tslib: '^1.9.3',
     typescript: '^3.3.4000'
   },
-  peerDependencies = { react: '^16.8.3', 'react-dom': '^16.8.3' },
+  peerDependencies = { react: '^16.8.8', 'react-dom': '^16.8.3' },
   pkg = {
     name: name,
     version: version,
-    hostVersion: hostVersion,
     main: main,
     devDependencies: devDependencies,
     peerDependencies: peerDependencies
@@ -31,9 +29,8 @@ var React = _interopDefault(require('react')),
       'div',
       null,
       React.createElement('span', null, 'Hello ', n, ', this is your ', pkg.name, ' component'),
-      React.createElement('div', null, React.createElement('span', null, 'Host version ', pkg.hostVersion)),
       React.createElement('div', null, React.createElement('span', null, 'Component version ', pkg.version)),
-      React.createElement('div', null, React.createElement('button', null, 'Click!'))
+      React.createElement('div', null, React.createElement('button', { onClick: function() {} }, 'Click!'))
     );
   };
 module.exports = Mycomp;

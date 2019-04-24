@@ -6,3 +6,4 @@ dist
 .env
 .DS_Store
 .rpt2_cache
+coverage

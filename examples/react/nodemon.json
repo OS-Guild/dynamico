@@ -1,0 +1,6 @@
+{
+  "watch": ["../../client", "../../server"],
+  "ext": "js",
+  "ignore": ["**/*.spec.ts"],
+  "exec": "ts-node proxy.ts"
+}
