@@ -22,8 +22,7 @@ export class DynamicoDevClient extends DynamicoClient {
     super({
       url: urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383',
       dependencies,
-      cache: new NoopStorage(),
-      fetcher: (url: string) => this._fetcher(url)
+      cache: new NoopStorage()
     });
 
     this.callback = callback;
@@ -44,7 +43,7 @@ export class DynamicoDevClient extends DynamicoClient {
     };
   }
 
-  private async _fetcher(url: string) {
+  fetcher = async (url: string) => {
     const controller = new AbortController();
 
     return fetch(url, {
@@ -65,5 +64,5 @@ export class DynamicoDevClient extends DynamicoClient {
 
       return res;
     });
-  }
+  };
 }

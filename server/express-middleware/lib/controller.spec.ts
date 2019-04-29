@@ -53,7 +53,8 @@ const getMockRequest = ({ params, query, file, body }: MockRequestParams) => {
 const getMockResponse = () => {
   return ({
     setHeader: jest.fn(),
-    sendStatus: jest.fn()
+    sendStatus: jest.fn(),
+    json: jest.fn()
   } as unknown) as express.Response;
 };
 
@@ -179,8 +180,9 @@ describe('controller', () => {
 
         return contents;
       };
-
+      const saveComponentResponse = { depA: 'some mismatches' };
       const mockDriver = new MockDriver();
+      mockDriver.saveComponent.mockReturnValue(saveComponentResponse);
       const response = getMockResponse();
 
       const packageJsonFileName = 'package.json';
@@ -207,7 +209,7 @@ describe('controller', () => {
 
       await controller.save(mockDriver)(request, response);
 
-      expect(response.sendStatus).toHaveBeenCalledWith(201);
+      expect(response.json).toHaveBeenCalledWith(saveComponentResponse);
 
       const [pkgFile, indexFile] = mockDriver.getFilesFromLatestSave();
 

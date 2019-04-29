@@ -39,7 +39,7 @@ export const save = (driver: Driver) => async (req: Request, res: Response) => {
     })
   );
 
-  driver.saveComponent(
+  const issues = driver.saveComponent(
     {
       name,
       version: componentVersion,
@@ -48,5 +48,5 @@ export const save = (driver: Driver) => async (req: Request, res: Response) => {
     files
   );
 
-  res.sendStatus(201);
+  res.json(issues);
 };
