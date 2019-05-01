@@ -1,7 +1,7 @@
 import compareVersions from 'compare-versions';
 import semver from 'semver';
 import { Stream } from 'stream';
-import md5 from 'md5';
+import MurmurHash3 from 'imurmurhash';
 
 import {
   NoComponentError,
@@ -75,7 +75,7 @@ export class Driver {
     let issues = {};
 
     const sortedDependencies = Object.entries(dependencies).sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
-    const id = md5(JSON.stringify(sortedDependencies));
+    const id = MurmurHash3(JSON.stringify(sortedDependencies)).result();
 
     const index = this.storage.getIndex();
 
