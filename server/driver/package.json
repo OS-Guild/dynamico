@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "compare-versions": "^3.4.0",
-    "md5": "^2.2.1",
+    "imurmurhash": "^0.1.4",
     "semver": "^6.0.0"
   },
   "devDependencies": {
