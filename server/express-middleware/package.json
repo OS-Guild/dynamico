@@ -20,7 +20,7 @@
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
-    "test": "jest",
+    "test": "jest --coverage",
     "clean": "rm -rf ./dist"
   },
   "bugs": {
@@ -28,11 +28,15 @@
   },
   "dependencies": {
     "@dynamico/driver": "^0.0.1",
+    "@types/sanitize-filename": "^1.1.28",
+    "@types/semver": "^6.0.0",
     "express-async-router": "^0.1.15",
     "into-stream": "^5.0.0",
     "multer": "^1.4.1",
     "promisepipe": "^3.0.0",
     "pump": "^3.0.0",
+    "sanitize-filename": "^1.6.1",
+    "semver": "^6.0.0",
     "tar": "^4.4.8",
     "tar-stream": "^2.0.1"
   },

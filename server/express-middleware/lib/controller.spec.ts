@@ -7,6 +7,7 @@ import { Readable } from 'stream';
 import streamEqual from 'stream-equal';
 import { promisify } from 'util';
 import * as controller from './controller';
+import { InvalidVersionError } from './errors';
 
 class MockStorage {
   saveComponent;
@@ -68,6 +69,40 @@ const stringToStream = contents => {
 
 describe('controller', () => {
   describe('get', () => {
+    it('throws error when component version is invalid', () => {
+      const mockDriver = new MockDriver();
+      const response = getMockResponse();
+      const invalidComponentVersion = 'invalidVersion';
+      const query = {
+        hostId: 'someId',
+        componentVersion: invalidComponentVersion,
+        latestComponentVersion: '0.0.2'
+      };
+      const params = { name: 'test' };
+      const request = getMockRequest({ params, query });
+      mockDriver.getComponent.mockReturnValueOnce({ version: 1, getCode: () => {} });
+      expect(() => controller.get(mockDriver)(request, response)).toThrowError(
+        new InvalidVersionError({ componentVersion: invalidComponentVersion })
+      );
+    });
+
+    it('throws error when latest version is invalid', () => {
+      const mockDriver = new MockDriver();
+      const response = getMockResponse();
+      const invalidLatestVersion = 'invalidVersion';
+      const query = {
+        hostId: 'someId',
+        componentVersion: '0.0.1',
+        latestComponentVersion: invalidLatestVersion
+      };
+      const params = { name: 'test' };
+      const request = getMockRequest({ params, query });
+      mockDriver.getComponent.mockReturnValueOnce({ version: 1, getCode: () => {} });
+      expect(() => controller.get(mockDriver)(request, response)).toThrowError(
+        new InvalidVersionError({ latestVersion: invalidLatestVersion })
+      );
+    });
+
     it('should use driver to get component with parameters from query', () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
@@ -167,6 +202,19 @@ describe('controller', () => {
   });
 
   describe('save', () => {
+    it('throws error when component version is invalid', async () => {
+      const mockDriver = new MockDriver();
+      const invalidVersion = 'invalidVersion';
+      const request = getMockRequest({
+        params: { name: 'test', componentVersion: invalidVersion },
+        body: { peerDependencies: JSON.stringify({ depA: '1.2.3' }) }
+      });
+      const response = getMockResponse();
+      await expect(controller.save(mockDriver)(request, response)).rejects.toEqual(
+        new InvalidVersionError({ componentVersion: invalidVersion })
+      );
+    });
+
     it('sends 201 response', async () => {
       const getRandomText = (): string =>
         Math.random()
@@ -186,7 +234,8 @@ describe('controller', () => {
       const response = getMockResponse();
 
       const packageJsonFileName = 'package.json';
-      const indexJsFileName = 'index.js';
+      const expectedIndexJsFilename = 'index.js';
+      const indexJsFileName = `/${expectedIndexJsFilename}`;
 
       const tarPack = pack();
       const packageJsonContents = createFile(packageJsonFileName);
@@ -199,7 +248,7 @@ describe('controller', () => {
       );
 
       const request = getMockRequest({
-        params: { name: 'test', hostVersion: '1.0.0', componentVersion: '0.0.1' },
+        params: { name: 'test', componentVersion: '0.0.1' },
         file: { buffer },
         body: { peerDependencies: JSON.stringify({ depA: '1.2.3' }) }
       });
@@ -214,7 +263,7 @@ describe('controller', () => {
       const [pkgFile, indexFile] = mockDriver.getFilesFromLatestSave();
 
       expect(pkgFile.name).toBe(packageJsonFileName);
-      expect(indexFile.name).toBe(indexJsFileName);
+      expect(indexFile.name).toBe(expectedIndexJsFilename);
 
       await Promise.all([
         expect(asyncStreamEqual(pkgFile.stream, expectedPackageJson)).resolves.toBe(true),
