@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 
@@ -24,18 +24,26 @@ const resolvers = {
   moment: moment
 };
 
-const App = () => {
-  const dynamico = new DynamicoClient({
-    url: '/api/components',
-    dependencies: {
-      versions: dependencies,
-      resolvers
-    },
-    cache: localStorage
-  });
+const dynamicoClient = new DynamicoClient({
+  url: '/api/components',
+  dependencies: {
+    versions: dependencies,
+    resolvers
+  },
+  cache: localStorage
+});
 
+const App = () => {
+  const [initFinished, setInitFinished] = useState(false);
+
+  useEffect(() => {
+    dynamicoClient.initialize().then(() => setInitFinished(true));
+  }, []);
+
+  
+  if (!initFinished) return (<div>Loading...</div>);
   return (
-    <DynamicoProvider client={dynamico}>
+    <DynamicoProvider client={dynamicoClient}>
       <MyComp username="Test">
         <span>testSpan</span>
       </MyComp>

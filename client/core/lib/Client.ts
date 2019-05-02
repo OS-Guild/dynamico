@@ -36,6 +36,11 @@ export interface Options {
   globals?: Record<string, any>;
 }
 
+interface RegisterHostResponse {
+  id: string;
+  issues: Issues;
+}
+
 export class DynamicoClient {
   id: string = '';
   url: string;
@@ -56,14 +61,6 @@ export class DynamicoClient {
     this.checkFetcher(options.fetcher);
 
     this.fetcher = options.fetcher || fetch.bind(window);
-
-    const versions = this.filterMissingDependencies(options.dependencies);
-
-    this.register(versions).then(({ id, issues }: { id: string; issues: Issues }) => {
-      this.id = id;
-
-      this.handleIssues(issues);
-    });
   }
 
   private handleIssues(issues: Issues): void {
@@ -150,6 +147,13 @@ export class DynamicoClient {
     await this.cache.setItem(name, version, code);
 
     return code;
+  }
+
+  async initialize() {
+    const versions = this.filterMissingDependencies(this.dependencies);
+    const { id, issues }: RegisterHostResponse = await this.register(versions);
+    this.id = id;
+    this.handleIssues(issues);
   }
 
   async get(name: string, options: Options = {}) {
