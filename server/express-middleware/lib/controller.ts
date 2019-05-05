@@ -3,11 +3,20 @@ import { Driver, File } from '@dynamico/driver';
 import tar from 'tar-stream';
 import zlib from 'zlib';
 import intoStream from 'into-stream';
+import { valid, clean } from 'semver';
+import sanitizeFilename from 'sanitize-filename';
 import { Stream } from 'stream';
 import promisePipe from 'promisepipe';
+import { InvalidVersionError } from './errors';
 
 export const get = (driver: Driver) => (req: Request, res: Response) => {
-  const { name } = req.params;
+  if (req.query.componentVersion && !valid(req.query.componentVersion)) {
+    throw new InvalidVersionError({ componentVersion: req.query.componentVersion });
+  }
+  if (req.query.latestComponentVersion && !valid(req.query.latestComponentVersion)) {
+    throw new InvalidVersionError({ latestVersion: req.query.latestComponentVersion });
+  }
+  const name = sanitizeFilename(req.params.name);
   const { hostId, componentVersion, latestComponentVersion } = req.query;
 
   const { version, getCode } = driver.getComponent({
@@ -28,14 +37,18 @@ export const get = (driver: Driver) => (req: Request, res: Response) => {
 export const registerHost = (driver: Driver) => async (req: Request) => driver.registerHost(req.body);
 
 export const save = (driver: Driver) => async (req: Request, res: Response) => {
-  const { name, componentVersion } = req.params;
+  const name = sanitizeFilename(req.params.name);
+  if (!valid(req.params.componentVersion)) {
+    throw new InvalidVersionError({ componentVersion: req.params.componentVersion });
+  }
+  let componentVersion = clean(req.params.componentVersion) as string;
   const files: File[] = [];
 
   await promisePipe(
     intoStream(req.file.buffer),
     zlib.createGunzip(),
     tar.extract().on('entry', (header, stream: Stream, next) => {
-      files.push({ name: header.name, stream: stream.on('finish', next) });
+      files.push({ name: sanitizeFilename(header.name), stream: stream.on('finish', next) });
     })
   );
 
