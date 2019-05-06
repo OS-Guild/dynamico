@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "11"
+install:
+  - yarn
+  - yarn lerna bootstrap
+  - yarn lerna run build
+  - yarn lerna link
+
+script:
+  - yarn lerna run test

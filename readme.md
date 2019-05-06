@@ -1,5 +1,7 @@
 # Dynamico
 
+[![Build Status](https://travis-ci.org/Soluto/dynamico.svg?branch=master)](https://travis-ci.org/Soluto/dynamico)
+
 ## Why?
 A short description?
 <!-- In the growing web of today, when frameworks are constantly changing and it seems hard to keep track of the new trends and -->
