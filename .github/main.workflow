@@ -34,5 +34,5 @@ action "Run tests" {
   uses = "nuxt/actions-yarn@master"
   needs = ["Link dependencies"]
   runs = "yarn"
-  args = "lerna run tests"
+  args = "lerna run test"
 }
