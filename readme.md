@@ -1,4 +1,5 @@
 # Dynamico
+[![Known Vulnerabilities](https://snyk.io/test/github/soluto/dynamico/badge.svg)](https://snyk.io/test/github/soluto/dynamico) 
 
 ## Why?
 A short description?
