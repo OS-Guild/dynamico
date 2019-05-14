@@ -1,14 +1,24 @@
 {
   "name": "@dynamico/core",
   "version": "0.0.1",
+  "description": "Dynamico core library",
+  "author": "Soluto",
+  "homepage": "https://github.com/soluto/dynamico#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluto/dynamico.git"
+  },
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
     "clean": "rm -rf ./dist",
     "test": "jest --coverage"
+  },
+  "bugs": {
+    "url": "https://github.com/soluto/dynamico/issues"
   },
   "devDependencies": {
     "@types/compare-versions": "^3.0.0",

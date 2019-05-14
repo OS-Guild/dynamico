@@ -1,9 +1,19 @@
 {
   "name": "@dynamico/react",
   "version": "0.0.1",
+  "description": "React wrapper around Dynamico core",
+  "author": "Soluto",
+  "homepage": "https://github.com/soluto/dynamico#readme",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/soluto/dynamico/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluto/dynamico.git"
+  },
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
