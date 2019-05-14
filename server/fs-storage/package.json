@@ -1,21 +1,18 @@
 {
   "name": "@dynamico/fs-storage",
   "version": "0.0.1",
-  "description": "> TODO: description",
-  "author": "Elad Bezalel <elad.bezalel@gmail.com>",
-  "homepage": "https://github.com/soluto-private/dynamico#readme",
+  "description": "Simple file system implementation as Dynamico storage provider",
+  "author": "Soluto",
+  "homepage": "https://github.com/soluto/dynamico#readme",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
     "lib": "dist"
   },
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/soluto-private/dynamico.git"
+    "url": "git+https://github.com/soluto/dynamico.git"
   },
   "scripts": {
     "test": "jest --coverage",
@@ -24,7 +21,7 @@
     "clean": "rm -rf ./dist"
   },
   "bugs": {
-    "url": "https://github.com/soluto-private/dynamico/issues"
+    "url": "https://github.com/soluto/dynamico/issues"
   },
   "dependencies": {
     "@dynamico/driver": "^0.0.1",
