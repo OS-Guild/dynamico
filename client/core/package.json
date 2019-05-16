@@ -11,6 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/soluto/dynamico.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",

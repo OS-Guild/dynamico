@@ -10,6 +10,9 @@
   "bin": {
     "dcm": "bin/dcm"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"
