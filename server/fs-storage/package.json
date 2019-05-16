@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/fs-storage",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.0",
   "description": "Simple file system implementation as Dynamico storage provider",
   "author": "Soluto",
   "homepage": "https://github.com/soluto/dynamico#readme",
@@ -27,7 +27,7 @@
     "url": "https://github.com/soluto/dynamico/issues"
   },
   "dependencies": {
-    "@dynamico/driver": "^0.0.1",
+    "@dynamico/driver": "^0.0.1-alpha.0",
     "klaw-sync": "^6.0.0",
     "mkdirp": "^0.5.1"
   },
