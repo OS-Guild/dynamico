@@ -31,7 +31,7 @@ A short description?
     - Caches locally and updates immidiatly
     - Smart host dependencies resolution
 
-
+ 
 ## When?
 Dynamico allows a remote code push work-flow for continuous delivery of specific features.
 
