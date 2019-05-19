@@ -33,22 +33,12 @@ const dynamicoClient = new DynamicoClient({
   cache: localStorage
 });
 
-const App = () => {
-  const [initFinished, setInitFinished] = useState(false);
-
-  useEffect(() => {
-    dynamicoClient.initialize().then(() => setInitFinished(true));
-  }, []);
-
-  
-  if (!initFinished) return (<div>Loading...</div>);
-  return (
-    <DynamicoProvider client={dynamicoClient}>
-      <MyComp username="Test">
-        <span>testSpan</span>
-      </MyComp>
-    </DynamicoProvider>
-  );
-};
+const App = () => (
+  <DynamicoProvider client={dynamicoClient}>
+    <MyComp username="Test">
+      <span>testSpan</span>
+    </MyComp>
+  </DynamicoProvider>
+);
 
 ReactDOM.render(<App />, document.getElementById('root'));
