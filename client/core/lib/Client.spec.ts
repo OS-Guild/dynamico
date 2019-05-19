@@ -1,5 +1,5 @@
 import { DynamicoClient } from './Client';
-
+import { ComponentGetFailedError } from './errors';
 class MockStorageProvider {
   clear;
   getItem = jest.fn();
@@ -75,7 +75,8 @@ describe('Client tests', () => {
       const componentMismatchVersion = 'component version';
       const mockFetch = jest.fn();
       const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues })
+        json: () => Promise.resolve({ id: 'test_id', issues }),
+        ok: true
       };
       const componentName = 'test component';
       const dependencyName = 'test dependency';
@@ -135,7 +136,8 @@ describe('Client tests', () => {
       };
       const mockFetch = jest.fn();
       const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues })
+        json: () => Promise.resolve({ id: 'test_id', issues }),
+        ok: true
       };
       const issues = {
         testComponent: testIssue
@@ -177,7 +179,8 @@ describe('Client tests', () => {
       };
       const mockFetch = jest.fn();
       const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues })
+        json: () => Promise.resolve({ id: 'test_id', issues }),
+        ok: true
       };
       const issues = {
         testComponent: testIssue
@@ -213,7 +216,8 @@ describe('Client tests', () => {
       };
       const mockFetch = jest.fn();
       const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues })
+        json: () => Promise.resolve({ id: 'test_id', issues }),
+        ok: true
       };
       const issues = {
         testComponent: testIssue
@@ -271,7 +275,8 @@ describe('Client tests', () => {
         headers: {
           get: () => 'test_header'
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -305,7 +310,8 @@ describe('Client tests', () => {
         headers: {
           get: () => 'test_header'
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -340,7 +346,8 @@ describe('Client tests', () => {
         headers: {
           get: () => 'test_header'
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -375,7 +382,8 @@ describe('Client tests', () => {
         headers: {
           get: () => 'test_header'
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -411,7 +419,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -433,6 +442,84 @@ describe('Client tests', () => {
       expect(mockStroageProvider.setItem).toBeCalledWith(`${prefix}/${componentName}/${componentVersion}`, testCode);
     });
 
+    it('throws error when status code if response.ok is false', async () => {
+      const url = 'testUrl';
+      const componentName = 'component_test';
+      const componentVersion = 'version_test';
+      const prefix = 'test';
+      const testCode = `var a = "test code"`;
+      const versions = {};
+      const mockFetch = jest.fn();
+      const statusText = 'test error';
+      const mockResponse = {
+        text: () => Promise.resolve(testCode),
+        headers: {
+          get: () => componentVersion
+        },
+        status: 300,
+        statusText,
+        ok: false
+      };
+
+      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+
+      const mockStroageProvider = new MockStorageProvider();
+
+      const client = new DynamicoClient({
+        prefix,
+        url,
+        cache: mockStroageProvider,
+        dependencies: {
+          resolvers: {},
+          versions
+        },
+        fetcher: mockFetch as GlobalFetch['fetch']
+      });
+      await expect(client.get(componentName)).rejects.toEqual(
+        new ComponentGetFailedError(statusText, mockResponse as any)
+      );
+    });
+
+    it(`doesn't save to cache when status code if response.ok is false`, async () => {
+      const url = 'testUrl';
+      const componentName = 'component_test';
+      const componentVersion = 'version_test';
+      const prefix = 'test';
+      const testCode = `var a = "test code"`;
+      const versions = {};
+      const mockFetch = jest.fn();
+      const statusText = 'test error';
+      const mockResponse = {
+        text: () => Promise.resolve(testCode),
+        headers: {
+          get: () => componentVersion
+        },
+        status: 300,
+        statusText,
+        ok: false
+      };
+
+      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+
+      const mockStroageProvider = new MockStorageProvider();
+
+      const client = new DynamicoClient({
+        prefix,
+        url,
+        cache: mockStroageProvider,
+        dependencies: {
+          resolvers: {},
+          versions
+        },
+        fetcher: mockFetch as GlobalFetch['fetch']
+      });
+      try {
+        await client.get(componentName);
+      } catch {
+        expect(mockStroageProvider.setItem).not.toBeCalled();
+      }
+    });
+
     it('gets component from cache when status code is 204', async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
@@ -446,7 +533,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 204
+        status: 204,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -490,7 +578,8 @@ describe('Client tests', () => {
         headers: {
           get: () => 'test_header'
         },
-        status: 200
+        status: 200,
+        ok: true
       };
       mockFetch
         .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
@@ -531,7 +620,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -568,7 +658,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -607,7 +698,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -652,7 +744,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));
@@ -690,7 +783,8 @@ describe('Client tests', () => {
         headers: {
           get: () => componentVersion
         },
-        status: 200
+        status: 200,
+        ok: true
       };
 
       mockFetch.mockReturnValue(Promise.resolve(mockResponse));

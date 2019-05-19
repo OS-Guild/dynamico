@@ -1,5 +1,5 @@
 import buildUrl from 'build-url';
-
+import { ComponentGetFailedError } from './errors';
 import { StorageController } from './utils/StorageController';
 
 export type Dependencies = Record<string, string>;
@@ -134,11 +134,16 @@ export class DynamicoClient {
       }
     });
 
-    const { statusCode, version, code } = await this.fetcher(url).then(async (res: Response) => ({
-      statusCode: res.status,
-      version: res.headers.get('dynamico-component-version') as string,
-      code: await res.text()
-    }));
+    const { statusCode, version, code } = await this.fetcher(url).then(async (res: Response) => {
+      if (!res.ok) {
+        throw new ComponentGetFailedError(res.statusText, res);
+      }
+      return {
+        statusCode: res.status,
+        version: res.headers.get('dynamico-component-version') as string,
+        code: await res.text()
+      };
+    });
 
     if (statusCode === 204) {
       return (await this.cache.getItem(name, version)) as string;
