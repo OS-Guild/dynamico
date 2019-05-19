@@ -60,209 +60,258 @@ describe('Client tests', () => {
     });
   });
 
-  describe('initialize', () => {
-    it('prints out warning when registration response contains issues', async () => {
-      const url = 'testUrl';
-      const versions = {};
-      const request = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(versions)
-      };
-      const hostMismatchVersion = 'host version';
-      const componentMismatchVersion = 'component version';
-      const mockFetch = jest.fn();
-      const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues }),
-        ok: true
-      };
-      const componentName = 'test component';
-      const dependencyName = 'test dependency';
-      const issues = {
-        [componentName]: {
-          ...testIssue,
-          mismatches: {
-            [dependencyName]: {
-              host: hostMismatchVersion,
-              component: componentMismatchVersion
+  describe('get', () => {
+    describe('initialize', () => {
+      it('throws error when registration request fails', async () => {
+        const url = 'testUrl';
+        const versions = {};
+        const mockFetch = jest.fn();
+        const expectedError = new Error('test error');
+        mockFetch.mockRejectedValue(expectedError);
+
+        const mockStroageController = new MockStorageProvider();
+
+        const client = new DynamicoClient({
+          url,
+          cache: mockStroageController,
+          dependencies: {
+            resolvers: {},
+            versions
+          },
+          fetcher: mockFetch as GlobalFetch['fetch']
+        });
+        await expect(client.get('some component')).rejects.toEqual(expectedError);
+      });
+
+      it('does not register dependency and warns about it when only a resolver is provided', async () => {
+        const url = 'testUrl';
+        const versions = {
+          depA: '1.0.0'
+        };
+        const nonVersionedDep = 'nonVersionedDep';
+        const resolvers = Object.entries(versions).reduce(
+          (soFar, [key, version]) => ({ ...soFar, [key]: () => `${key}@${version}` }),
+          {}
+        );
+        resolvers[nonVersionedDep] = () => `${'nonVersionedDep'}`;
+        const request = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(versions)
+        };
+        const mockFetch = jest.fn();
+        const mockResponse = {
+          json: () => Promise.resolve({ id: 'test_id', issues }),
+          ok: true
+        };
+        const issues = {
+          testComponent: testIssue
+        };
+
+        mockFetch.mockReturnValueOnce(Promise.resolve(mockResponse)).mockReturnValueOnce(
+          Promise.resolve({
+            text: () => Promise.resolve('true'),
+            headers: {
+              get: () => 'test_header'
+            },
+            status: 200,
+            ok: true
+          })
+        );
+        const mockStroageController = new MockStorageProvider();
+
+        const client = new DynamicoClient({
+          url,
+          cache: mockStroageController,
+          dependencies: {
+            resolvers,
+            versions
+          },
+          fetcher: mockFetch as GlobalFetch['fetch']
+        });
+        await client.get('some component');
+
+        expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+        expect(consoleWarnSpy).toHaveBeenCalledWith(`Missing version specifier for ${nonVersionedDep}`);
+      });
+
+      it('does not register dependency when a resolver is not provided for that dependency', async () => {
+        const url = 'testUrl';
+        const nonResolvedDep = 'nonResolvedDep';
+        const resolvedDep = 'resolvedDep';
+        const versions = {
+          [nonResolvedDep]: '1.0.0',
+          [resolvedDep]: '2.0.0'
+        };
+        const resolvers = { [resolvedDep]: () => 'test dependency' };
+        const expectedVersions = {
+          [resolvedDep]: '2.0.0'
+        };
+        const request = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(expectedVersions)
+        };
+        const mockFetch = jest.fn();
+        const mockResponse = {
+          json: () => Promise.resolve({ id: 'test_id', issues }),
+          ok: true
+        };
+        const issues = {
+          testComponent: testIssue
+        };
+        mockFetch.mockReturnValueOnce(Promise.resolve(mockResponse)).mockReturnValueOnce(
+          Promise.resolve({
+            text: () => Promise.resolve('true'),
+            headers: {
+              get: () => 'test_header'
+            },
+            status: 200,
+            ok: true
+          })
+        );
+        const mockStroageController = new MockStorageProvider();
+
+        const client = new DynamicoClient({
+          url,
+          cache: mockStroageController,
+          dependencies: {
+            resolvers,
+            versions
+          },
+          fetcher: mockFetch as GlobalFetch['fetch']
+        });
+        await client.get('some component');
+
+        expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+      });
+
+      it('gets component code when registration responds with success', async () => {
+        const url = 'testUrl';
+        const versions = {};
+        const componentName1 = 'test component';
+        const componentName2 = 'another test component';
+        const hostId = 'test_id';
+        const request = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(versions)
+        };
+        const mockFetch = jest.fn();
+        const mockRegisterResponse = {
+          json: () => Promise.resolve({ id: hostId, issues: { testComponent: testIssue } }),
+          ok: true
+        };
+
+        const mockGetComponentResponse = {
+          text: () => Promise.resolve('true'),
+          headers: {
+            get: () => 'test_header'
+          },
+          status: 200,
+          ok: true
+        };
+        const client = new DynamicoClient({
+          url,
+          cache: new MockStorageProvider(),
+          dependencies: {
+            resolvers: {},
+            versions
+          },
+          fetcher: mockFetch as GlobalFetch['fetch']
+        });
+        mockFetch
+          .mockImplementationOnce(() => {
+            client.get(componentName2);
+            return Promise.resolve(mockRegisterResponse);
+          })
+          .mockImplementationOnce(() => Promise.resolve(mockGetComponentResponse))
+          .mockImplementationOnce(() => Promise.resolve(mockGetComponentResponse));
+
+        await client.get(componentName1);
+
+        expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+        expect(mockFetch).toBeCalledWith(`${url}/${componentName1}?hostId=${hostId}`);
+        expect(mockFetch).toBeCalledWith(`${url}/${componentName2}?hostId=${hostId}`);
+      });
+
+      it('prints out warning when registration response contains issues', async () => {
+        const url = 'testUrl';
+        const componentName = 'test component';
+        const dependencyName = 'test dependency';
+        const hostMismatchVersion = 'host version';
+        const componentMismatchVersion = 'component version';
+        const hostId = 'test_id';
+        const versions = {};
+
+        const request = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(versions)
+        };
+
+        const issues = {
+          [componentName]: {
+            ...testIssue,
+            mismatches: {
+              [dependencyName]: {
+                host: hostMismatchVersion,
+                component: componentMismatchVersion
+              }
             }
           }
-        }
-      };
+        };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+        const mockRegisterResponse = {
+          json: () => Promise.resolve({ id: hostId, issues }),
+          ok: true
+        };
 
-      const mockStroageController = new MockStorageProvider();
+        const mockGetComponentResponse = {
+          text: () => Promise.resolve('true'),
+          headers: {
+            get: () => 'test_header'
+          },
+          status: 200,
+          ok: true
+        };
 
-      const client = new DynamicoClient({
-        url,
-        cache: mockStroageController,
-        dependencies: {
-          resolvers: {},
-          versions
-        },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        const mockFetch = jest.fn();
+        mockFetch
+          .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+          .mockReturnValueOnce(Promise.resolve(mockGetComponentResponse));
+
+        const mockStroageController = new MockStorageProvider();
+
+        const client = new DynamicoClient({
+          url,
+          cache: mockStroageController,
+          dependencies: {
+            resolvers: {},
+            versions
+          },
+          fetcher: mockFetch as GlobalFetch['fetch']
+        });
+        await client.get(componentName);
+
+        expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          `${componentName}@${
+            issues[componentName].version
+          } requires ${dependencyName}@${componentMismatchVersion} but host provides ${hostMismatchVersion}. Please consider upgrade to version ${componentMismatchVersion}`
+        );
+        expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=${hostId}`);
       });
-      await client.initialize();
-
-      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        `${componentName}@${
-          issues[componentName].version
-        } requires ${dependencyName}@${componentMismatchVersion} but host provides ${hostMismatchVersion}. Please consider upgrade to version ${componentMismatchVersion}`
-      );
     });
 
-    it('does not register dependency when a resolver is not provided for that dependency', async () => {
-      const url = 'testUrl';
-      const nonResolvedDep = 'nonResolvedDep';
-      const resolvedDep = 'resolvedDep';
-      const versions = {
-        [nonResolvedDep]: '1.0.0',
-        [resolvedDep]: '2.0.0'
-      };
-      const resolvers = { [resolvedDep]: () => 'test dependency' };
-      const expectedVersions = {
-        [resolvedDep]: '2.0.0'
-      };
-      const request = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(expectedVersions)
-      };
-      const mockFetch = jest.fn();
-      const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues }),
-        ok: true
-      };
-      const issues = {
-        testComponent: testIssue
-      };
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
-      const mockStroageController = new MockStorageProvider();
-
-      const client = new DynamicoClient({
-        url,
-        cache: mockStroageController,
-        dependencies: {
-          resolvers,
-          versions
-        },
-        fetcher: mockFetch as GlobalFetch['fetch']
-      });
-      await client.initialize();
-
-      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
-    });
-
-    it('does not register dependency and warns about it when only a resolver is provided', async () => {
-      const url = 'testUrl';
-      const versions = {
-        depA: '1.0.0'
-      };
-      const nonVersionedDep = 'nonVersionedDep';
-      const resolvers = Object.entries(versions).reduce(
-        (soFar, [key, version]) => ({ ...soFar, [key]: () => `${key}@${version}` }),
-        {}
-      );
-      resolvers[nonVersionedDep] = () => `${'nonVersionedDep'}`;
-      const request = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(versions)
-      };
-      const mockFetch = jest.fn();
-      const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues }),
-        ok: true
-      };
-      const issues = {
-        testComponent: testIssue
-      };
-
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
-      const mockStroageController = new MockStorageProvider();
-
-      const client = new DynamicoClient({
-        url,
-        cache: mockStroageController,
-        dependencies: {
-          resolvers,
-          versions
-        },
-        fetcher: mockFetch as GlobalFetch['fetch']
-      });
-      await client.initialize();
-
-      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
-      expect(consoleWarnSpy).toHaveBeenCalledWith(`Missing version specifier for ${nonVersionedDep}`);
-    });
-
-    it(`registers host when called`, async () => {
-      const url = 'testUrl';
-      const versions = {};
-      const request = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(versions)
-      };
-      const mockFetch = jest.fn();
-      const mockResponse = {
-        json: () => Promise.resolve({ id: 'test_id', issues }),
-        ok: true
-      };
-      const issues = {
-        testComponent: testIssue
-      };
-
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
-      const mockStroageController = new MockStorageProvider();
-
-      const client = new DynamicoClient({
-        url,
-        cache: mockStroageController,
-        dependencies: {
-          resolvers: {},
-          versions
-        },
-        fetcher: mockFetch as GlobalFetch['fetch']
-      });
-      await client.initialize();
-
-      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
-    });
-
-    it('throws error when registration request fails', async () => {
-      const url = 'testUrl';
-      const versions = {};
-      const mockFetch = jest.fn();
-      const expectedError = new Error('test error');
-      mockFetch.mockRejectedValue(expectedError);
-
-      const mockStroageController = new MockStorageProvider();
-
-      const client = new DynamicoClient({
-        url,
-        cache: mockStroageController,
-        dependencies: {
-          resolvers: {},
-          versions
-        },
-        fetcher: mockFetch as GlobalFetch['fetch']
-      });
-      await expect(client.initialize()).rejects.toEqual(expectedError);
-    });
-  });
-
-  describe('get', () => {
     it('sends component version and component name to server when component version is specified and cache is empty', async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
@@ -279,7 +328,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageController = new MockStorageProvider();
 
@@ -314,7 +370,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageController = new MockStorageProvider();
       mockStroageController[`${prefix}/${componentName}/${componentVersion}`] = 'new code';
@@ -350,7 +413,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
       mockStroageProvider[`${prefix}/${componentName}/${componentVersion}`] = 'new code';
@@ -386,7 +456,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageController = new MockStorageProvider();
       mockStroageController[`${prefix}/${componentName}/${componentVersion}`] = 'new code';
@@ -423,7 +500,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -461,7 +545,14 @@ describe('Client tests', () => {
         ok: false
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -499,7 +590,14 @@ describe('Client tests', () => {
         ok: false
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -537,7 +635,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -598,7 +703,7 @@ describe('Client tests', () => {
         },
         fetcher: mockFetch as GlobalFetch['fetch']
       });
-      await client.initialize();
+
       await client.get(componentName);
 
       expect(mockFetch).toBeCalledWith(
@@ -624,7 +729,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -662,7 +774,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -702,7 +821,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -748,7 +874,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 
@@ -787,7 +920,14 @@ describe('Client tests', () => {
         ok: true
       };
 
-      mockFetch.mockReturnValue(Promise.resolve(mockResponse));
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
 
       const mockStroageProvider = new MockStorageProvider();
 

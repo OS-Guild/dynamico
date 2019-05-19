@@ -41,6 +41,12 @@ interface RegisterHostResponse {
   issues: Issues;
 }
 
+const enum ReadyState {
+  NotInitialized,
+  Initializing,
+  Ready
+}
+
 export class DynamicoClient {
   id: string = '';
   url: string;
@@ -52,12 +58,14 @@ export class DynamicoClient {
   fetcher: GlobalFetch['fetch'];
   globals: Record<string, any>;
 
+  private readyState: ReadyState = ReadyState.NotInitialized;
+  private requestQueue: Function[] = [];
+
   constructor(options: InitOptions) {
     this.url = options.url;
     this.cache = new StorageController(options.prefix || '@dynamico', options.cache);
     this.dependencies = options.dependencies;
     this.globals = options.globals || {};
-
     this.checkFetcher(options.fetcher);
 
     this.fetcher = options.fetcher || fetch.bind(window);
@@ -112,10 +120,31 @@ export class DynamicoClient {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(dependencies)
-    }).then(async (res: Response) => res.json());
+    }).then((res: Response) => res.json());
+  }
+
+  private async isReady() {
+    if (this.readyState === ReadyState.NotInitialized) {
+      this.readyState = ReadyState.Initializing;
+
+      await this.initialize();
+
+      this.readyState = ReadyState.Ready;
+
+      this.requestQueue.forEach(handler => handler());
+      this.requestQueue = [];
+    }
+
+    if (this.readyState !== ReadyState.Ready) {
+      await new Promise(resolve => this.requestQueue.push(() => resolve()));
+    }
+
+    return true;
   }
 
   private async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
+    await this.isReady();
+
     let latestComponentVersion: string | undefined;
 
     if (!componentVersion) {
@@ -154,9 +183,10 @@ export class DynamicoClient {
     return code;
   }
 
-  async initialize() {
+  private async initialize() {
     const versions = this.filterMissingDependencies(this.dependencies);
     const { id, issues }: RegisterHostResponse = await this.register(versions);
+
     this.id = id;
     this.handleIssues(issues);
   }
