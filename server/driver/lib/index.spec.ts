@@ -11,7 +11,7 @@ import {
 } from './errors';
 
 const getCode = async () => '';
-const getDependencies = () => ({});
+const getDependencies = async () => ({});
 const componentName = 'foo';
 
 class MockStorage implements Storage {
@@ -296,7 +296,7 @@ describe('Driver', () => {
               {},
               {
                 [expected.name]: {
-                  [expected.version]: () => deps
+                  [expected.version]: async () => deps
                 }
               }
             );
@@ -331,7 +331,7 @@ describe('Driver', () => {
               {},
               {
                 [expected.name]: {
-                  [expected.version]: () => ({
+                  [expected.version]: async () => ({
                     ...deps,
                     [expectedMismatch.name]: expectedMismatch.versions.component
                   })
@@ -376,8 +376,8 @@ describe('Driver', () => {
               {},
               {
                 [expected.name]: {
-                  [expected.version]: () => deps,
-                  [expectedToNotBePresent.version]: () => depsTheHostIsNotCompatibleWith
+                  [expected.version]: async () => deps,
+                  [expectedToNotBePresent.version]: async () => depsTheHostIsNotCompatibleWith
                 }
               }
             );
@@ -411,8 +411,8 @@ describe('Driver', () => {
               {},
               {
                 [expected.name]: {
-                  [expected.version]: () => deps,
-                  [expectedToNotBePresent.version]: () => deps
+                  [expected.version]: async () => deps,
+                  [expectedToNotBePresent.version]: async () => deps
                 }
               }
             );
@@ -438,7 +438,7 @@ describe('Driver', () => {
               {},
               {
                 compA: {
-                  '1.0.0': () => ({
+                  '1.0.0': async () => ({
                     ...deps,
                     depA: '^0.0.1'
                   })
@@ -464,7 +464,7 @@ describe('Driver', () => {
               {},
               {
                 compA: {
-                  '1.0.0': () => ({
+                  '1.0.0': async () => ({
                     depA: '^0.0.1'
                   })
                 }
@@ -513,7 +513,7 @@ describe('Driver', () => {
         {},
         {
           [component.name]: {
-            [component.version]: () => ({})
+            [component.version]: async () => ({})
           }
         }
       );

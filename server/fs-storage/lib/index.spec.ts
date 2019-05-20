@@ -64,11 +64,11 @@ describe('File system storage provider', () => {
       expect(result).toBeDefined();
       expect(result[compA.name]).toBeDefined();
       expect(result[compA.name][compA.version]).toBeDefined();
-      expect(result[compA.name][compA.version]()).toMatchObject(compA.peerDependencies);
+      expect(await result[compA.name][compA.version]()).toMatchObject(compA.peerDependencies);
 
       expect(result[compB.name]).toBeDefined();
       expect(result[compB.name][compB.version]).toBeDefined();
-      expect(result[compB.name][compB.version]()).toMatchObject(compB.peerDependencies);
+      expect(await result[compB.name][compB.version]()).toMatchObject(compB.peerDependencies);
     });
 
     it('should return multiple components version tree', async () => {
@@ -99,11 +99,11 @@ describe('File system storage provider', () => {
       expect(result).toBeDefined();
       expect(result[compA.name]).toBeDefined();
       expect(result[compA.name][compA.version]).toBeDefined();
-      expect(result[compA.name][compA.version]()).toMatchObject(compA.peerDependencies);
+      expect(await result[compA.name][compA.version]()).toMatchObject(compA.peerDependencies);
 
       expect(result[compB.name]).toBeDefined();
       expect(result[compB.name][compB.version]).toBeDefined();
-      expect(result[compB.name][compB.version]()).toMatchObject(compB.peerDependencies);
+      expect(await result[compB.name][compB.version]()).toMatchObject(compB.peerDependencies);
     });
   });
 

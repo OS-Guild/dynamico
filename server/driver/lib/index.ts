@@ -29,7 +29,7 @@ export interface Host {
 }
 
 export interface ComponentTreeItem extends Required<Component> {
-  getDependencies: () => Dependencies;
+  getDependencies: () => Promise<Dependencies>;
 }
 
 export interface ComponentGetter extends Required<Component> {
@@ -92,8 +92,8 @@ export class Driver {
     };
   }
 
-  private isCompatible(host: Host, comp: ComponentTreeItem): Maybe<{ mismatches: Mismatches }> {
-    const compDeps = comp.getDependencies();
+  private async isCompatible(host: Host, comp: ComponentTreeItem): Promise<Maybe<{ mismatches: Mismatches }>> {
+    const compDeps = await comp.getDependencies();
     const mismatches: Mismatches = {};
 
     for (let dep in compDeps) {
@@ -124,27 +124,24 @@ export class Driver {
     const tree = await this.storage.getComponentTree();
     let incompatibilityIssues: Issues<Component> = {};
 
-    const components = Object.entries(tree).reduce((sum, [name, versionTree]) => {
+    const components = await Object.entries(tree).reduce(async (sum, [name, versionTree]) => {
       const sortedVersions = Object.entries(versionTree).sort(([a], [b]) => compareVersions(b, a));
 
-      const comp = sortedVersions.find(([version, getDependencies]) => {
-        const isCompatible = this.isCompatible(host, { name, version, getDependencies });
-
+      for (const [version, getDependencies] of sortedVersions) {
+        const isCompatible = await this.isCompatible(host, { name, version, getDependencies });
         if (isCompatible) {
           incompatibilityIssues[name] = {
             version,
             mismatches: isCompatible.mismatches
           };
+          return {
+            ...(await sum),
+            [name]: version
+          };
         }
-
-        return !!isCompatible;
-      });
-
-      return {
-        ...sum,
-        ...(comp ? { [name]: comp[0] } : undefined)
-      };
-    }, {});
+      }
+      return sum;
+    }, Promise.resolve({}));
 
     await this.storage.upsertIndex({
       [host.id]: {
@@ -159,28 +156,31 @@ export class Driver {
   private async updateHosts(component: ComponentTreeItem): Promise<Issues<Host>> {
     const hostIssues = {};
 
-    const index = Object.entries(await this.storage.getIndex()).reduce((sum, [id, { dependencies, components }]) => {
-      if (components[component.name] && compareVersions(components[component.name], component.version) >= 0) {
-        return sum;
-      }
-
-      const isCompatible = this.isCompatible({ id, dependencies }, component);
-
-      if (isCompatible) {
-        components[component.name] = component.version;
-        hostIssues[id] = {
-          mismatches: isCompatible.mismatches
-        };
-      }
-
-      return {
-        ...sum,
-        [id]: {
-          dependencies,
-          components
+    const index = await Object.entries(await this.storage.getIndex()).reduce(
+      async (sum, [id, { dependencies, components }]) => {
+        if (components[component.name] && compareVersions(components[component.name], component.version) >= 0) {
+          return sum;
         }
-      };
-    }, {});
+
+        const isCompatible = await this.isCompatible({ id, dependencies }, component);
+
+        if (isCompatible) {
+          components[component.name] = component.version;
+          hostIssues[id] = {
+            mismatches: isCompatible.mismatches
+          };
+        }
+
+        return {
+          ...(await sum),
+          [id]: {
+            dependencies,
+            components
+          }
+        };
+      },
+      Promise.resolve({})
+    );
 
     await this.storage.upsertIndex(index);
 
@@ -240,7 +240,7 @@ export class Driver {
 
     return this.updateHosts({
       ...component,
-      getDependencies: () => component.dependencies
+      getDependencies: async () => component.dependencies
     });
   }
 }
