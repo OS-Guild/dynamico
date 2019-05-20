@@ -33,7 +33,7 @@ export interface ComponentTreeItem extends Required<Component> {
 }
 
 export interface ComponentGetter extends Required<Component> {
-  getCode: () => string;
+  getCode: () => Promise<string>;
 }
 
 export type Dependencies = Record<string, string>;
@@ -52,11 +52,11 @@ export type Index = Record<
 >;
 
 export interface Storage {
-  getIndex(): Index;
-  upsertIndex(index: Index): void;
-  getComponentTree(): ComponentTree;
-  getComponent(name: string, version: string): Maybe<ComponentGetter>;
-  saveComponent(component: Component, files: File[]): void;
+  getIndex(): Promise<Index>;
+  upsertIndex(index: Index): Promise<void>;
+  getComponentTree(): Promise<ComponentTree>;
+  getComponent(name: string, version: string): Promise<Maybe<ComponentGetter>>;
+  saveComponent(component: Component, files: File[]): Promise<void>;
 }
 
 export interface Mismatches {
@@ -71,16 +71,16 @@ type Issues<T> = Record<string, Partial<T> & { mismatches: Mismatches }>;
 export class Driver {
   constructor(private storage: Storage) {}
 
-  registerHost(dependencies: Dependencies = {}): { id: string; issues: Issues<Component> } {
+  async registerHost(dependencies: Dependencies = {}): Promise<{ id: string; issues: Issues<Component> }> {
     let issues = {};
 
     const sortedDependencies = Object.entries(dependencies).sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
     const id = MurmurHash3(JSON.stringify(sortedDependencies)).result();
 
-    const index = this.storage.getIndex();
+    const index = await this.storage.getIndex();
 
     if (!index[id]) {
-      issues = this.upsertIndex({
+      issues = await this.upsertIndex({
         id,
         dependencies
       });
@@ -120,8 +120,8 @@ export class Driver {
     };
   }
 
-  private upsertIndex(host: Host): Issues<Component> {
-    const tree = this.storage.getComponentTree();
+  private async upsertIndex(host: Host): Promise<Issues<Component>> {
+    const tree = await this.storage.getComponentTree();
     let incompatibilityIssues: Issues<Component> = {};
 
     const components = Object.entries(tree).reduce((sum, [name, versionTree]) => {
@@ -146,7 +146,7 @@ export class Driver {
       };
     }, {});
 
-    this.storage.upsertIndex({
+    await this.storage.upsertIndex({
       [host.id]: {
         dependencies: host.dependencies,
         components
@@ -156,10 +156,10 @@ export class Driver {
     return incompatibilityIssues;
   }
 
-  private updateHosts(component: ComponentTreeItem): Issues<Host> {
+  private async updateHosts(component: ComponentTreeItem): Promise<Issues<Host>> {
     const hostIssues = {};
 
-    const index = Object.entries(this.storage.getIndex()).reduce((sum, [id, { dependencies, components }]) => {
+    const index = Object.entries(await this.storage.getIndex()).reduce((sum, [id, { dependencies, components }]) => {
       if (components[component.name] && compareVersions(components[component.name], component.version) >= 0) {
         return sum;
       }
@@ -182,14 +182,14 @@ export class Driver {
       };
     }, {});
 
-    this.storage.upsertIndex(index);
+    await this.storage.upsertIndex(index);
 
     return hostIssues;
   }
 
-  getComponent({ hostId = '', name, version }: { hostId?: string } & Component): ComponentGetter {
+  async getComponent({ hostId = '', name, version }: { hostId?: string } & Component): Promise<ComponentGetter> {
     if (!version) {
-      const index = this.storage.getIndex();
+      const index = await this.storage.getIndex();
 
       if (!index[hostId]) {
         throw new UnknownHostIdError({ hostId });
@@ -202,7 +202,7 @@ export class Driver {
       version = index[hostId].components[name];
     }
 
-    const componentGetter = this.storage.getComponent(name, version);
+    const componentGetter = await this.storage.getComponent(name, version);
 
     if (!componentGetter) {
       throw new NoComponentError({ name, version });
@@ -211,12 +211,15 @@ export class Driver {
     return componentGetter;
   }
 
-  saveComponent(component: Required<Component> & { dependencies: Dependencies }, files: File[]): Issues<Host> {
+  async saveComponent(
+    component: Required<Component> & { dependencies: Dependencies },
+    files: File[]
+  ): Promise<Issues<Host>> {
     if (!component.version) {
       throw new NoComponentVersionError({ component });
     }
 
-    const componentTree = this.storage.getComponentTree();
+    const componentTree = await this.storage.getComponentTree();
 
     if (componentTree[component.name]) {
       const componentGetter = componentTree[component.name][component.version];
@@ -233,7 +236,7 @@ export class Driver {
       });
     }
 
-    this.storage.saveComponent(component, files);
+    await this.storage.saveComponent(component, files);
 
     return this.updateHosts({
       ...component,

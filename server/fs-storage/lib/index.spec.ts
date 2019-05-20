@@ -28,14 +28,14 @@ describe('File system storage provider', () => {
   afterEach(() => fs.removeSync(tmpdir));
 
   describe('getComponentTree', () => {
-    it('should return an empty version tree for no components', () => {
+    it('should return an empty version tree for no components', async () => {
       const storage = new FSStorage(tmpdir);
-      const result = storage.getComponentTree();
+      const result = await storage.getComponentTree();
 
       expect(result).toEqual({});
     });
 
-    it('should return multiple versions for component in version tree', () => {
+    it('should return multiple versions for component in version tree', async () => {
       const compA = {
         name: 'name',
         version: '1.0.0',
@@ -59,7 +59,7 @@ describe('File system storage provider', () => {
       prepareComponent(compB);
 
       const storage = new FSStorage(tmpdir);
-      const result = storage.getComponentTree();
+      const result = await storage.getComponentTree();
 
       expect(result).toBeDefined();
       expect(result[compA.name]).toBeDefined();
@@ -71,7 +71,7 @@ describe('File system storage provider', () => {
       expect(result[compB.name][compB.version]()).toMatchObject(compB.peerDependencies);
     });
 
-    it('should return multiple components version tree', () => {
+    it('should return multiple components version tree', async () => {
       const compA = {
         name: 'nameA',
         version: '1.0.0',
@@ -94,7 +94,7 @@ describe('File system storage provider', () => {
       prepareComponent(compB);
 
       const storage = new FSStorage(tmpdir);
-      const result = storage.getComponentTree();
+      const result = await storage.getComponentTree();
 
       expect(result).toBeDefined();
       expect(result[compA.name]).toBeDefined();
@@ -107,17 +107,16 @@ describe('File system storage provider', () => {
     });
   });
 
-  xdescribe('getComponent', () => {
-    it('should return undefined for non existant component', () => {
-      console.log(tmpdir);
+  describe('getComponent', () => {
+    it('should return undefined for non existant component', async () => {
       const storage = new FSStorage(tmpdir);
 
-      const result = storage.getComponent('name', '1.0.0');
+      const result = await storage.getComponent('no way this exists', '1.0.0');
 
       expect(result).toBeUndefined();
     });
 
-    it('should return component from filesystem', () => {
+    it('should return component from filesystem', async () => {
       const comp = {
         name: 'name',
         version: '1.0.0',
@@ -127,12 +126,13 @@ describe('File system storage provider', () => {
       prepareComponent(comp);
 
       const storage = new FSStorage(tmpdir);
-      const result = storage.getComponent(comp.name, comp.version)!;
+      const result = await storage.getComponent(comp.name, comp.version)!;
 
       expect(result).toBeDefined();
-      expect(result.name).toBe(comp.name);
-      expect(result.version).toBe(comp.version);
-      expect(result.getCode()).toBe(comp.code);
+      const definedResult = result as any; // Prevent TS error on result might be undefined
+      expect(definedResult.name).toBe(comp.name);
+      expect(definedResult.version).toBe(comp.version);
+      expect(await definedResult.getCode()).toBe(comp.code);
     });
   });
 });

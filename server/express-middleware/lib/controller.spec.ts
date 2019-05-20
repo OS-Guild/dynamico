@@ -69,7 +69,7 @@ const stringToStream = contents => {
 
 describe('controller', () => {
   describe('get', () => {
-    it('throws error when component version is invalid', () => {
+    it('throws error when component version is invalid', async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
       const invalidComponentVersion = 'invalidVersion';
@@ -81,12 +81,13 @@ describe('controller', () => {
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
       mockDriver.getComponent.mockReturnValueOnce({ version: 1, getCode: () => {} });
-      expect(() => controller.get(mockDriver)(request, response)).toThrowError(
+
+      await expect(controller.get(mockDriver)(request, response)).rejects.toEqual(
         new InvalidVersionError({ componentVersion: invalidComponentVersion })
       );
     });
 
-    it('throws error when latest version is invalid', () => {
+    it('throws error when latest version is invalid', async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
       const invalidLatestVersion = 'invalidVersion';
@@ -98,12 +99,12 @@ describe('controller', () => {
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
       mockDriver.getComponent.mockReturnValueOnce({ version: 1, getCode: () => {} });
-      expect(() => controller.get(mockDriver)(request, response)).toThrowError(
+      await expect(controller.get(mockDriver)(request, response)).rejects.toEqual(
         new InvalidVersionError({ latestVersion: invalidLatestVersion })
       );
     });
 
-    it('should use driver to get component with parameters from query', () => {
+    it('should use driver to get component with parameters from query', async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
 
@@ -115,7 +116,7 @@ describe('controller', () => {
       const params = { name: 'test' };
       const request = getMockRequest({ params, query });
       mockDriver.getComponent.mockReturnValueOnce({ version: 1, getCode: () => {} });
-      controller.get(mockDriver)(request, response);
+      await controller.get(mockDriver)(request, response);
       expect(mockDriver.getComponent).toHaveBeenCalledWith({
         name: params.name,
         hostId: query.hostId,
@@ -123,7 +124,7 @@ describe('controller', () => {
       });
     });
 
-    it('it should respond with 204 when latest version is the only available version', () => {
+    it('it should respond with 204 when latest version is the only available version', async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
 
@@ -139,12 +140,12 @@ describe('controller', () => {
         getCode: () => {}
       });
 
-      controller.get(mockDriver)(request, response);
+      await controller.get(mockDriver)(request, response);
 
       expect(response.sendStatus).toBeCalledWith(204);
     });
 
-    it(`it should set header 'Dynamico-Component-Version' on response to the component version`, () => {
+    it(`it should set header 'Dynamico-Component-Version' on response to the component version`, async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
 
@@ -157,12 +158,12 @@ describe('controller', () => {
       const request = getMockRequest({ params, query });
       mockDriver.getComponent.mockReturnValueOnce({ version: '1', getCode: () => {} });
 
-      controller.get(mockDriver)(request, response);
+      await controller.get(mockDriver)(request, response);
 
       expect(response.setHeader).toBeCalledWith('Dynamico-Component-Version', '1');
     });
 
-    it('returns component if latest component version is missing', () => {
+    it('returns component if latest component version is missing', async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
       const getCode = jest.fn();
@@ -175,12 +176,12 @@ describe('controller', () => {
       const request = getMockRequest({ params, query });
       mockDriver.getComponent.mockReturnValueOnce({ version: '1', getCode });
 
-      controller.get(mockDriver)(request, response);
+      await controller.get(mockDriver)(request, response);
 
       expect(getCode).toBeCalled();
     });
 
-    it('returns component if latest component version is different than found component version', () => {
+    it('returns component if latest component version is different than found component version', async () => {
       const mockDriver = new MockDriver();
       const response = getMockResponse();
       const getCode = jest.fn();
@@ -195,7 +196,7 @@ describe('controller', () => {
       const returnedVersion = `${query.latestComponentVersion}.1`;
       mockDriver.getComponent.mockReturnValueOnce({ version: returnedVersion, getCode });
 
-      controller.get(mockDriver)(request, response);
+      await controller.get(mockDriver)(request, response);
 
       expect(getCode).toBeCalled();
     });

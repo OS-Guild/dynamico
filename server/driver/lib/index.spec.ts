@@ -10,33 +10,33 @@ import {
   UnknownHostIdError
 } from './errors';
 
-const getCode = () => '';
+const getCode = async () => '';
 const getDependencies = () => ({});
 const componentName = 'foo';
 
 class MockStorage implements Storage {
   constructor(private index: Index = {}, private components: ComponentTree = {}) {}
 
-  getIndex(): Index {
+  async getIndex(): Promise<Index> {
     return this.index;
   }
 
-  upsertIndex(index: Index): void {
+  async upsertIndex(index: Index) {
     this.index = {
       ...this.index,
       ...index
     };
   }
 
-  getComponentTree(): ComponentTree {
+  async getComponentTree(): Promise<ComponentTree> {
     return this.components;
   }
 
-  getComponent(name: string, version: string): Maybe<ComponentGetter> {
+  async getComponent(name: string, version: string): Promise<Maybe<ComponentGetter>> {
     return { name, version, getCode };
   }
 
-  saveComponent(component: Component, files: File[]) {
+  async saveComponent(component: Component, files: File[]) {
     this.components = merge({}, this.components, {
       [component.name]: {
         [component.version!]: () => 'some code'
@@ -47,7 +47,7 @@ class MockStorage implements Storage {
 
 describe('Driver', () => {
   describe('getComponent', () => {
-    it('should find specified component in the index', () => {
+    it('should find specified component in the index', async () => {
       const expected = {
         name: 'compA',
         version: '1.0.0',
@@ -68,16 +68,16 @@ describe('Driver', () => {
       const mockedStorage = new MockStorage(index, {});
       const driver = new Driver(mockedStorage);
 
-      const component = driver.getComponent({
+      const component = await driver.getComponent({
         hostId,
         name: expected.name
       });
 
       expect(component.version).toBe(expected.version);
-      expect(component.getCode()).toBe(expected.getCode());
+      expect(await component.getCode()).toBe(await expected.getCode());
     });
 
-    it('should return specified component version and ignore index', () => {
+    it('should return specified component version and ignore index', async () => {
       const expected = {
         name: 'compA',
         version: '2.0.0',
@@ -96,13 +96,13 @@ describe('Driver', () => {
 
       const driver = new Driver(mockedStorage);
 
-      const component = driver.getComponent(expected);
+      const component = await driver.getComponent(expected);
 
       expect(component.version).toBe(expected.version);
-      expect(component.getCode()).toBe(expected.getCode());
+      expect(await component.getCode()).toBe(await expected.getCode());
     });
 
-    it('should throw error for missing component version', () => {
+    it('should throw error for missing component version', async () => {
       const hostId = 'id';
 
       const expected = {
@@ -122,22 +122,20 @@ describe('Driver', () => {
 
       const mockedStorage = new MockStorage(index);
 
-      mockedStorage.getComponent = () => undefined;
+      mockedStorage.getComponent = async () => undefined;
 
       const driver = new Driver(mockedStorage);
 
-      const result = expect(() => {
+      await expect(
         driver.getComponent({
           hostId,
           name: componentName,
           version: '3.0.0'
-        });
-      });
-
-      result.toThrowError(new NoComponentError({ expected }));
+        })
+      ).rejects.toEqual(new NoComponentError({ expected }));
     });
 
-    it('should throw error for missing component', () => {
+    it('should throw error for missing component', async () => {
       const hostId = 'id';
 
       const index: Index = {
@@ -150,51 +148,47 @@ describe('Driver', () => {
       const mockedStorage = new MockStorage(index);
       const driver = new Driver(mockedStorage);
 
-      const result = expect(() => {
+      await expect(
         driver.getComponent({
           hostId,
           name: componentName
-        });
-      });
-
-      result.toThrowError(new NoComponentError({ hostId }));
+        })
+      ).rejects.toEqual(new NoComponentError({ hostId }));
     });
 
-    it('should throw error for missing host', () => {
+    it('should throw error for missing host', async () => {
       const hostId = 'id';
 
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
 
-      const result = expect(() => {
+      await expect(
         driver.getComponent({
           hostId,
           name: componentName
-        });
-      });
-
-      result.toThrowError(new UnknownHostIdError({ hostId }));
+        })
+      ).rejects.toEqual(new UnknownHostIdError({ hostId }));
     });
   });
 
   describe('registerHost', () => {
-    it('should return id', () => {
+    it('should return id', async () => {
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
-      const { id } = driver.registerHost();
+      const { id } = await driver.registerHost();
 
       expect(id).toBeDefined();
     });
 
-    it('should return different id for different host dependencies', () => {
+    it('should return different id for different host dependencies', async () => {
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
 
-      const { id: id1 } = driver.registerHost({
+      const { id: id1 } = await driver.registerHost({
         depA: '1.0.0'
       });
 
-      const { id: id2 } = driver.registerHost({
+      const { id: id2 } = await driver.registerHost({
         depA: '1.0.0',
         depB: '1.0.0'
       });
@@ -202,16 +196,16 @@ describe('Driver', () => {
       expect(id1).not.toBe(id2);
     });
 
-    it('should return different id for different host dependencies versions', () => {
+    it('should return different id for different host dependencies versions', async () => {
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
 
-      const { id: id1 } = driver.registerHost({
+      const { id: id1 } = await driver.registerHost({
         depA: '1.0.0',
         depB: '1.0.0'
       });
 
-      const { id: id2 } = driver.registerHost({
+      const { id: id2 } = await driver.registerHost({
         depA: '1.0.0',
         depB: '1.0.1'
       });
@@ -219,16 +213,16 @@ describe('Driver', () => {
       expect(id1).not.toBe(id2);
     });
 
-    it('should return the same id regardless of dependencies order', () => {
+    it('should return the same id regardless of dependencies order', async () => {
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
 
-      const { id: id1 } = driver.registerHost({
+      const { id: id1 } = await driver.registerHost({
         depA: '1.0.0',
         depB: '1.0.0'
       });
 
-      const { id: id2 } = driver.registerHost({
+      const { id: id2 } = await driver.registerHost({
         depB: '1.0.0',
         depA: '1.0.0'
       });
@@ -237,43 +231,42 @@ describe('Driver', () => {
     });
 
     describe('upsertIndex', () => {
-      it('should not upsert index when host id exists', () => {
+      it('should not upsert index when host id exists', async () => {
         const mockedStorage = new MockStorage();
         const driver = new Driver(mockedStorage);
+        expect(Object.keys(await mockedStorage.getIndex()).length).toBe(0);
 
-        expect(Object.keys(mockedStorage.getIndex()).length).toBe(0);
-
-        driver.registerHost({
+        await driver.registerHost({
           depA: '1.0.0',
           depB: '1.0.0'
         });
 
-        expect(Object.keys(mockedStorage.getIndex()).length).toBe(1);
+        expect(Object.keys(await mockedStorage.getIndex()).length).toBe(1);
 
-        driver.registerHost({
+        await driver.registerHost({
           depA: '1.0.0',
           depB: '1.0.0'
         });
 
-        expect(Object.keys(mockedStorage.getIndex()).length).toBe(1);
+        expect(Object.keys(await mockedStorage.getIndex()).length).toBe(1);
       });
 
       describe('upsert index for non existent host id', () => {
-        it('should create new index entry when index is empty', () => {
+        it('should create new index entry when index is empty', async () => {
           const mockedStorage = new MockStorage();
           const driver = new Driver(mockedStorage);
 
-          expect(Object.keys(mockedStorage.getIndex()).length).toBe(0);
+          expect(Object.keys(await mockedStorage.getIndex()).length).toBe(0);
 
-          driver.registerHost({
+          await driver.registerHost({
             depA: '1.0.0',
             depB: '1.0.0'
           });
 
-          expect(Object.keys(mockedStorage.getIndex()).length).toBe(1);
+          expect(Object.keys(await mockedStorage.getIndex()).length).toBe(1);
         });
 
-        it('should save declared dependencies in host index entry', () => {
+        it('should save declared dependencies in host index entry', async () => {
           const mockedStorage = new MockStorage();
           const driver = new Driver(mockedStorage);
 
@@ -282,13 +275,13 @@ describe('Driver', () => {
             depB: '1.0.0'
           };
 
-          const { id } = driver.registerHost(deps);
+          const { id } = await driver.registerHost(deps);
 
-          expect(mockedStorage.getIndex()[id].dependencies).toBe(deps);
+          expect((await mockedStorage.getIndex())[id].dependencies).toBe(deps);
         });
 
         describe('host is compatible with component', () => {
-          it('should components under components section', () => {
+          it('should components under components section', async () => {
             const expected = {
               name: 'compA',
               version: '1.0.0'
@@ -310,13 +303,13 @@ describe('Driver', () => {
 
             const driver = new Driver(mockedStorage);
 
-            const { id } = driver.registerHost(deps);
-            const components = mockedStorage.getIndex()[id].components;
+            const { id } = await driver.registerHost(deps);
+            const components = (await mockedStorage.getIndex())[id].components;
 
             expect(components[expected.name]).toBe(expected.version);
           });
 
-          it('should return a mismatching issue for component dependency with higher version than the host', () => {
+          it('should return a mismatching issue for component dependency with higher version than the host', async () => {
             const expected = {
               name: 'compA',
               version: '1.0.0'
@@ -348,8 +341,8 @@ describe('Driver', () => {
 
             const driver = new Driver(mockedStorage);
 
-            const { id, issues } = driver.registerHost(deps);
-            const components = mockedStorage.getIndex()[id].components;
+            const { id, issues } = await driver.registerHost(deps);
+            const components = (await mockedStorage.getIndex())[id].components;
 
             expect(components[expected.name]).toBe(expected.version);
             expect(issues[expected.name]).not.toBeUndefined();
@@ -358,7 +351,7 @@ describe('Driver', () => {
             expect(issues[expected.name].mismatches[expectedMismatch.name]).toMatchObject(expectedMismatch.versions);
           });
 
-          it('should add to index only the component version the host is compatible with', () => {
+          it('should add to index only the component version the host is compatible with', async () => {
             const expected = {
               name: 'compA',
               version: '1.0.0'
@@ -391,14 +384,14 @@ describe('Driver', () => {
 
             const driver = new Driver(mockedStorage);
 
-            const { id } = driver.registerHost(deps);
-            const components = mockedStorage.getIndex()[id].components;
+            const { id } = await driver.registerHost(deps);
+            const components = (await mockedStorage.getIndex())[id].components;
 
             expect(components[expected.name]).toBe(expected.version);
             expect(components[expected.name]).not.toBe(expectedToNotBePresent.version);
           });
 
-          it('should add to index the latest component version the host is compatible with', () => {
+          it('should add to index the latest component version the host is compatible with', async () => {
             const expected = {
               name: 'compA',
               version: '2.0.0'
@@ -426,8 +419,8 @@ describe('Driver', () => {
 
             const driver = new Driver(mockedStorage);
 
-            const { id } = driver.registerHost(deps);
-            const components = mockedStorage.getIndex()[id].components;
+            const { id } = await driver.registerHost(deps);
+            const components = (await mockedStorage.getIndex())[id].components;
 
             expect(components[expected.name]).toBe(expected.version);
             expect(components[expected.name]).not.toBe(expectedToNotBePresent.version);
@@ -435,7 +428,7 @@ describe('Driver', () => {
         });
 
         describe('host can not satisfy component dependencies', () => {
-          it(`should not add component to host index when host dependency major version is higher`, () => {
+          it(`should not add component to host index when host dependency major version is higher`, async () => {
             const deps = {
               depA: '^1.0.0',
               depB: '^1.0.0'
@@ -455,14 +448,14 @@ describe('Driver', () => {
 
             const driver = new Driver(mockedStorage);
 
-            const { id } = driver.registerHost(deps);
-            const index = mockedStorage.getIndex()[id];
+            const { id } = await driver.registerHost(deps);
+            const index = (await mockedStorage.getIndex())[id];
 
             expect(index).toBeDefined();
             expect(index.components).toEqual({});
           });
 
-          it('should not add component to host index when host is missing component dependency', () => {
+          it('should not add component to host index when host is missing component dependency', async () => {
             const deps = {
               depB: '^1.0.0'
             };
@@ -480,8 +473,8 @@ describe('Driver', () => {
 
             const driver = new Driver(mockedStorage);
 
-            const { id } = driver.registerHost(deps);
-            const index = mockedStorage.getIndex()[id];
+            const { id } = await driver.registerHost(deps);
+            const index = (await mockedStorage.getIndex())[id];
 
             expect(index).toBeDefined();
             expect(index.components).toEqual({});
@@ -492,7 +485,7 @@ describe('Driver', () => {
   });
 
   describe('saveComponent', () => {
-    it('should throw when version is not specified', () => {
+    it('should throw when version is not specified', async () => {
       const component = {
         name: 'compA',
         dependencies: {}
@@ -502,10 +495,12 @@ describe('Driver', () => {
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
 
-      expect(() => driver.saveComponent(component as any, files)).toThrow(new NoComponentVersionError(component));
+      await expect(driver.saveComponent(component as any, files)).rejects.toEqual(
+        new NoComponentVersionError(component)
+      );
     });
 
-    it('should throw error when component with the same version already exists in storage', () => {
+    it('should throw error when component with the same version already exists in storage', async () => {
       const component = {
         name: 'compA',
         version: '1.0.0',
@@ -524,10 +519,10 @@ describe('Driver', () => {
       );
       const driver = new Driver(mockedStorage);
 
-      expect(() => driver.saveComponent(component, files)).toThrow(new ComponentExistsError(component));
+      await expect(driver.saveComponent(component, files)).rejects.toEqual(new ComponentExistsError(component));
     });
 
-    it('should throw error when package.json file is missing', () => {
+    it('should throw error when package.json file is missing', async () => {
       const component = {
         name: 'compA',
         version: '1.0.0',
@@ -538,10 +533,10 @@ describe('Driver', () => {
 
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
-      expect(() => driver.saveComponent(component, files)).toThrow(new NoPackageError(component));
+      await expect(driver.saveComponent(component, files)).rejects.toEqual(new NoPackageError(component));
     });
 
-    it('should save component to componentTree when component of the same version does not exist and got version and package.json', () => {
+    it('should save component to componentTree when component of the same version does not exist and got version and package.json', async () => {
       const component = {
         name: 'compA',
         version: '1.0.0',
@@ -552,14 +547,14 @@ describe('Driver', () => {
 
       const mockedStorage = new MockStorage();
       const driver = new Driver(mockedStorage);
-      driver.saveComponent(component, files);
-      const componentTree = mockedStorage.getComponentTree();
+      await driver.saveComponent(component, files);
+      const componentTree = await mockedStorage.getComponentTree();
       expect(componentTree[component.name]).toBeDefined();
       expect(componentTree[component.name][component.version]).toBeDefined();
     });
 
     describe('updateHosts', () => {
-      it('should not update empty index', () => {
+      it('should not update empty index', async () => {
         const component = {
           name: 'compA',
           version: '1.0.0',
@@ -570,12 +565,12 @@ describe('Driver', () => {
 
         const mockedStorage = new MockStorage();
         const driver = new Driver(mockedStorage);
-        driver.saveComponent(component, files);
-        const index = mockedStorage.getIndex();
+        await driver.saveComponent(component, files);
+        const index = await mockedStorage.getIndex();
         expect(index).toEqual({});
       });
 
-      it('should not add component when index contain same component name with later version', () => {
+      it('should not add component when index contain same component name with later version', async () => {
         const component = {
           name: 'compA',
           version: '1.0.0',
@@ -597,13 +592,13 @@ describe('Driver', () => {
           [host.id]: { dependencies: host.dependencies, components: host.components }
         });
         const driver = new Driver(mockedStorage);
-        driver.saveComponent(component, files);
+        await driver.saveComponent(component, files);
 
-        const index = mockedStorage.getIndex();
+        const index = await mockedStorage.getIndex();
         expect(index[host.id].components[component.name]).toBe(existingVersion);
       });
 
-      it('should add component when it is not in index and host is compatible', () => {
+      it('should add component when it is not in index and host is compatible', async () => {
         const component = {
           name: 'compA',
           version: '1.0.0',
@@ -620,9 +615,9 @@ describe('Driver', () => {
           [host.id]: { dependencies: host.dependencies, components: host.components }
         });
         const driver = new Driver(mockedStorage);
-        driver.saveComponent(component, files);
+        await driver.saveComponent(component, files);
 
-        const index = mockedStorage.getIndex();
+        const index = await mockedStorage.getIndex();
 
         expect(index[host.id]).toBeDefined();
         expect(index[host.id].components[component.name]).toBeDefined();

@@ -11,7 +11,7 @@ export class FSStorage implements Storage {
     this.indexPath = resolve(basePath, 'index.json');
   }
 
-  getIndex(): Index {
+  async getIndex(): Promise<Index> {
     let indexJson = {};
 
     if (existsSync(this.indexPath)) {
@@ -21,7 +21,7 @@ export class FSStorage implements Storage {
     return indexJson;
   }
 
-  upsertIndex(index: Index): void {
+  async upsertIndex(index: Index): Promise<void> {
     writeFileSync(
       this.indexPath,
       JSON.stringify({
@@ -31,7 +31,7 @@ export class FSStorage implements Storage {
     );
   }
 
-  getComponentTree(): ComponentTree {
+  async getComponentTree(): Promise<ComponentTree> {
     const basePath = join(resolve(this.basePath), sep);
 
     return klaw(this.basePath, { nodir: true })
@@ -51,7 +51,7 @@ export class FSStorage implements Storage {
       }, {});
   }
 
-  getComponent(name: string, version: string): ComponentGetter | undefined {
+  async getComponent(name: string, version: string): Promise<ComponentGetter | undefined> {
     const path = resolve(join(this.basePath, name, version));
 
     try {
@@ -60,14 +60,14 @@ export class FSStorage implements Storage {
       return {
         name,
         version,
-        getCode: () => readFileSync(resolve(path, main), 'utf8')
+        getCode: async () => readFileSync(resolve(path, main), 'utf8')
       };
     } catch {
       return;
     }
   }
 
-  saveComponent(component: Required<Component>, files: File[]): void {
+  async saveComponent(component: Required<Component>, files: File[]): Promise<void> {
     if (!files.length) return;
 
     const componentPath = resolve(join(this.basePath, component.name, component.version));
