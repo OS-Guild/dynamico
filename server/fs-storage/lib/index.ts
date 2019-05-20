@@ -45,7 +45,7 @@ export class FSStorage implements Storage {
           ...tree,
           [name]: {
             ...tree[name],
-            [componentVersion]: () => require(file.path).peerDependencies
+            [componentVersion]: async () => require(file.path).peerDependencies
           }
         };
       }, {});
