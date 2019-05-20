@@ -9,7 +9,7 @@ import { Stream } from 'stream';
 import promisePipe from 'promisepipe';
 import { InvalidVersionError } from './errors';
 
-export const get = (driver: Driver) => (req: Request, res: Response) => {
+export const get = (driver: Driver) => async (req: Request, res: Response) => {
   if (req.query.componentVersion && !valid(req.query.componentVersion)) {
     throw new InvalidVersionError({ componentVersion: req.query.componentVersion });
   }
@@ -19,7 +19,7 @@ export const get = (driver: Driver) => (req: Request, res: Response) => {
   const name = sanitizeFilename(req.params.name);
   const { hostId, componentVersion, latestComponentVersion } = req.query;
 
-  const { version, getCode } = driver.getComponent({
+  const { version, getCode } = await driver.getComponent({
     hostId,
     name,
     version: componentVersion
@@ -52,7 +52,7 @@ export const save = (driver: Driver) => async (req: Request, res: Response) => {
     })
   );
 
-  const issues = driver.saveComponent(
+  const issues = await driver.saveComponent(
     {
       name,
       version: componentVersion,
