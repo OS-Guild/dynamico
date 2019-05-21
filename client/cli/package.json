@@ -17,9 +17,6 @@
     "lib": "lib",
     "test": "__tests__"
   },
-  "files": [
-    "lib"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/soluto/dynamico.git"
@@ -27,7 +24,8 @@
   "scripts": {
     "plop": "plop",
     "copy:hbs": "copyfiles plop/**/*.hbs dist/",
-    "build": "rm -rf dist && tsc && npm run copy:hbs"
+    "build": "rm -rf dist && tsc && npm run copy:hbs",
+    "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/soluto/dynamico/issues"
