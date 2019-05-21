@@ -11,7 +11,8 @@
     "build": "npm run clean && npm run compile",
     "test": "jest --coverage",
     "compile": "tsc",
-    "clean": "rm -rf ./dist"
+    "clean": "rm -rf ./dist",
+    "prepublishOnly": "npm run build"
   },
   "publishConfig": {
     "access": "public"

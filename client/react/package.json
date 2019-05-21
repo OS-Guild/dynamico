@@ -20,7 +20,8 @@
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
-    "clean": "rm -rf ./dist"
+    "clean": "rm -rf ./dist",
+    "prepublishOnly": "npm run build"
   },
   "directories": {
     "lib": "dist",
