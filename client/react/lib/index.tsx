@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, FunctionComponent } from 'react';
-import { DynamicoClient, DynamicoDevClient, Options } from '@dynamico/core';
+import { DynamicoClient, DynamicoDevClient, Options, DevOptions } from '@dynamico/core';
+import { Omit } from 'type-fest';
 
 interface Component {
   view?: FunctionComponent;
@@ -10,7 +11,7 @@ interface setComponent {
 }
 
 interface ComponentOptions extends Options {
-  devMode?: boolean;
+  devMode?: boolean | Omit<Partial<DevOptions>, 'callback'>;
   fallback?: JSX.Element | null;
 }
 
@@ -36,6 +37,7 @@ export const dynamico = function<T = any>(
       if (devMode) {
         const devClient = new DynamicoDevClient({
           dependencies: dynamicoClient.dependencies,
+          ...(typeof devMode === 'object' ? devMode : {}),
           callback: (view: any) => setComponent({ view })
         });
 
