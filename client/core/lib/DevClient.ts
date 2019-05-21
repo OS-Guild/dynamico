@@ -43,13 +43,18 @@ export class DynamicoDevClient extends DynamicoClient {
     };
   }
 
-  fetcher = async (url: string) => {
+  fetcher = async (url: string, init?: RequestInit) => {
     const controller = new AbortController();
 
     return fetch(url, {
       method: 'get',
+      ...init,
       signal: controller.signal
     }).then(res => {
+      if (init) {
+        return Promise.resolve(new Response(JSON.stringify({ id: 'dev', issues: [] })));
+      }
+
       const etag = res.headers.get('etag') as string;
 
       if (this.etag === etag) {

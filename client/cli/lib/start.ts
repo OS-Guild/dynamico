@@ -24,8 +24,6 @@ export default async ({ port = DEFAULT_PORT }): Promise<any> => {
 
         if (req.method === 'POST') {
           validateDependencies(req.body, peerDependencies);
-
-          return res;
         }
 
         next();

@@ -11,7 +11,7 @@ interface setComponent {
 }
 
 interface ComponentOptions extends Options {
-  devMode?: boolean | Omit<Partial<DevOptions>, 'callback'>;
+  devMode?: boolean | Partial<Omit<DevOptions, 'callback'>>;
   fallback?: JSX.Element | null;
 }
 
@@ -26,7 +26,7 @@ export const dynamico = function<T = any>(
 ): FunctionComponent<T> {
   return (props: T) => {
     const [Component, setComponent]: [Component, setComponent] = useState({});
-    const dynamicoClient = useContext(DynamicoContext);
+    const dynamicoClient = useContext<DynamicoClient | undefined>(DynamicoContext);
     let release = () => {};
 
     const getComponent = async () => {
