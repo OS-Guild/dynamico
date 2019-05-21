@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/driver",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "Dynamico backend storage driver",
   "author": "Soluto",
   "homepage": "https://github.com/soluto/dynamico#readme",
