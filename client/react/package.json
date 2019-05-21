@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/react",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "React wrapper around Dynamico core",
   "author": "Soluto",
   "homepage": "https://github.com/soluto/dynamico#readme",
@@ -28,7 +28,7 @@
     "test": "__tests__"
   },
   "dependencies": {
-    "@dynamico/core": "^0.0.1-alpha.2"
+    "@dynamico/core": "^0.0.1-alpha.3"
   },
   "peerDependencies": {
     "react": "^16.8.3"
