@@ -1,6 +1,6 @@
 workflow "Run Tests" {
   on = "push"
-  resolves = ["Run tests"]
+  resolves = ["Generate coverage and upload to coveralls"]
 }
 
 action "Install Lerna" {
@@ -30,9 +30,10 @@ action "Link dependencies" {
   args = "lerna link"
 }
 
-action "Run tests" {
+action "Generate coverage and upload to coveralls" {
   uses = "nuxt/actions-yarn@master"
   needs = ["Link dependencies"]
   runs = "yarn"
-  args = "lerna run test"
+  args = "coverage"
+  secrets = ["COVERALLS_REPO_TOKEN"]
 }

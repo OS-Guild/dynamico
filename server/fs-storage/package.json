@@ -18,7 +18,8 @@
     "access": "public"
   },
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest",
+    "coverage": "jest --coverage",
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
     "clean": "rm -rf ./dist",

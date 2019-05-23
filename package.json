@@ -9,6 +9,7 @@
   "scripts": {
     "react-demo": "lerna run start --scope=react-dynamico-example --parallel",
     "lerna": "lerna",
+    "coverage": "lerna run coverage && npx lcov-result-merger './coverage/*/lcov.info' | npx coveralls",
     "test": "jest --projects server/* client/*",
     "format": "prettier --write '**/*.{ts,js}'"
   },
@@ -16,6 +17,8 @@
     "husky": "^1.3.1",
     "lerna": "^3.13.1",
     "lint-staged": "^8.1.5",
-    "prettier": "^1.16.4"
+    "prettier": "^1.16.4",
+    "coveralls": "^3.0.3",
+    "lcov-result-merger": "^3.1.0"
   }
 }

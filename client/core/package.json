@@ -18,7 +18,8 @@
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
     "clean": "rm -rf ./dist",
-    "test": "jest --coverage",
+    "test": "jest",
+    "coverage": "jest --coverage",
     "prepublishOnly": "npm run build"
   },
   "bugs": {
