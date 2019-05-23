@@ -9,7 +9,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "npm run clean && npm run compile",
-    "test": "jest --coverage",
+    "test": "jest",
+    "coverage": "jest --coverage",
     "compile": "tsc",
     "clean": "rm -rf ./dist",
     "prepublishOnly": "npm run build"

@@ -20,7 +20,8 @@
   "scripts": {
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
-    "test": "jest --coverage",
+    "test": "jest",
+    "coverage": "jest --coverage",
     "clean": "rm -rf ./dist",
     "prepublishOnly": "npm run build"
   },
