@@ -3,12 +3,16 @@
   "version": "0.0.1-alpha.4",
   "description": "S3 storage implementation as Dynamico storage provider",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
     "coverage": "jest --coverage",
     "build": "npm run clean && npm run compile",
     "compile": "tsc",
     "clean": "rm -rf ./dist"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",
