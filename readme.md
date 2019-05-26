@@ -1,5 +1,6 @@
 # Dynamico
 [![Known Vulnerabilities](https://snyk.io/test/github/soluto/dynamico/badge.svg)](https://snyk.io/test/github/soluto/dynamico) 
+[![Coverage Status](https://coveralls.io/repos/github/Soluto/dynamico/badge.svg?branch=master)](https://coveralls.io/github/Soluto/dynamico?branch=master)
 
 ## Why?
 A short description?
