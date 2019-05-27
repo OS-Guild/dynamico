@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Soluto/dynamico/badge.svg?branch=master)](https://coveralls.io/github/Soluto/dynamico?branch=master)
 
 ## Why?
-A short description?
+Dynamico allows a remote (web-like) code push work-flow for continuous delivery of specific features native or web.
 <!-- In the growing web of today, when frameworks are constantly changing and it seems hard to keep track of the new trends and -->
 
 ### Native & Web
