@@ -7,9 +7,7 @@
 <div align="center">
   A remote (web-like) code push work-flow for continuous delivery of specific features native or web.
   
-[![Known Vulnerabilities](https://snyk.io/test/github/soluto/dynamico/badge.svg)](https://snyk.io/test/github/soluto/dynamico) 
-  
-[![Coverage Status](https://coveralls.io/repos/github/Soluto/dynamico/badge.svg?branch=master)](https://coveralls.io/github/Soluto/dynamico?branch=master)
+[![Known Vulnerabilities](https://snyk.io/test/github/soluto/dynamico/badge.svg)](https://snyk.io/test/github/soluto/dynamico) [![Coverage Status](https://coveralls.io/repos/github/Soluto/dynamico/badge.svg?branch=master)](https://coveralls.io/github/Soluto/dynamico?branch=master)
 
 </div>
 
