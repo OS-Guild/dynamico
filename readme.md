@@ -1,9 +1,19 @@
-# Dynamico
+<p align="center">
+  <img width="150" src="https://user-images.githubusercontent.com/6004537/58460249-e6fb7600-8135-11e9-80c7-49fa170cbc2e.png" />
+</p>
+
+<h1 align="center">Dynamico</h1>
+
+<div align="center">
+  A remote (web-like) code push work-flow for continuous delivery of specific features native or web.
+  
 [![Known Vulnerabilities](https://snyk.io/test/github/soluto/dynamico/badge.svg)](https://snyk.io/test/github/soluto/dynamico) 
+  
 [![Coverage Status](https://coveralls.io/repos/github/Soluto/dynamico/badge.svg?branch=master)](https://coveralls.io/github/Soluto/dynamico?branch=master)
 
+</div>
+
 ## Why?
-Dynamico allows a remote (web-like) code push work-flow for continuous delivery of specific features native or web.
 <!-- In the growing web of today, when frameworks are constantly changing and it seems hard to keep track of the new trends and -->
 
 ### Native & Web
