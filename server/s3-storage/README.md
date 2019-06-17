@@ -1,21 +1,75 @@
-# `s3-storage`
+# S3 Storage
 A storage provider that can be used by `@dynamico/driver` to manage components in S3.
 
 ## General
-The storage provider is used by `@dynamico/driver` directly so usually the only part of the API you'll use is the constructor. To get started quickly you can just got to the [Installation](#Installation) and [Initialization](#Initialization) sections. If you want to learn more about the provider you can take a look at the [API](#API) section.
+S3 storage hosts components in a specific bucket and expects to receive an initialized S3 client. It needs to have permissions for listing the objects in the bucket as well as read and write permissions. The write permission is required regardless of whether the server is set up to be read-only or not. The reason for this is that the server manages an index, which is saved as an object in the bucket. It uses the list permission to create the components versioning structure which is then used by the middleware when resolving the best component version.
 
-## Installation
+__Note:__ this guide assumes you have an express server set up along with the express middleware. If this is not the case refer to our [Getting Started - Backend](../readme.md) guide.
+
+## Getting Started With S3 Storage
+
+Let's set up an S3 storage provider, it won't take more than a few minutes!
+
+Start by installing the dependencies in your server:
 ```bash
-yarn add aws-sdk
-yarn add @dynamic/s3-storage
+$ npm install @dynamico/s3-storage aws-sdk --save
 ```
 
-## Initialization
+Now find the file where you initialized dynamico middleware and add the following `require` statements.
+
 ```javascript
-const S3Storage = require('@dynamic/s3-storage');
-... initialize an s3 client instance from aws-sdk
-const storage = new S3Storage({s3Client, bucketName});
+const { S3Storage } = require('@dynamico/s3-storage');
+const { S3 } = require('aws-sdk');
 ```
+
+And initialize the client and the provider as  well as the middleware:
+
+```javascript
+const s3Client = new S3({
+    credentials: {
+        accessKeyId: /*Your access key ID*/,
+        secretAccessKey: /*Your secret access key*/,
+        region: /*The region in which the bucket is defined*/
+    },
+    apiVersion: '2006-03-01'
+});
+const bucketName = 'dynamic-components';
+const storageProvider = new S3Storage({s3Client, bucketName});
+const dynamicoMiddleware = dynamico(storageProvider);
+// Use the middleware
+```
+
+And that's it! you now have a server that uses S3 storage to manage dynamic components.
+
+The full code looks something like this:
+
+```javascript
+const express = require('express');
+const dynamico = require('@dynamico/express-middleware');
+const { S3Storage } = require('@dynamico/s3-storage');
+const { S3 } = require('aws-sdk');
+
+const s3Client = new S3({
+    credentials: {
+        accessKeyId: /*Your access key ID*/,
+        secretAccessKey: /*Your secret access key*/,
+        region: /*The region in which the bucket is defined*/
+    },
+    apiVersion: '2006-03-01'
+});
+const bucketName = 'dynamic-components';
+const storageProvider = new S3Storage({s3Client, bucketName});
+
+const app = express();
+app.use('/api/components', dynamico(storageProvider);
+app.listen(Number(process.env.PORT || 1234), () => {
+  console.log(`Listening on port ${process.env.PORT}`);
+});
+```
+
+You can now test your code by running the server and opening a browser and in `http://localhost:1234/api/components/someComponent`
+
+The response should be 500 with an `InvalidVersionError`.
 
 ## API
 * Constructor
