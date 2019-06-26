@@ -96,7 +96,7 @@ Specifies if the current component should be required from localhost dev server 
 
 ### Typescript support
 If you use typescript, you can type the component properties
-```typescript=
+```typescript
 import React from 'react';
 import { dynamico } from '@dynamico/react';
 
