@@ -4,7 +4,8 @@
   "workspaces": [
     "client/*",
     "server/*",
-    "examples/*"
+    "examples/*",
+    "dockerfiles/*"
   ],
   "scripts": {
     "react-demo": "lerna run start --scope=react-dynamico-example --parallel",
