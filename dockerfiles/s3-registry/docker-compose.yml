@@ -1,0 +1,29 @@
+version: "3.4"
+services:
+    dynamico-registry:
+      container_name: dynamico-registry
+      build: .
+      expose: 
+        - "1234"
+      ports:
+        - "1234:1234"
+      depends_on: 
+        - s3-mock
+      environment:
+        ACCESSKEYID: dynamico-access-key
+        SECRETACCESSKEY: dynamico-secret-key
+        ENDPOINT: "http://s3-mock:9000"
+        REGION: "us-east-1"
+        FORCEPATHFILE: 'true'
+    s3-mock:
+      container_name: s3-mock
+      image: minio/minio
+      expose: 
+        - "9000"
+      ports:
+        - "9000:9000"
+      environment:
+        MINIO_ACCESS_KEY: dynamico-access-key
+        MINIO_SECRET_KEY: dynamico-secret-key
+      entrypoint: sh
+      command: -c 'mkdir -p /data/dynamico && /usr/bin/minio server /data'
