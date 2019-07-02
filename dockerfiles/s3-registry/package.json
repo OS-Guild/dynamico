@@ -4,6 +4,7 @@
   "description": "A server that can be used as a Dynamico registry that uses an S3 bucket",
   "main": "index.ts",
   "author": "Soluto",
+  "private": true,
   "scripts": {
     "start": "ts-node index.ts"
   },
