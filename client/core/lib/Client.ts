@@ -188,7 +188,9 @@ export class DynamicoClient {
     const { id, issues }: RegisterHostResponse = await this.register(versions);
 
     this.id = id;
-    this.handleIssues(issues);
+    if (issues) {
+      this.handleIssues(issues);
+    }
   }
 
   async get(name: string, options: Options = {}) {

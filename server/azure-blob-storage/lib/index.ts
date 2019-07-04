@@ -14,6 +14,19 @@ interface AzureBlobStorageOptions {
   concurrentConnections?: number;
 }
 
+const streamToString = async (readableStream: NodeJS.ReadableStream): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const chunks: [string?] = [];
+    readableStream.on('data', (data: any) => {
+      chunks.push(data.toString());
+    });
+    readableStream.on('end', () => {
+      resolve(chunks.join(''));
+    });
+    readableStream.on('error', reject);
+  });
+};
+
 export class AzureBlobStorage implements Storage {
   private container: ContainerURL;
   private indexBlobUrl: BlockBlobURL;
@@ -34,8 +47,10 @@ export class AzureBlobStorage implements Storage {
 
   private async downloadBlobAsString(blobUrl: BlockBlobURL): Promise<string> {
     const response = await blobUrl.download(this.aborter, 0);
-
-    return (response.readableStreamBody as NodeJS.ReadableStream).read(response.contentLength).toString();
+    if (response.readableStreamBody) {
+      return await streamToString(response.readableStreamBody);
+    }
+    return '';
   }
 
   async getIndex(): Promise<Index> {
