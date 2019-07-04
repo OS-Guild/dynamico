@@ -1,0 +1,32 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.5
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-450202:
+    - bili > @babel/core > @babel/generator > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - caporal > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/core > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - caporal > tabtab > inquirer > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/preset-env > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - plop > node-plop > inquirer > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - winston > async > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > rollup-plugin-babel > @babel/helper-module-imports > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/preset-env > @babel/plugin-transform-modules-systemjs > @babel/helper-hoist-variables > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/preset-env > @babel/plugin-transform-modules-umd > @babel/helper-module-transforms > @babel/helper-split-export-declaration > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/core > @babel/helpers > @babel/traverse > @babel/helper-function-name > @babel/helper-get-function-arity > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/preset-env > @babel/plugin-transform-exponentiation-operator > @babel/helper-builder-binary-assignment-operator-visitor > @babel/helper-explode-assignable-expression > @babel/traverse > @babel/helper-function-name > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
+    - bili > @babel/preset-env > @babel/plugin-proposal-async-generator-functions > @babel/helper-remap-async-to-generator > @babel/helper-wrap-function > @babel/traverse > @babel/helper-function-name > @babel/helper-get-function-arity > @babel/types > lodash:
+        patched: '2019-07-04T00:30:42.676Z'
