@@ -6,7 +6,7 @@ import intoStream = require('into-stream');
 
 describe('AzureBlobStorage', () => {
   const createBlobMock = (path: string, contents: string) => {
-    const mockedResult = { readableStreamBody: { read: () => contents }, contentLength: 2 };
+    const mockedResult = { readableStreamBody: intoStream(contents), contentLength: 2 };
     const blobUrl = {
       download: jest.fn().mockResolvedValueOnce(mockedResult)
     };
@@ -98,7 +98,7 @@ describe('AzureBlobStorage', () => {
         }
       };
       const indexBlobName = 'some index file name';
-      const mockedResult = { readableStreamBody: { read: () => JSON.stringify(existingIndex) }, contentLength: 2 };
+      const mockedResult = { readableStreamBody: intoStream(JSON.stringify(existingIndex)), contentLength: 2 };
       const blobUrl = {
         indexBlobName,
         download: jest.fn().mockResolvedValueOnce(mockedResult)
@@ -132,7 +132,7 @@ describe('AzureBlobStorage', () => {
         }
       };
       const indexBlobName = 'some index file name';
-      const mockedResult = { readableStreamBody: { read: () => JSON.stringify(existingIndex) }, contentLength: 2 };
+      const mockedResult = { readableStreamBody: intoStream(JSON.stringify(existingIndex)), contentLength: 2 };
       const blobUrl = {
         indexBlobName,
         download: jest.fn().mockResolvedValueOnce(mockedResult)
@@ -195,7 +195,7 @@ describe('AzureBlobStorage', () => {
         }
       };
       const indexBlobName = 'some index file name';
-      const mockedResult = { readableStreamBody: { read: () => JSON.stringify(existingIndex) }, contentLength: 2 };
+      const mockedResult = { readableStreamBody: intoStream(JSON.stringify(existingIndex)), contentLength: 2 };
       const blobUrl = {
         indexBlobName,
         download: jest.fn().mockResolvedValueOnce(mockedResult)
