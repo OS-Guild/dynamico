@@ -91,6 +91,8 @@ Dynamico backend uses the storage for saving and retrieving both components and 
 
 [S3 Storage](./s3-storage)
 
+[Azure Blob Storage](./azure-blob-storage)
+
 If the storage solution you use isn't listed here you can implement it yourself, it's fun! Reach out if you need help and don't forget to post a PR 😉.
 
 Now that you have a server that publishes components and serves them you can go over to the [Client docs](../client) and run a real client with it.
