@@ -12,8 +12,19 @@
     "clean": "rm -rf ./dist"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluto/dynamico.git"
+  },
+  "author": "Soluto",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/soluto/dynamico/issues"
+  },
+  "homepage": "https://github.com/soluto/dynamico#readme",
   "dependencies": {
     "@dynamico/driver": "^0.0.1-alpha.4",
     "into-stream": "^5.1.0"
