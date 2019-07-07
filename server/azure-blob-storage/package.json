@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/azure-blob-storage",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1-alpha.5",
   "description": "Azure blob storage implementation as Dynamico storage provider",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/soluto/dynamico#readme",
   "dependencies": {
-    "@dynamico/driver": "^0.0.1-alpha.4",
+    "@dynamico/driver": "^0.0.1-alpha.5",
     "into-stream": "^5.1.0"
   },
   "peerDependencies": {
