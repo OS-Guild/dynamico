@@ -80,6 +80,7 @@ The response should be 500 with an `InvalidVersionError`.
         * Config
             * s3Client
                 * A properly initialized S3 client that conforms to the aws-sdk implementation.
+            * bucketName
                 * A string to be used as the bucket name for the components. You need to create the bucket and make sure the server has proper permissions for it.
     * Returns
         * A newly initialized S3 storage provider.
