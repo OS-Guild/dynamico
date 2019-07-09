@@ -26,7 +26,7 @@ const storageProvider = new S3Storage({ s3Client, bucketName });
 
 app.use(dynamico(storageProvider, { readOnly: process.env.DYNAMICO_READONLY === 'true' }));
 app.use(jsonErrorHandler({ log: console.log }));
-app.get('/healthz', (req, res) => res.sendStatus(200));
+app.get('/monitoring/healthz', (req, res) => res.sendStatus(200));
 const port = Number(process.env.PORT || 1234);
 app.listen(port, () => {
   console.log(`Dynamico S3 registry listening on ${port}`);
