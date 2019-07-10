@@ -24,8 +24,7 @@
   "scripts": {
     "plop": "plop",
     "copy:hbs": "copyfiles plop/**/*.hbs dist/",
-    "build": "rm -rf dist && tsc && npm run copy:hbs",
-    "prepublishOnly": "npm run build"
+    "build": "rm -rf dist && tsc && npm run copy:hbs"
   },
   "bugs": {
     "url": "https://github.com/soluto/dynamico/issues"

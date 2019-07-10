@@ -22,8 +22,7 @@
     "compile": "tsc",
     "test": "jest",
     "coverage": "jest --coverage",
-    "clean": "rm -rf ./dist",
-    "prepublishOnly": "npm run build"
+    "clean": "rm -rf ./dist"
   },
   "bugs": {
     "url": "https://github.com/soluto/dynamico/issues"

@@ -12,8 +12,7 @@
     "test": "jest",
     "coverage": "jest --coverage",
     "compile": "tsc",
-    "clean": "rm -rf ./dist",
-    "prepublishOnly": "npm run build"
+    "clean": "rm -rf ./dist"
   },
   "publishConfig": {
     "access": "public"
