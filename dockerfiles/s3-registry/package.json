@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/s3-registry",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.6",
   "description": "A server that can be used as a Dynamico registry that uses an S3 bucket",
   "main": "index.ts",
   "author": "Soluto",
@@ -10,8 +10,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@dynamico/express-middleware": "^0.0.1-alpha.5",
-    "@dynamico/s3-storage": "^0.0.1-alpha.5",
+    "@dynamico/express-middleware": "^0.0.1-alpha.6",
+    "@dynamico/s3-storage": "^0.0.1-alpha.6",
     "aws-sdk": "^2.485.0",
     "express": "^4.17.1",
     "express-json-error-handler": "^2.0.1",

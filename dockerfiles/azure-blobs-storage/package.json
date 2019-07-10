@@ -1,22 +1,21 @@
 {
-    "name": "@dynamico/azure-blobs-registry",
-    "version": "0.0.1-alpha.5",
-    "description": "A server that can be used as a Dynamico registry that uses an S3 bucket",
-    "main": "index.ts",
-    "author": "Soluto",
-    "private": true,
-    "scripts": {
-      "start": "ts-node index.ts"
-    },
-    "license": "MIT",
-    "dependencies": {
-      "@dynamico/express-middleware": "^0.0.1-alpha.5",
-      "@dynamico/azure-blob-storage": "^0.0.1-alpha.5",
-      "@azure/storage-blob": "^10.3.0",
-      "express": "^4.17.1",
-      "express-json-error-handler": "^2.0.1",
-      "ts-node": "^8.3.0",
-      "typescript": "^3.5.2"
-    }
+  "name": "@dynamico/azure-blobs-registry",
+  "version": "0.0.1-alpha.6",
+  "description": "A server that can be used as a Dynamico registry that uses an S3 bucket",
+  "main": "index.ts",
+  "author": "Soluto",
+  "private": true,
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@azure/storage-blob": "^10.3.0",
+    "@dynamico/azure-blob-storage": "^0.0.1-alpha.6",
+    "@dynamico/express-middleware": "^0.0.1-alpha.6",
+    "express": "^4.17.1",
+    "express-json-error-handler": "^2.0.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
   }
-  
+}
