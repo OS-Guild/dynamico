@@ -3,6 +3,7 @@ import jsonErrorHandler from 'express-json-error-handler';
 import dynamico from '@dynamico/express-middleware';
 import { S3Storage } from '@dynamico/s3-storage';
 const { S3 } = require('aws-sdk');
+import cors from 'cors';
 
 const app = express();
 
@@ -24,6 +25,7 @@ const s3Client = new S3(s3Config);
 const bucketName = process.env.BUCKETNAME || 'dynamico';
 const storageProvider = new S3Storage({ s3Client, bucketName });
 
+app.use(cors());
 app.use(dynamico(storageProvider, { readOnly: process.env.DYNAMICO_READONLY === 'true' }));
 app.use(jsonErrorHandler({ log: console.log }));
 app.get('/monitoring/healthz', (req, res) => res.sendStatus(200));

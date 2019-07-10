@@ -13,6 +13,7 @@
     "@azure/storage-blob": "^10.3.0",
     "@dynamico/azure-blob-storage": "^0.0.1-alpha.6",
     "@dynamico/express-middleware": "^0.0.1-alpha.6",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-json-error-handler": "^2.0.1",
     "ts-node": "^8.3.0",

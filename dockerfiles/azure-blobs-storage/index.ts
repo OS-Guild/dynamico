@@ -3,11 +3,13 @@ import jsonErrorHandler from 'express-json-error-handler';
 import dynamico from '@dynamico/express-middleware';
 import { AzureBlobStorage } from '@dynamico/azure-blob-storage';
 import { ContainerURL, StorageURL, AnonymousCredential } from '@azure/storage-blob';
+import cors from 'cors';
 
 const app = express();
 if (!process.env.CONTAINER_SAS) {
   throw new Error(`Can't start server, missing SAS key`);
 }
+
 const container = new ContainerURL(process.env.CONTAINER_SAS, StorageURL.newPipeline(new AnonymousCredential()));
 const storageProvider = new AzureBlobStorage({
   container,
@@ -16,6 +18,7 @@ const storageProvider = new AzureBlobStorage({
   concurrentConnections: Number(process.env.BLOB_DOWNLOAD_CONCURRENT_CONNECTIONS)
 });
 
+app.use(cors());
 app.use(dynamico(storageProvider, { readOnly: process.env.DYNAMICO_READONLY === 'true' }));
 app.use(jsonErrorHandler({ log: console.log }));
 app.get('/monitoring/healthz', (req, res) => res.sendStatus(200));
