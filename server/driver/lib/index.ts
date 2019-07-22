@@ -1,6 +1,19 @@
+import {
+  Component,
+  ComponentGetter,
+  ComponentTreeItem,
+  Dependencies,
+  Issues,
+  Storage,
+  Mismatches,
+  Maybe,
+  Host,
+  File,
+  ComponentVersionMap,
+  HostRegistration
+} from '@dynamico/common-types';
 import compareVersions from 'compare-versions';
 import semver from 'semver';
-import { Stream } from 'stream';
 import MurmurHash3 from 'imurmurhash';
 
 import {
@@ -10,71 +23,6 @@ import {
   NoPackageError,
   UnknownHostIdError
 } from './errors';
-
-export type Maybe<T> = T | undefined;
-
-export interface File {
-  name: string;
-  stream: Stream;
-}
-
-export interface Component {
-  name: string;
-  version?: string;
-}
-
-export interface Host {
-  id: string;
-  dependencies: Dependencies;
-}
-
-export interface ComponentTreeItem extends Required<Component> {
-  getDependencies: () => Promise<Dependencies>;
-}
-
-export interface ComponentGetter extends Required<Component> {
-  getCode: () => Promise<string>;
-}
-
-export type Dependencies = Record<string, string>;
-
-export type ComponentTree = Record<
-  Component['name'],
-  Record<ComponentTreeItem['version'], ComponentTreeItem['getDependencies']>
->;
-
-type ComponentVersionMap = Record<Component['name'], Required<Component>['version']>;
-
-export type Index = Record<
-  Host['id'],
-  {
-    dependencies: Dependencies;
-    components: ComponentVersionMap;
-  }
->;
-
-export interface Storage {
-  getIndex(): Promise<Index>;
-  upsertIndex(index: Index): Promise<void>;
-  getComponentTree(): Promise<ComponentTree>;
-  getComponent(name: string, version: string): Promise<Maybe<ComponentGetter>>;
-  saveComponent(component: Component, files: File[]): Promise<void>;
-}
-
-export interface Mismatches {
-  [dependency: string]: {
-    host: string;
-    component: string;
-  };
-}
-
-type Issues<T> = Record<string, Partial<T> & { mismatches: Mismatches }>;
-
-export interface HostRegistration {
-  id: string;
-  issues: Issues<Component>;
-  index: ComponentVersionMap;
-}
 
 interface UpsertIndexResult {
   issues: Issues<Component>;

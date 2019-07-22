@@ -87,11 +87,16 @@ Now you can jump to the [Storage](#Storage) section to initialize the storage pr
 
 Dynamico backend uses the storage for saving and retrieving both components and an index of host apps that used it in the past. Currently dynamico officially supports these storage types:
 
-[File System Storage](./fs-storage)
+[File System Storage](./fs-storage) - Can be used to save both the index and components to an the local file system. Alternatively can be used as a `ComponentsStorage` for a [composition storage](./composition-storage).
 
-[S3 Storage](./s3-storage)
+[S3 Storage](./s3-storage) - Can be used to save both the index and components to an S3 bucket. Alternatively can be used as a `ComponentsStorage` for a [composition storage](./composition-storage).
 
-[Azure Blob Storage](./azure-blob-storage)
+[Azure Blob Storage](./azure-blob-storage) - Can be used to save both the index and components to an Azure blob container. Alternatively can be used as a `ComponentsStorage` for a [composition storage](./composition-storage).
+
+[Composition storage](./composition-storage) - This storage can be used to combine two storage providers to separate the way the server deals with index and components.
+
+[redis index storage](./redis-storage) - This storage only implements `IndexStorage` and requires you to use [composition storage](./composition-storage).
+
 
 If the storage solution you use isn't listed here you can implement it yourself, it's fun! Reach out if you need help and don't forget to post a PR 😉.
 

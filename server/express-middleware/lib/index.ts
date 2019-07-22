@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import { AsyncRouter, AsyncRouterInstance } from 'express-async-router';
-import { Storage, Driver } from '@dynamico/driver';
+import { Driver } from '@dynamico/driver';
+import { Storage } from '@dynamico/common-types';
 import multer from 'multer';
 
 import * as controller from './controller';

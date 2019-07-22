@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { Driver, File } from '@dynamico/driver';
+import { Driver } from '@dynamico/driver';
+import { File, Issues, Component } from '@dynamico/common-types';
 import tar from 'tar-stream';
 import zlib from 'zlib';
 import intoStream from 'into-stream';
@@ -29,7 +30,9 @@ export const get = (driver: Driver) => async (req: Request, res: Response) => {
   return getCode();
 };
 
-export const registerHost = (driver: Driver) => async (req: Request) => driver.registerHost(req.body);
+export const registerHost: (Driver) => (Request) => Promise<{ id: string; issues: Issues<Component> }> = (
+  driver: Driver
+) => async (req: Request) => driver.registerHost(req.body);
 
 export const save = (driver: Driver) => async (req: Request, res: Response) => {
   const name = sanitizeFilename(req.params.name);
