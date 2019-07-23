@@ -15,6 +15,7 @@ A remote (web-like) code push work-flow for continuous delivery of specific feat
 </div>
 
 ## [Getting Started](./getting-started.md)
+## [Tutorial](./tutorial.md)
 
 ## Why?
 <!-- In the growing web of today, when frameworks are constantly changing and it seems hard to keep track of the new trends and -->
