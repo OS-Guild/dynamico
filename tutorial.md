@@ -244,7 +244,7 @@ For our last example we'll update the component's code and publish our changes. 
 
 Let's start by adding our dependency. For our example we'll use `lodash`. Open your terminal and navigate to the folder of your component you created earlier:
 ```bash
-$ yarn add uuid
+$ yarn add lodash
 ```
 > Note: Dynamico uses `Rollup` under the hood, which has tree-shaking and will only bundle up the code you actually used.
 
