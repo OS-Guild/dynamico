@@ -8,6 +8,7 @@ import sanitizeFilename from 'sanitize-filename';
 import { Stream } from 'stream';
 import promisePipe from 'promisepipe';
 import { InvalidVersionError } from './errors';
+import ReadableStreamClone from 'readable-stream-clone';
 
 export const get = (driver: Driver) => async (req: Request, res: Response) => {
   if (req.query.componentVersion && !valid(req.query.componentVersion)) {
@@ -48,7 +49,8 @@ export const save = (driver: Driver) => async (req: Request, res: Response) => {
     intoStream(req.file.buffer),
     zlib.createGunzip(),
     tar.extract().on('entry', (header, stream: Stream, next) => {
-      files.push({ name: sanitizeFilename(header.name), stream: stream.on('finish', next) });
+      files.push({ name: sanitizeFilename(header.name), stream: new ReadableStreamClone(stream) });
+      next();
     })
   );
 
