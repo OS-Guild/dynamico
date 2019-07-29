@@ -1,6 +1,6 @@
 # Dynamico Tutorial
 
-In this tutorial you're going to use a demo registry we've set up to host and serve components. The goal here is to try out the work flow with dynamico, and exprience how easy it is to integrate and use dynamico.
+In this tutorial, you're going to use a demo registry we've set up to host and serve components. The goal here is to try out the workflow with dynamico, and experience how easy it is to integrate and use dynamico.
 
 We are going to create a new react app (or you can use an existing react application if you want) and integrate dynamico client into it. After that we're going to create a new component, developing it locally and publish it to a server and see it work in production mode. When we're done with that we will update the component and see the changes applied in your app.
 
@@ -297,4 +297,4 @@ const DynamicComponent = dynamico(<unique name of your component>, {
 
 Refresh the page and see the updated component served to your host app!
 
-Now you can head out to read more about the [registring]('./Server/readme.md') or go [here]('./Client/readme.md') to learn more about the client side. You can also head out to our [Getting Started]('./getting-started.md') to set up your own environment. If you want to check out an entire example you can look at our [example]('./examples/react').
+Now you can head out to read more about the [registring](./Server/readme.md) or go [here](./Client/readme.md) to learn more about the client side. You can also head out to our [Getting Started](./getting-started.md) to set up your own environment. If you want to check out an entire example you can look at our [example](./examples/react).
