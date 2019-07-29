@@ -297,4 +297,4 @@ const DynamicComponent = dynamico(<unique name of your component>, {
 
 Refresh the page and see the updated component served to your host app!
 
-Now you can head out to read more about the [registring]('./Server/readme.md') or go [here]('./Client/readme.md') to learn more about the client side. You can also head out to our [Getting Started]('./getting-started.md') to set up your own environment. If you want to check out an entire example you can look at our [example]('./examples/react').
+Now you can head out to read more about the [registring](./Server/readme.md) or go [here](./Client/readme.md) to learn more about the client side. You can also head out to our [Getting Started](./getting-started.md) to set up your own environment. If you want to check out an entire example you can look at our [example](./examples/react).
