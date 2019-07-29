@@ -19,6 +19,7 @@ To configure the server you can use these environment variables:
     - If set to `true` makes the middleware run in read only mode. Read more [here]('../../server/express-middleware').
 - PORT
     - Set the port on which the server will listen to. Defaults to `1234`.
-
+- SERVER_TIMEOUT
+    - Sets the timeout for requests in the server, uses node's `setTimeout`.
 ## Running locally
 To run locally you can use [Azurite](https://github.com/Azure/Azurite). Build and run the Azurite image, create a blob container and generate a SAS url for it. Update the SAS url to use the Azurite's container's IP, and provide this as `CONTAINER_SAS` to the registry's container.

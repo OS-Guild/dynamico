@@ -17,12 +17,14 @@ const storageProvider = new AzureBlobStorage({
   timeout: Number(process.env.BLOB_DOWNLOAD_TIMEOUT),
   concurrentConnections: Number(process.env.BLOB_DOWNLOAD_CONCURRENT_CONNECTIONS)
 });
-
+const serverTimeout = Number(process.env.SERVER_TIMEOUT || 3 * 60 * 1000);
 app.use(cors());
 app.use(dynamico(storageProvider, { readOnly: process.env.DYNAMICO_READONLY === 'true' }));
 app.use(jsonErrorHandler({ log: console.log }));
 app.get('/monitoring/healthz', (req, res) => res.sendStatus(200));
 const port = Number(process.env.PORT || 1234);
-app.listen(port, () => {
-  console.log(`Dynamico Azure Blob Storage registry listening on ${port}`);
-});
+app
+  .listen(port, () => {
+    console.log(`Dynamico Azure Blob Storage registry listening on ${port}`);
+  })
+  .setTimeout(serverTimeout);
