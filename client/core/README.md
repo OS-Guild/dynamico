@@ -25,7 +25,7 @@ const dynamico = new DynamicoClient({
     }
   },
   cache: localStorage
-})
+});
 ```
 
 > Note: in react, the client is provided through react context to the components loader
@@ -83,12 +83,14 @@ dynamico.get('MyComponent', options);
 As the name implies, these are all optional:
 
 **componentVersion**
-* Type: `string`
-Force the client to provide the component at a specific version and skip the normal resolution strategy.
 
-**ignoreCache**
-* Type: `boolean`
-Skip local cache lookup and go straight to the server to fetch the component's code.
+- Type: `string`
+  Force the client to provide the component at a specific version and skip the normal resolution strategy.
+
+**getLatest**
+
+- Type: `boolean`
+  Skip local cache lookup and index and go straight to the server to fetch the latest component's code.
 
 **globals**
 * Type: `Record<string, any>`
@@ -114,8 +116,8 @@ const dynamicoDev = new DynamicoDevClient({
       react: React
     }
   },
-  callback: (view) => RenderComponent(view), // Render the component to the screen
-})
+  callback: view => RenderComponent(view) // Render the component to the screen
+});
 ```
 
 The dev client extends the basic client and enables a live reload development experience by polling a local development server.
