@@ -32,13 +32,14 @@ export interface InitOptions {
 
 export interface Options {
   componentVersion?: string;
-  ignoreCache?: boolean;
+  getLatest?: boolean;
   globals?: Record<string, any>;
 }
 
 interface RegisterHostResponse {
   id: string;
   issues: Issues;
+  index?: Record<string, string>;
 }
 
 const enum ReadyState {
@@ -57,6 +58,7 @@ export class DynamicoClient {
   cache: StorageController;
   fetcher: GlobalFetch['fetch'];
   globals: Record<string, any>;
+  index: Record<string, string> = {};
 
   private readyState: ReadyState = ReadyState.NotInitialized;
   private requestQueue: Function[] = [];
@@ -109,7 +111,7 @@ export class DynamicoClient {
     }, {});
   }
 
-  private async register(dependencies: Dependencies) {
+  private async register(dependencies: Dependencies): Promise<RegisterHostResponse> {
     const url = buildUrl(this.url, {
       path: '/host/register'
     });
@@ -142,14 +144,12 @@ export class DynamicoClient {
     return true;
   }
 
-  private async fetchJs(name: string, { ignoreCache, componentVersion = undefined }: Options): Promise<string> {
+  private async fetchJs(name: string, { getLatest, componentVersion }: Options): Promise<string> {
     await this.isReady();
 
-    let latestComponentVersion: string | undefined;
+    componentVersion = componentVersion || this.index[name];
 
-    if (!componentVersion) {
-      latestComponentVersion = this.cache.getLatestVersion(name);
-    } else if (!ignoreCache && this.cache.has(name, componentVersion)) {
+    if (!getLatest && componentVersion && this.cache.has(name, componentVersion)) {
       return (await this.cache.getItem(name, componentVersion)) as string;
     }
 
@@ -157,26 +157,20 @@ export class DynamicoClient {
       path: name,
       queryParams: {
         hostId: this.id,
-        ...(componentVersion
-          ? { componentVersion }
-          : latestComponentVersion && !ignoreCache && { latestComponentVersion })
+        ...(!getLatest ? { componentVersion } : {})
       }
     });
 
-    const { statusCode, version, code } = await this.fetcher(url).then(async (res: Response) => {
+    const { version, code } = await this.fetcher(url).then(async (res: Response) => {
       if (!res.ok) {
         throw new ComponentGetFailedError(res.statusText, res);
       }
+
       return {
-        statusCode: res.status,
         version: res.headers.get('dynamico-component-version') as string,
         code: await res.text()
       };
     });
-
-    if (statusCode === 204) {
-      return (await this.cache.getItem(name, version)) as string;
-    }
 
     await this.cache.setItem(name, version, code);
 
@@ -185,9 +179,11 @@ export class DynamicoClient {
 
   private async initialize() {
     const versions = this.filterMissingDependencies(this.dependencies);
-    const { id, issues }: RegisterHostResponse = await this.register(versions);
+    const { id, issues, index }: RegisterHostResponse = await this.register(versions);
 
     this.id = id;
+    this.index = index || {};
+
     if (issues) {
       this.handleIssues(issues);
     }

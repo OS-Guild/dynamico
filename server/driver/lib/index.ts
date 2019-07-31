@@ -43,11 +43,13 @@ export type ComponentTree = Record<
   Record<ComponentTreeItem['version'], ComponentTreeItem['getDependencies']>
 >;
 
+type ComponentVersionMap = Record<Component['name'], Required<Component>['version']>;
+
 export type Index = Record<
   Host['id'],
   {
     dependencies: Dependencies;
-    components: Record<Component['name'], Required<Component>['version']>;
+    components: ComponentVersionMap;
   }
 >;
 
@@ -68,11 +70,22 @@ export interface Mismatches {
 
 type Issues<T> = Record<string, Partial<T> & { mismatches: Mismatches }>;
 
+export interface HostRegistration {
+  id: string;
+  issues: Issues<Component>;
+  index: ComponentVersionMap;
+}
+
+interface UpsertIndexResult {
+  issues: Issues<Component>;
+  index: ComponentVersionMap;
+}
+
 export class Driver {
   constructor(private storage: Storage) {}
 
-  async registerHost(dependencies: Dependencies = {}): Promise<{ id: string; issues: Issues<Component> }> {
-    let issues = {};
+  async registerHost(dependencies: Dependencies = {}): Promise<HostRegistration> {
+    let result: Maybe<UpsertIndexResult> = undefined;
 
     const sortedDependencies = Object.entries(dependencies).sort(([nameA], [nameB]) => nameA.localeCompare(nameB));
     const id = MurmurHash3(JSON.stringify(sortedDependencies)).result();
@@ -80,7 +93,7 @@ export class Driver {
     const index = await this.storage.getIndex();
 
     if (!index[id]) {
-      issues = await this.upsertIndex({
+      result = await this.upsertIndex({
         id,
         dependencies
       });
@@ -88,7 +101,8 @@ export class Driver {
 
     return {
       id,
-      issues
+      issues: result ? result.issues : {},
+      index: result ? result.index : index[id].components
     };
   }
 
@@ -120,9 +134,9 @@ export class Driver {
     };
   }
 
-  private async upsertIndex(host: Host): Promise<Issues<Component>> {
+  private async upsertIndex(host: Host): Promise<UpsertIndexResult> {
     const tree = await this.storage.getComponentTree();
-    let incompatibilityIssues: Issues<Component> = {};
+    let issues: Issues<Component> = {};
 
     const components = await Object.entries(tree).reduce(async (sum, [name, versionTree]) => {
       const sortedVersions = Object.entries(versionTree).sort(([a], [b]) => compareVersions(b, a));
@@ -130,7 +144,7 @@ export class Driver {
       for (const [version, getDependencies] of sortedVersions) {
         const isCompatible = await this.isCompatible(host, { name, version, getDependencies });
         if (isCompatible) {
-          incompatibilityIssues[name] = {
+          issues[name] = {
             version,
             mismatches: isCompatible.mismatches
           };
@@ -150,7 +164,10 @@ export class Driver {
       }
     });
 
-    return incompatibilityIssues;
+    return {
+      issues,
+      index: components
+    };
   }
 
   private async updateHosts(component: ComponentTreeItem): Promise<Issues<Host>> {

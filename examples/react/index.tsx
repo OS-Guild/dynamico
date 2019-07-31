@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 
@@ -14,7 +14,7 @@ interface MyCompProps {
 const MyComp = dynamico<MyCompProps>('mycomp', {
   // devMode: true,
   // componentVersion: '1.1.2',
-  // ignoreCache: true,
+  // getLatest: true,
   fallback: <div>Loading...</div>
 });
 
@@ -33,12 +33,18 @@ const dynamicoClient = new DynamicoClient({
   cache: localStorage
 });
 
-const App = () => (
-  <DynamicoProvider client={dynamicoClient}>
-    <MyComp username="Test">
-      <span>testSpan</span>
-    </MyComp>
-  </DynamicoProvider>
-);
+const App = () => {
+  const [visible, setVisible] = useState(true);
+  return (
+    <DynamicoProvider client={dynamicoClient}>
+      <input type="checkbox" checked={visible} onChange={() => setVisible(!visible)} /> show component
+      {visible && (
+        <MyComp username="Test">
+          <span>testSpan</span>
+        </MyComp>
+      )}
+    </DynamicoProvider>
+  );
+};
 
 ReactDOM.render(<App />, document.getElementById('root'));

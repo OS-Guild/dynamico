@@ -103,7 +103,7 @@ describe('Client tests', () => {
         };
         const mockFetch = jest.fn();
         const mockResponse = {
-          json: () => Promise.resolve({ id: 'test_id', issues }),
+          json: () => Promise.resolve({ id: 'test_id', issues, index: {} }),
           ok: true
         };
         const issues = {
@@ -158,7 +158,7 @@ describe('Client tests', () => {
         };
         const mockFetch = jest.fn();
         const mockResponse = {
-          json: () => Promise.resolve({ id: 'test_id', issues }),
+          json: () => Promise.resolve({ id: 'test_id', issues, index: {} }),
           ok: true
         };
         const issues = {
@@ -205,7 +205,7 @@ describe('Client tests', () => {
         };
         const mockFetch = jest.fn();
         const mockRegisterResponse = {
-          json: () => Promise.resolve({ id: hostId, issues: { testComponent: testIssue } }),
+          json: () => Promise.resolve({ id: hostId, issues: { testComponent: testIssue }, index: {} }),
           ok: true
         };
 
@@ -271,7 +271,7 @@ describe('Client tests', () => {
         };
 
         const mockRegisterResponse = {
-          json: () => Promise.resolve({ id: hostId, issues }),
+          json: () => Promise.resolve({ id: hostId, issues, index: {} }),
           ok: true
         };
 
@@ -329,7 +329,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -354,7 +354,7 @@ describe('Client tests', () => {
       expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=&componentVersion=${componentVersion}`);
     });
 
-    it('sends component version and component name to server when component version is specified and cache is ignored', async () => {
+    it('sends component name to server when component name and getLatest is specified', async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
       const componentVersion = 'version_test';
@@ -371,7 +371,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -392,9 +392,9 @@ describe('Client tests', () => {
         },
         fetcher: mockFetch as GlobalFetch['fetch']
       });
-      await client.get(componentName, { ignoreCache: true, componentVersion });
+      await client.get(componentName, { getLatest: true, componentVersion });
 
-      expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=&componentVersion=${componentVersion}`);
+      expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=`);
     });
 
     it('gets component code from cache when component version is specified and a component by the same name exists in cache', async () => {
@@ -414,7 +414,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -440,12 +440,20 @@ describe('Client tests', () => {
       expect(mockStroageProvider.getItem).toBeCalledWith(`${prefix}/${componentName}/${componentVersion}`);
     });
 
-    it('sends latest component version and component name to server when a component by the same name exists in cache', async () => {
+    it('should get component code from cache when component name exists in index and exists in cache', async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
       const componentVersion = 'version_test';
+      const hostId = '1';
       const prefix = 'test';
       const versions = {};
+      const request = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(versions)
+      };
       const mockFetch = jest.fn();
       const mockResponse = {
         text: () => Promise.resolve('true'),
@@ -457,7 +465,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: hostId, issues: {}, index: { [componentName]: componentVersion } }),
         ok: true
       };
 
@@ -465,22 +473,129 @@ describe('Client tests', () => {
         .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
         .mockReturnValueOnce(Promise.resolve(mockResponse));
 
-      const mockStroageController = new MockStorageProvider();
-      mockStroageController[`${prefix}/${componentName}/${componentVersion}`] = 'new code';
+      const mockStroageProvider = new MockStorageProvider();
+      mockStroageProvider[`${prefix}/${componentName}/${componentVersion}`] = 'new code';
 
       const client = new DynamicoClient({
         prefix,
         url,
-        cache: mockStroageController,
+        cache: mockStroageProvider,
         dependencies: {
           resolvers: {},
           versions
         },
         fetcher: mockFetch as GlobalFetch['fetch']
       });
+
       await client.get(componentName);
 
-      expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=&latestComponentVersion=${componentVersion}`);
+      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+      expect(mockFetch).not.toBeCalledWith(`${url}/${componentName}?hostId=${hostId}`);
+      expect(mockStroageProvider.getItem).toBeCalledWith(`${prefix}/${componentName}/${componentVersion}`);
+    });
+
+    it('should get component code from server when component name exists in index and does not exists in cache', async () => {
+      const url = 'testUrl';
+      const componentName = 'component_test';
+      const componentVersion = 'version_test';
+      const hostId = '1';
+      const prefix = 'test';
+      const versions = {};
+      const request = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(versions)
+      };
+      const mockFetch = jest.fn();
+      const mockResponse = {
+        text: () => Promise.resolve('true'),
+        headers: {
+          get: () => 'test_header'
+        },
+        status: 200,
+        ok: true
+      };
+
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: hostId, issues: {}, index: { [componentName]: componentVersion } }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
+
+      const mockStroageProvider = new MockStorageProvider();
+
+      const client = new DynamicoClient({
+        prefix,
+        url,
+        cache: mockStroageProvider,
+        dependencies: {
+          resolvers: {},
+          versions
+        },
+        fetcher: mockFetch as GlobalFetch['fetch']
+      });
+
+      await client.get(componentName);
+
+      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+      expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=${hostId}&componentVersion=${componentVersion}`);
+    });
+
+    it('should get component code from server when component name does not exists in index and componentVersion is not specified', async () => {
+      const url = 'testUrl';
+      const componentName = 'component_test';
+      const componentVersion = 'version_test';
+      const hostId = '1';
+      const prefix = 'test';
+      const versions = {};
+      const request = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(versions)
+      };
+      const mockFetch = jest.fn();
+      const mockResponse = {
+        text: () => Promise.resolve('true'),
+        headers: {
+          get: () => 'test_header'
+        },
+        status: 200,
+        ok: true
+      };
+
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: hostId, issues: {}, index: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockResponse));
+
+      const mockStroageProvider = new MockStorageProvider();
+
+      const client = new DynamicoClient({
+        prefix,
+        url,
+        cache: mockStroageProvider,
+        dependencies: {
+          resolvers: {},
+          versions
+        },
+        fetcher: mockFetch as GlobalFetch['fetch']
+      });
+
+      await client.get(componentName);
+
+      expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+      expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=${hostId}`);
     });
 
     it('saves new component code to cache when status code is 200', async () => {
@@ -501,7 +616,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -546,7 +661,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -591,7 +706,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -618,49 +733,6 @@ describe('Client tests', () => {
       }
     });
 
-    it('gets component from cache when status code is 204', async () => {
-      const url = 'testUrl';
-      const componentName = 'component_test';
-      const componentVersion = 'version_test';
-      const prefix = 'test';
-      const testCode = `var a = "test code"`;
-      const versions = {};
-      const mockFetch = jest.fn();
-      const mockResponse = {
-        text: () => Promise.resolve(testCode),
-        headers: {
-          get: () => componentVersion
-        },
-        status: 204,
-        ok: true
-      };
-
-      const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
-        ok: true
-      };
-
-      mockFetch
-        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
-        .mockReturnValueOnce(Promise.resolve(mockResponse));
-
-      const mockStroageProvider = new MockStorageProvider();
-
-      const client = new DynamicoClient({
-        prefix,
-        url,
-        cache: mockStroageProvider,
-        dependencies: {
-          resolvers: {},
-          versions
-        },
-        fetcher: mockFetch as GlobalFetch['fetch']
-      });
-      await client.get(componentName);
-      expect(mockStroageProvider.setItem).not.toBeCalled();
-      expect(mockStroageProvider.getItem).toBeCalledWith(`${prefix}/${componentName}/${componentVersion}`);
-    });
-
     it('adds host id to request when initialized', async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
@@ -675,7 +747,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: expectedHostId, issues })
+        json: () => Promise.resolve({ id: expectedHostId, issues, index: {} })
       };
 
       const mockGetComponentResponse = {
@@ -706,9 +778,7 @@ describe('Client tests', () => {
 
       await client.get(componentName);
 
-      expect(mockFetch).toBeCalledWith(
-        `${url}/${componentName}?hostId=${expectedHostId}&latestComponentVersion=${componentVersion}`
-      );
+      expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=${expectedHostId}`);
     });
 
     it('exposes dependency when provided in constructor', async () => {
@@ -730,7 +800,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -775,7 +845,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -822,7 +892,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -875,7 +945,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 
@@ -921,7 +991,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {} }),
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
         ok: true
       };
 

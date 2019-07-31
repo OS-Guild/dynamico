@@ -14,11 +14,9 @@ export const get = (driver: Driver) => async (req: Request, res: Response) => {
   if (req.query.componentVersion && !valid(req.query.componentVersion)) {
     throw new InvalidVersionError({ componentVersion: req.query.componentVersion });
   }
-  if (req.query.latestComponentVersion && !valid(req.query.latestComponentVersion)) {
-    throw new InvalidVersionError({ latestVersion: req.query.latestComponentVersion });
-  }
+
   const name = sanitizeFilename(req.params.name);
-  const { hostId, componentVersion, latestComponentVersion } = req.query;
+  const { hostId, componentVersion } = req.query;
 
   const { version, getCode } = await driver.getComponent({
     hostId,
@@ -27,10 +25,6 @@ export const get = (driver: Driver) => async (req: Request, res: Response) => {
   });
 
   res.setHeader('Dynamico-Component-Version', version);
-
-  if (latestComponentVersion === version) {
-    return res.sendStatus(204);
-  }
 
   return getCode();
 };

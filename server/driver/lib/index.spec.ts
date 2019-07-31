@@ -230,6 +230,64 @@ describe('Driver', () => {
       expect(id1).toBe(id2);
     });
 
+    it('should return empty components map for empty storage', async () => {
+      const mockedStorage = new MockStorage();
+      const driver = new Driver(mockedStorage);
+      const { index } = await driver.registerHost();
+
+      expect(index).toBeDefined();
+      expect(index).toEqual({});
+    });
+
+    it('should return matching component for unregistered host', async () => {
+      const expected = {
+        name: 'compA',
+        version: '1.0.0'
+      };
+
+      const mockedStorage = new MockStorage(
+        {},
+        {
+          [expected.name]: {
+            [expected.version]: async () => ({})
+          }
+        }
+      );
+      const driver = new Driver(mockedStorage);
+      const { index } = await driver.registerHost();
+
+      expect(index).toBeDefined();
+      expect(index).toEqual({
+        [expected.name]: expected.version
+      });
+    });
+
+    it('should return matching component for registered host', async () => {
+      const expected = {
+        name: 'compA',
+        version: '1.0.0',
+        getCode
+      };
+
+      const hostId = '2231318396'; // murmur hash of empty object;
+
+      const mockIndex: Index = {
+        [hostId]: {
+          dependencies: {},
+          components: {
+            [expected.name]: expected.version
+          }
+        }
+      };
+
+      const mockedStorage = new MockStorage(mockIndex, {});
+      const driver = new Driver(mockedStorage);
+      const { index } = await driver.registerHost();
+
+      expect(index).toBeDefined();
+      expect(index).toEqual(mockIndex[hostId].components);
+    });
+
     describe('upsertIndex', () => {
       it('should not upsert index when host id exists', async () => {
         const mockedStorage = new MockStorage();
