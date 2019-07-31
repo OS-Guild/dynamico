@@ -10,10 +10,10 @@ const upload = multer({ storage: storage });
 
 interface Options {
   readOnly?: boolean;
+  router?: AsyncRouterInstance;
 }
 
-export default (storage: Storage, { readOnly }: Options = {}): AsyncRouterInstance => {
-  const router = AsyncRouter();
+export default (storage: Storage, { readOnly, router = AsyncRouter() }: Options = {}): AsyncRouterInstance => {
   const driver = new Driver(storage);
 
   router.post('/host/register', bodyParser.json(), controller.registerHost(driver));
