@@ -1,10 +1,15 @@
 import { resolve } from 'path';
+import { writeFileSync } from 'fs';
 
 type Dependencies = Record<string, string>;
 
 const dir = process.cwd();
+export const getPackageJsonPath = () => resolve(dir, `package.json`);
 
-export const getPackageJson = () => require(resolve(dir, `package.json`));
+export const getPackageJson = () => require(getPackageJsonPath());
+
+export const updatePackageJson = newContents =>
+  writeFileSync(getPackageJsonPath(), JSON.stringify(newContents, null, 2));
 
 export const getMainFile = (): string => {
   const { main } = getPackageJson();
