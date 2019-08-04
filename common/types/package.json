@@ -4,11 +4,13 @@
     "description": "Common types for Dynamico",
     "main": "./dist/index.ts",
     "author": "Soluto",
-    "private": true,
     "scripts": {
         "build": "npm run clean && npm run compile",
         "compile": "tsc",
         "clean": "rm -rf ./dist"
     },
+    "publishConfig": {
+        "access": "public"
+      },
     "license": "MIT"
 }

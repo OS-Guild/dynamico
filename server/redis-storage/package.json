@@ -25,11 +25,11 @@
     "url": "https://github.com/soluto/dynamico/issues"
   },
   "homepage": "https://github.com/soluto/dynamico#readme",
-  "bundledDependencies": [
-    "@dynamico/common-types"
-  ],
+  "dependencies": {
+    "@dynamico/common-types": "^0.0.1-alpha.7"
+  },
   "devDependencies": {
-    "@dynamico/common-types": "^0.0.1-alpha.7",
+    
     "@types/redis": "^2.8.13"
   },
   "peerDependencies": {

@@ -26,17 +26,14 @@
   },
   "homepage": "https://github.com/soluto/dynamico#readme",
   "dependencies": {
-    "into-stream": "^5.1.0"
+    "into-stream": "^5.1.0",
+    "@dynamico/common-types": "^0.0.1-alpha.7"
   },
   "peerDependencies": {
     "@azure/storage-blob": "^10.3.0"
   },
-  "bundledDependencies": [
-    "@dynamico/common-types"
-  ],
   "devDependencies": {
     "@azure/storage-blob": "^10.3.0",
-    "@dynamico/common-types": "^0.0.1-alpha.7",
     "@types/node": "^12.0.10",
     "jest": "^24.8.0",
     "stream-to-string": "^1.2.0",
