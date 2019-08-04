@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/azure-blob-storage",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "Azure blob storage implementation as Dynamico storage provider",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,10 +31,12 @@
   "peerDependencies": {
     "@azure/storage-blob": "^10.3.0"
   },
-  "bundledDependencies": ["@dynamico/common-types"],
+  "bundledDependencies": [
+    "@dynamico/common-types"
+  ],
   "devDependencies": {
     "@azure/storage-blob": "^10.3.0",
-    "@dynamico/common-types": "^0.0.1-alpha.6",
+    "@dynamico/common-types": "^0.0.1-alpha.7",
     "@types/node": "^12.0.10",
     "jest": "^24.8.0",
     "stream-to-string": "^1.2.0",

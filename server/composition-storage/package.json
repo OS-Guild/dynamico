@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/composition-storage",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "Dynamico composition storage provider. Allows you to use different storages for index and components",
   "author": "Soluto",
   "homepage": "https://github.com/soluto/dynamico#readme",
@@ -27,8 +27,10 @@
   "bugs": {
     "url": "https://github.com/soluto/dynamico/issues"
   },
-  "bundledDependencies": ["@dynamico/common-types"],
+  "bundledDependencies": [
+    "@dynamico/common-types"
+  ],
   "devDependencies": {
-    "@dynamico/common-types": "^0.0.1-alpha.6"
+    "@dynamico/common-types": "^0.0.1-alpha.7"
   }
 }

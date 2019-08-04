@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/s3-storage",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "S3 storage implementation as Dynamico storage provider",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,11 +28,13 @@
     "aws-sdk": "^2.459.0"
   },
   "devDependencies": {
-    "@dynamico/common-types": "^0.0.1-alpha.6",
+    "@dynamico/common-types": "^0.0.1-alpha.7",
     "aws-sdk": "^2.459.0",
     "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.5"
   },
-  "bundledDependencies": ["@dynamico/common-types"]
+  "bundledDependencies": [
+    "@dynamico/common-types"
+  ]
 }

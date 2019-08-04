@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/fs-storage",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "Simple file system implementation as Dynamico storage provider",
   "author": "Soluto",
   "homepage": "https://github.com/soluto/dynamico#readme",
@@ -31,9 +31,11 @@
     "klaw-sync": "^6.0.0",
     "mkdirp": "^0.5.1"
   },
-  "bundledDependencies": ["@dynamico/common-types"],
+  "bundledDependencies": [
+    "@dynamico/common-types"
+  ],
   "devDependencies": {
-    "@dynamico/common-types": "^0.0.1-alpha.6",
+    "@dynamico/common-types": "^0.0.1-alpha.7",
     "@types/fs-extra": "^5.0.5",
     "@types/jest": "^24.0.11",
     "@types/klaw-sync": "^6.0.0",
