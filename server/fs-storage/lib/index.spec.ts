@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
-import { Dependencies } from '@dynamico/driver';
+import { Dependencies } from '@dynamico/common-types';
 
 import { FSStorage } from '.';
 

@@ -1,5 +1,5 @@
 import { ContainerURL, Aborter, BlockBlobURL, uploadStreamToBlockBlob } from '@azure/storage-blob';
-import { Storage, Component, File, Index, ComponentTree, ComponentGetter, Maybe } from '@dynamico/driver';
+import { Storage, Component, File, Index, ComponentTree, ComponentGetter, Maybe } from '@dynamico/common-types';
 import intoStream from 'into-stream';
 import { Readable } from 'stream';
 import { FailedIndexUpsert } from './errors';

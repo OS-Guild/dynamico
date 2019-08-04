@@ -2,7 +2,7 @@ import { readFileSync, existsSync, createWriteStream, writeFileSync } from 'fs';
 import { sync as mkdirpSync } from 'mkdirp';
 import klaw, { Item } from 'klaw-sync';
 import { resolve, join, sep } from 'path';
-import { Storage, Component, File, Index, ComponentTree, ComponentGetter } from '@dynamico/driver';
+import { Storage, Component, File, Index, ComponentTree, ComponentGetter } from '@dynamico/common-types';
 
 export class FSStorage implements Storage {
   private indexPath: string;

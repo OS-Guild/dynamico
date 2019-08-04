@@ -5,7 +5,8 @@
     "client/*",
     "server/*",
     "examples/*",
-    "dockerfiles/*"
+    "dockerfiles/*",
+    "common/*"
   ],
   "scripts": {
     "react-demo": "lerna run start --scope=react-dynamico-example --parallel",

@@ -1,4 +1,5 @@
-import { Driver, Storage } from '@dynamico/driver';
+import { Driver } from '@dynamico/driver';
+import { Storage } from '@dynamico/common-types';
 import { pack } from 'tar-stream';
 import zlib from 'zlib';
 import express from 'express';

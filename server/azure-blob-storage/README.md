@@ -8,7 +8,9 @@ __Note:__ this guide assumes you have an express server set up along with the ex
 
 ## Getting Started With Azure Blob Storage
 
-Let's setup an Azure blob storage provider, it'll take only a few minutes! In this guide we'll initialize the connection to Azure Blob storage via a SAS key. We think that this is the most secure way to handle storage access on Azure Blobs. It doesn't actually matter to the provider as long as you provide a valid `ContainerURL` instance. Check the [docs](https://docs.microsoft.com/en-us/javascript/api/@azure/storage-blob/containerurl?view=azure-node-preview) for `ContainerURL` for more.
+Let's setup an Azure blob storage provider, it'll take only a few minutes!
+
+In this guide we'll initialize the connection to Azure Blob storage via a SAS key. We think that this is the most secure way to handle storage access on Azure Blobs. It doesn't actually matter to the provider as long as you provide a valid `ContainerURL` instance. Check the [docs](https://docs.microsoft.com/en-us/javascript/api/@azure/storage-blob/containerurl?view=azure-node-preview) for `ContainerURL` for more.
 
 Start by installing the required dependencies:
 ```bash

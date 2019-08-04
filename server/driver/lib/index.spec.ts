@@ -1,7 +1,8 @@
 import { merge } from 'lodash';
 import { Stream } from 'stream';
 
-import { Driver, Storage, Component, ComponentTree, File, ComponentGetter, Index, Maybe } from './';
+import { Storage, Component, ComponentTree, File, ComponentGetter, Index, Maybe } from '@dynamico/common-types';
+import { Driver } from './';
 import {
   NoComponentError,
   NoComponentVersionError,

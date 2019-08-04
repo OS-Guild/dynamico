@@ -1,4 +1,4 @@
-import { Storage, Component, File, Index, ComponentTree, ComponentGetter, Maybe } from '@dynamico/driver';
+import { Storage, Component, File, Index, ComponentTree, ComponentGetter, Maybe } from '@dynamico/common-types';
 import { S3 } from 'aws-sdk';
 
 export interface Config {
