@@ -1,6 +1,6 @@
 {
   "name": "react-dynamico-example",
-  "version": "0.0.1-alpha.7",
+  "version": "0.0.1-alpha.8",
   "main": "index.js",
   "private": true,
   "scripts": {
@@ -8,10 +8,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@dynamico/core": "^0.0.1-alpha.7",
-    "@dynamico/express-middleware": "^0.0.1-alpha.7",
-    "@dynamico/fs-storage": "^0.0.1-alpha.7",
-    "@dynamico/react": "^0.0.1-alpha.7",
+    "@dynamico/core": "^0.0.1-alpha.8",
+    "@dynamico/express-middleware": "^0.0.1-alpha.8",
+    "@dynamico/fs-storage": "^0.0.1-alpha.8",
+    "@dynamico/react": "^0.0.1-alpha.8",
     "express-json-error-handler": "^2.0.1",
     "moment": "^2.24.0",
     "react": "^16.8.3",
