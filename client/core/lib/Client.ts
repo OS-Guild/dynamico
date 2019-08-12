@@ -167,7 +167,7 @@ export class DynamicoClient {
       }
 
       return {
-        version: res.headers.get('dynamico-component-version') as string,
+        version: componentVersion || (res.headers.get('dynamico-component-version') as string),
         code: await res.text()
       };
     });

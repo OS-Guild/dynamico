@@ -329,7 +329,7 @@ describe('Client tests', () => {
       };
 
       const mockRegisterResponse = {
-        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
+        json: () => Promise.resolve({ id: '' }),
         ok: true
       };
 
