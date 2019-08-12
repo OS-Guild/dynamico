@@ -5,23 +5,38 @@
 <div align="center">
   <table align="center">
     <tr>
+      <th></th>
       <th>Host App</th>
       <th>Registry</th>
       <th>Component</th>
     </tr>
     <tr>
+      <td>React</td>
       <td>
         <a href="https://codesandbox.io/s/dynamico-host-app-dht8g?fontsize=14">
           <img alt="Edit dynamico-host-app" src="https://codesandbox.io/static/img/play-codesandbox.svg" />
         </a>
       </td>
-      <td>
+      <td rowspan="2">
         <a href="https://codesandbox.io/s/dynamico-example-server-d5m9b?fontsize=14">
           <img alt="Edit dynamico-example-server" src="https://codesandbox.io/static/img/play-codesandbox.svg" />
         </a>
       </td>
       <td>
         <a href="https://codesandbox.io/s/dynamic-component-j8o1g?fontsize=14">
+          <img alt="Edit dynamico-component" src="https://codesandbox.io/static/img/play-codesandbox.svg" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>React Native</td>
+      <td>
+        <a href="https://codesandbox.io/s/react-native-host-dxdfs?fontsize=14">
+          <img alt="Edit dynamico-host-app" src="https://codesandbox.io/static/img/play-codesandbox.svg" />
+        </a>
+      </td>
+      <td>
+        <a href="https://codesandbox.io/s/react-native-component-example-8h65p?fontsize=14">
           <img alt="Edit dynamico-component" src="https://codesandbox.io/static/img/play-codesandbox.svg" />
         </a>
       </td>
