@@ -133,6 +133,10 @@ The base URL of the dynamico components registry.
 
 Middleware for the publish api, transform the request just before sending the code to the registry. This is where you can add authentication settings (e.g. API key).
 
+##### modifyRollupConfig
+* Type: `Function`
+Use this function to modify the Rollup config used by `dcm`. You can use this function to add Rollup plugins. Read more [here](https://rollupjs.org/guide/en/#rolluprollup).
+
 #### NOTE
 
 Since we use [Liftoff](https://github.com/js-cli/js-liftoff),

@@ -1,4 +1,5 @@
 import { Bundler } from 'bili';
+import { ExtendRollupConfig } from 'bili/types/types';
 import { basename, extname, resolve } from 'path';
 import { writeFile, mkdirSync, existsSync } from 'fs';
 import { promisify } from 'util';
@@ -13,14 +14,16 @@ export const enum Mode {
   development = 'development'
 }
 
-interface Options {
+export interface Options {
   mode?: Mode;
   file?: string;
+  modifyRollupConfig?: ExtendRollupConfig;
 }
 
-export default async ({ mode = Mode.development, file = getMainFile() }: Options = {}): Promise<any> => {
+export default async ({ mode = Mode.development, file = getMainFile(), modifyRollupConfig }: Options = {}): Promise<
+  any
+> => {
   const isProd = mode === Mode.production;
-
   const bundler = new Bundler({
     input: resolve(process.cwd(), file),
     bundleNodeModules: true,
@@ -33,7 +36,8 @@ export default async ({ mode = Mode.development, file = getMainFile() }: Options
     },
     output: {
       minify: isProd
-    }
+    },
+    extendRollupConfig: modifyRollupConfig
   });
 
   const packageJson = getPackageJson();

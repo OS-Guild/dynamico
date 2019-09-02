@@ -1,13 +1,13 @@
 import * as liveServer from 'live-server';
 import bodyParser from 'body-parser';
 
-import build from './build';
+import build, { Options } from './build';
 import { validateDependencies } from './utils';
 
 export const DEFAULT_PORT = 8383;
 
-export default async ({ port = DEFAULT_PORT }): Promise<any> => {
-  const { main, peerDependencies } = await build();
+export default async ({ port = DEFAULT_PORT }, buildOptions?: Options): Promise<any> => {
+  const { main, peerDependencies } = await build(buildOptions);
 
   return liveServer.start({
     port,
