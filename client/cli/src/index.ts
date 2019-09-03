@@ -1,5 +1,6 @@
 import Liftoff from 'liftoff';
 import program from 'caporal';
+import { ExtendRollupConfig } from 'bili/types/types';
 import { jsVariants } from 'interpret';
 import { tmpdir } from 'os';
 
@@ -18,6 +19,7 @@ program
 export interface DcmConfig {
   registry: string;
   middleware?: Function;
+  modifyRollupConfig?: ExtendRollupConfig;
 }
 
 const Dcm = new Liftoff({

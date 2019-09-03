@@ -19,7 +19,7 @@ export default (config: DcmConfig) =>
 
       logger.info('Publishing...');
 
-      return publish(url || config.registry, config.middleware)
+      return publish(url || config.registry, config.middleware, { modifyRollupConfig: config.modifyRollupConfig })
         .then(({ name, version }: any) => logger.info(`Successfully published ${name}@${version}`))
         .catch(({ message }) => logger.error(message));
     }

@@ -4,16 +4,16 @@ import { createReadStream, createWriteStream, unlinkSync } from 'fs';
 import tar from 'tar';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import build, { Mode } from './build';
+import build, { Mode, Options } from './build';
 import urlJoin from 'url-join';
 import promisePipe from 'promisepipe';
 
-export default async (basePath: string, middleware?: Function) => {
+export default async (basePath: string, middleware?: Function, buildOptions?: Options) => {
   const body = new FormData();
   const filename = `dcmtmp${new Date().getTime()}.tgz`;
   const file = join(tmpdir(), filename);
 
-  const { name, version, main, peerDependencies } = await build({ mode: Mode.production });
+  const { name, version, main, peerDependencies } = await build({ ...buildOptions, mode: Mode.production });
 
   await promisePipe(tar.create({ gzip: true, cwd: './dist' }, [main, 'package.json']), createWriteStream(file));
 
