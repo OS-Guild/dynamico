@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/redis-index-storage",
-  "version": "0.0.1-alpha.9",
+  "version": "0.0.1-alpha.10",
   "description": "Redis storage implementation as Dynamico index storage provider",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/soluto/dynamico#readme",
   "dependencies": {
-    "@dynamico/common-types": "^0.0.1-alpha.9"
+    "@dynamico/common-types": "^0.0.1-alpha.10"
   },
   "devDependencies": {
     "@types/redis": "^2.8.13"

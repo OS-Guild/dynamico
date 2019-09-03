@@ -1,6 +1,6 @@
 {
     "name": "@dynamico/common-types",
-    "version": "0.0.1-alpha.9",
+    "version": "0.0.1-alpha.10",
     "description": "Common types for Dynamico",
     "main": "./dist/index.ts",
     "author": "Soluto",

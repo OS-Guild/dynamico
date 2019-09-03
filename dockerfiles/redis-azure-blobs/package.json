@@ -1,6 +1,6 @@
 {
   "name": "@dynamico/redis-azure-blobs-registry",
-  "version": "0.0.1-alpha.9",
+  "version": "0.0.1-alpha.10",
   "description": "A server that can be used as a Dynamico registry that uses an Azure Blob Storage to store components and save the index in redis",
   "main": "index.ts",
   "author": "Soluto",
@@ -11,19 +11,19 @@
   "license": "MIT",
   "dependencies": {
     "@azure/storage-blob": "^10.3.0",
-    "@dynamico/azure-blob-storage": "^0.0.1-alpha.9",
-    "@dynamico/composition-storage": "^0.0.1-alpha.9",
-    "@dynamico/express-middleware": "^0.0.1-alpha.9",
-    "@dynamico/redis-index-storage": "^0.0.1-alpha.9",
+    "@dynamico/azure-blob-storage": "^0.0.1-alpha.10",
+    "@dynamico/common-types": "^0.0.1-alpha.10",
+    "@dynamico/composition-storage": "^0.0.1-alpha.10",
+    "@dynamico/express-middleware": "^0.0.1-alpha.10",
+    "@dynamico/redis-index-storage": "^0.0.1-alpha.10",
+    "@types/nconf": "^0.10.0",
+    "@types/redis": "^2.8.13",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-json-error-handler": "^2.0.1",
     "nconf": "^0.10.0",
     "redis": "^2.8.0",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.2",
-    "@dynamico/common-types": "^0.0.1-alpha.9",
-    "@types/nconf": "^0.10.0",
-    "@types/redis": "^2.8.13"
+    "typescript": "^3.5.2"
   }
 }
