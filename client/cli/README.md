@@ -34,6 +34,7 @@ $  dcm 0.0.1 - Dynamic components manager
      build               Build dynamic component
      start               Start dynamic component dev server
      publish             Publish your dynamic component
+     bump                Bump dynamic component version in package.json file
      help <command>      Display help for a specific command
 
    GLOBAL OPTIONS
@@ -112,6 +113,20 @@ This command will bundle your component in production mode and will publish it t
 | Paramerter  | Description | Default
 | - | - | - |
 | `-u, --url` | registry url | `registry` property from the `dcm.config` file
+
+#### bump
+
+```bash
+dcm bump
+```
+
+This command advances the version field in you `package.json` file. You can control which part of the version to advance by specifying the `releaseType` option. If no option is specified you will be prompted for the value. The version field must be in a valid semver format.
+
+###### options
+
+| Paramerter  | Description | Default
+| - | - | - |
+| `-r, --releaseType` | releaseType, must be one of [major, minor, patch, premajor, preminor, prepatch] | N/A
 
 ### Programmatically
 
