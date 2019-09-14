@@ -9,3 +9,9 @@ export class ComponentGetFailedError extends BaseError {
     super(message, response);
   }
 }
+
+export class ComponentIntegrityCheckFailed extends BaseError {
+  constructor(component: { name: string; version: string }) {
+    super('Integrity check failed', component);
+  }
+}
