@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 
 import { DynamicoClient } from '@dynamico/core';
-import { DynamicoProvider, dynamico } from '@dynamico/react';
+import { DynamicoProvider, dynamico, Status } from '@dynamico/react';
 
 import { dependencies } from './package.json';
 
@@ -15,7 +15,7 @@ const MyComp = dynamico<MyCompProps>('mycomp', {
   // devMode: true,
   // componentVersion: '1.1.2',
   // getLatest: true,
-  fallback: <div>Loading...</div>
+  fallback: ({username, dynamicoStatus}) => <div>Hey {username}, I'm currently {dynamicoStatus.currentStatus} with {dynamicoStatus.error && dynamicoStatus.error.stack}... </div>
 });
 
 const resolvers = {
