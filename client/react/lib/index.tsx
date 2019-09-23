@@ -88,7 +88,7 @@ export const dynamico = function<T = any>(
 
     useEffect(() => {
       
-        getComponent().catch ((error) => {
+        getComponent().catch((error) => {
           setStatus({
             currentStatus: ComponentStatus.Error,
             error
