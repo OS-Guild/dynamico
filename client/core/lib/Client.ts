@@ -1,5 +1,5 @@
 import buildUrl from 'build-url';
-import { ComponentGetFailedError } from './errors';
+import { ComponentGetFailedError, ComponentIntegrityCheckFailed } from './errors';
 import { StorageController } from './utils/StorageController';
 
 export type Dependencies = Record<string, string>;
@@ -28,6 +28,7 @@ export interface InitOptions {
   };
   fetcher?: GlobalFetch['fetch'];
   globals?: Record<string, any>;
+  checkCodeIntegrity?: (code: string) => Promise<boolean>;
 }
 
 export interface Options {
@@ -59,7 +60,7 @@ export class DynamicoClient {
   fetcher: GlobalFetch['fetch'];
   globals: Record<string, any>;
   index: Record<string, string> = {};
-
+  checkCodeIntegrity?: (string) => Promise<boolean>;
   private readyState: ReadyState = ReadyState.NotInitialized;
   private requestQueue: Function[] = [];
 
@@ -71,6 +72,7 @@ export class DynamicoClient {
     this.checkFetcher(options.fetcher);
 
     this.fetcher = options.fetcher || fetch.bind(window);
+    this.checkCodeIntegrity = options.checkCodeIntegrity;
   }
 
   private handleIssues(issues: Issues): void {
@@ -165,10 +167,14 @@ export class DynamicoClient {
       if (!res.ok) {
         throw new ComponentGetFailedError(res.statusText, res);
       }
-
+      const code = await res.text();
+      const version = componentVersion || (res.headers.get('dynamico-component-version') as string);
+      if (this.checkCodeIntegrity && !(await this.checkCodeIntegrity(code))) {
+        throw new ComponentIntegrityCheckFailed({ name, version });
+      }
       return {
-        version: componentVersion || (res.headers.get('dynamico-component-version') as string),
-        code: await res.text()
+        version,
+        code
       };
     });
 

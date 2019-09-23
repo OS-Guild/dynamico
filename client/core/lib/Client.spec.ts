@@ -1,5 +1,5 @@
 import { DynamicoClient } from './Client';
-import { ComponentGetFailedError } from './errors';
+import { ComponentGetFailedError, ComponentIntegrityCheckFailed } from './errors';
 class MockStorageProvider {
   clear;
   getItem = jest.fn();
@@ -684,6 +684,57 @@ describe('Client tests', () => {
       await expect(client.get(componentName)).rejects.toEqual(
         new ComponentGetFailedError(statusText, mockResponse as any)
       );
+    });
+
+    it('throws error when component integrity check fails', async () => {
+      const url = 'testUrl';
+      const componentName = 'component_test';
+      const componentVersion = 'version_test';
+      const prefix = 'test';
+      const testCode = `var a = "test code"`;
+      const versions = {};
+      const mockFetch = jest.fn();
+      const mockGetComponentResponse = {
+        text: () => Promise.resolve(testCode),
+        headers: {
+          get: () => componentVersion
+        },
+        status: 200,
+        ok: true
+      };
+
+      const mockRegisterResponse = {
+        json: () => Promise.resolve({ id: '', issues: {}, index: {} }),
+        ok: true
+      };
+
+      mockFetch
+        .mockReturnValueOnce(Promise.resolve(mockRegisterResponse))
+        .mockReturnValueOnce(Promise.resolve(mockGetComponentResponse));
+
+      const mockStroageProvider = new MockStorageProvider();
+
+      const client = new DynamicoClient({
+        prefix,
+        url,
+        cache: mockStroageProvider,
+        dependencies: {
+          resolvers: {},
+          versions
+        },
+        fetcher: mockFetch as GlobalFetch['fetch'],
+        checkCodeIntegrity: async (code: string) => false
+      });
+      try {
+        await client.get(componentName);
+      } catch (error) {
+        const expectedError = new ComponentIntegrityCheckFailed({
+          name: componentName,
+          version: componentVersion
+        } as any);
+        expect(error.message).toEqual(expectedError.message);
+        expect(error.data).toEqual(expectedError.data);
+      }
     });
 
     it(`doesn't save to cache when status code if response.ok is false`, async () => {
