@@ -3,7 +3,7 @@ import { DynamicoClient, DynamicoDevClient, Options, DevOptions } from '@dynamic
 import { Omit } from 'type-fest';
 import { isElement } from 'react-is';
 
-enum ComponentStatus {
+const enum ComponentStatus {
   Loading = 'loading',
   Error = 'error'
 }
