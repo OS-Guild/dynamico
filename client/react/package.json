@@ -27,13 +27,15 @@
     "test": "__tests__"
   },
   "dependencies": {
-    "@dynamico/core": "^0.0.1-alpha.10"
+    "@dynamico/core": "^0.0.1-alpha.10",
+    "react-is": "^16.9.0"
   },
   "peerDependencies": {
     "react": "^16.8.3"
   },
   "devDependencies": {
     "@types/react": "^16.8.6",
+    "@types/react-is": "^16.7.1",
     "react": "^16.8.3",
     "type-fest": "^0.5.1"
   }
