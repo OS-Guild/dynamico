@@ -1,7 +1,8 @@
 import uppercamelcase from 'uppercamelcase';
-import { readdirSync, statSync } from 'fs';
+import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
+import { getVersionsForDependencies } from '../utils';
 import { Plop } from '../typings';
 
 export default (plop: Plop) => {
@@ -59,7 +60,13 @@ export default (plop: Plop) => {
       {
         type: 'add',
         path: '{{path}}/package.json',
-        templateFile: 'plop/component/{{framework}}/package.hbs'
+        templateFile: 'plop/component/{{framework}}/package.hbs',
+        data: () => {
+          const { dependencies, devDependencies, peerDependencies } = JSON.parse(
+            plop.renderString(readFileSync(`./plop/component/${data.framework}/package.hbs`, 'utf-8'), data)
+          );
+          return getVersionsForDependencies(Object.keys({ ...dependencies, ...devDependencies, ...peerDependencies }));
+        }
       },
       {
         type: 'add',

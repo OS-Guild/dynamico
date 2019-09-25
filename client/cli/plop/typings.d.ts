@@ -11,6 +11,7 @@ interface Action {
   type: string;
   path: string;
   templateFile: string;
+  data?: any;
 }
 
 interface Validator {
@@ -30,4 +31,10 @@ interface Helper {
 export interface Plop {
   addHelper(name: string, helper: Helper): void;
   setGenerator(name: string, generator: Generator): void;
+  renderString(str: string, data: any): string;
+}
+
+export interface PackageMetadata {
+  ['dist-tag']: { latest: string };
+  name: string;
 }
