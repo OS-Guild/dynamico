@@ -33,7 +33,7 @@ Now open the folder in your favorite IDE. Open `index.js` and write this code in
 
 ```javascript
 const express = require('express');
-const dynamico = require('@dynamico/express-middleware');
+const dynamico = require('@dynamico/express-middleware').default;
 
 const storageProvider = /*Initialize your storage provider*/
 const dynamicoMiddleware = dynamico(storageProvider);
@@ -66,7 +66,7 @@ app.use('some/path', someHandler);
 
 Open or create the file  and add this `require` statements to the file:
 ```javascript
-const dynamico = require('@dynamico/express-middleware');
+const dynamico = require('@dynamico/express-middleware').default;
 ```
 
 And create a handler and add a route to the app (this code assumes that you initialized an express router):
