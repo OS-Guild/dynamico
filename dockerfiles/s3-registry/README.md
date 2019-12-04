@@ -23,6 +23,12 @@ To set the behavior of the middleware and configure the `aws-sdk` you can use th
     - If set to `true` makes the middleware run in read only mode. Read more [here]('../../server/express-middleware').
 - PORT
     - Set the port on which the server will listen to. Defaults to `1234`.
+- SECRETS_FILE_PATH
+    - Path to optional s3 access keys file, defaults to `'/run/secrets/s3-access-keys'`.
+
+### Docker secrets
+
+Since some of your configuration may contain sensitive data, we have included support for docker secrets for the ACCESSKEYID and SECRETACCESSKEY values. Read more [here](https://docs.docker.com/engine/swarm/secrets/). Secrets are loaded from a `.json` file and can be placed in a configurable path in the container (SECRETS_FILE_PATH environment variable). Take a look at the [example secrets file](./access-keys.json) which is used by the compose file.
 
 ## Running locally
 You can use the compose file we have here to run the server locally along with an emulator (we use [Minio](https://github.com/minio/minio)). All you have to do is:

@@ -11,9 +11,18 @@ import nconf from 'nconf';
 
 const filePath = process.env.CONFIG_FILE_PATH ? process.env.CONFIG_FILE_PATH : './config.json';
 
+const azureSecretsFilePath = process.env.AZURE_SECRET_FILE_PATH
+  ? process.env.AZURE_SECRET_FILE_PATH
+  : '/run/secrets/azure-uri';
+const redisSecretsFilePath = process.env.REDIS_SECRETS_FILE_PATH
+  ? process.env.REDIS_SECRETS_FILE_PATH
+  : '/run/secrets/redis-config';
+
 nconf
   .argv()
-  .file({ file: filePath })
+  .file('azure', azureSecretsFilePath)
+  .file('redis', redisSecretsFilePath)
+  .file('config', filePath)
   .env({ lowerCase: true });
 
 const app = express();

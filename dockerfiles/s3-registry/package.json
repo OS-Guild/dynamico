@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-json-error-handler": "^2.0.1",
+    "nconf": "^0.10.0",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.2"
   }
