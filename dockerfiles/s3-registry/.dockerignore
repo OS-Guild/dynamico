@@ -8,3 +8,4 @@ Dockerfile
 yarn-error.log
 npm-debug.log
 docker-compose.yml
+access-keys.json

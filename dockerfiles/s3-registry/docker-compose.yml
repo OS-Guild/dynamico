@@ -9,9 +9,9 @@ services:
         - "1234:1234"
       depends_on: 
         - s3-mock
+      secrets:
+        - s3-access-keys
       environment:
-        ACCESSKEYID: dynamico-access-key
-        SECRETACCESSKEY: dynamico-secret-key
         ENDPOINT: "http://s3-mock:9000"
         REGION: "us-east-1"
         FORCEPATHFILE: 'true'
@@ -27,3 +27,6 @@ services:
         MINIO_SECRET_KEY: dynamico-secret-key
       entrypoint: sh
       command: -c 'mkdir -p /data/dynamico && /usr/bin/minio server /data'
+secrets:
+  s3-access-keys:
+    file: ./access-keys.json
