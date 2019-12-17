@@ -21,7 +21,6 @@ import { dependencies as hostVersions } from './package.json'
 
 const dynamicoClient = new DynamicoClient({
   url: '/api/components',
-  hostVersion,
   dependencies: {
     versions: hostVersions,
     resolvers: {
@@ -29,7 +28,7 @@ const dynamicoClient = new DynamicoClient({
     }
   },
   cache: localStorage
-}
+});
 
 const App = () => (
   <DynamicoProvider client={dynamicoClient}>
