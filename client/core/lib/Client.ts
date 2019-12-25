@@ -18,6 +18,17 @@ export type Issues = {
   };
 };
 
+export enum FailedRegisterStrategy {
+  UseCache = 'UseCache',
+  Ignore = 'Ignore'
+}
+
+interface FailedRegisterPolicy {
+  retries: number;
+  retryRate: number;
+  strategy: FailedRegisterStrategy;
+}
+
 export interface InitOptions {
   prefix?: string;
   url: string;
@@ -29,6 +40,7 @@ export interface InitOptions {
   fetcher?: GlobalFetch['fetch'];
   globals?: Record<string, any>;
   checkCodeIntegrity?: (code: string) => Promise<boolean>;
+  failedRegisterPolicy?: FailedRegisterPolicy;
 }
 
 export interface Options {
@@ -44,9 +56,10 @@ interface RegisterHostResponse {
 }
 
 const enum ReadyState {
-  NotInitialized,
   Initializing,
-  Ready
+  Ready,
+  OfflineWithCache,
+  OfflineIgnore
 }
 
 export class DynamicoClient {
@@ -61,7 +74,7 @@ export class DynamicoClient {
   globals: Record<string, any>;
   index: Record<string, string> = {};
   checkCodeIntegrity?: (string) => Promise<boolean>;
-  private readyState: ReadyState = ReadyState.NotInitialized;
+  private readyState: ReadyState = ReadyState.Initializing;
   private requestQueue: Function[] = [];
 
   constructor(options: InitOptions) {
@@ -73,6 +86,13 @@ export class DynamicoClient {
 
     this.fetcher = options.fetcher || fetch.bind(window);
     this.checkCodeIntegrity = options.checkCodeIntegrity;
+    const failedRegisterPolicy = options.failedRegisterPolicy
+      ? {
+          ...options.failedRegisterPolicy,
+          retries: Math.max(options.failedRegisterPolicy.retries, 0)
+        }
+      : { retries: 0, retryRate: 0, strategy: FailedRegisterStrategy.Ignore };
+    this.initialize(failedRegisterPolicy);
   }
 
   private handleIssues(issues: Issues): void {
@@ -128,18 +148,7 @@ export class DynamicoClient {
   }
 
   private async isReady() {
-    if (this.readyState === ReadyState.NotInitialized) {
-      this.readyState = ReadyState.Initializing;
-
-      await this.initialize();
-
-      this.readyState = ReadyState.Ready;
-
-      this.requestQueue.forEach(handler => handler());
-      this.requestQueue = [];
-    }
-
-    if (this.readyState !== ReadyState.Ready) {
+    if (this.readyState === ReadyState.Initializing) {
       await new Promise(resolve => this.requestQueue.push(() => resolve()));
     }
 
@@ -147,8 +156,6 @@ export class DynamicoClient {
   }
 
   private async fetchJs(name: string, { getLatest, componentVersion }: Options): Promise<string> {
-    await this.isReady();
-
     componentVersion = componentVersion || this.index[name];
 
     if (!getLatest && componentVersion && this.cache.has(name, componentVersion)) {
@@ -183,20 +190,59 @@ export class DynamicoClient {
     return code;
   }
 
-  private async initialize() {
-    const versions = this.filterMissingDependencies(this.dependencies);
-    const { id, issues, index }: RegisterHostResponse = await this.register(versions);
+  private async initialize(policy: FailedRegisterPolicy, versions = this.filterMissingDependencies(this.dependencies)) {
+    try {
+      const { id, issues, index }: RegisterHostResponse = await this.register(versions);
+      this.id = id;
+      this.index = index || {};
 
-    this.id = id;
-    this.index = index || {};
+      if (issues) {
+        this.handleIssues(issues);
+      }
 
-    if (issues) {
-      this.handleIssues(issues);
+      this.readyState = ReadyState.Ready;
+    } catch {
+      if (this.readyState === ReadyState.Initializing && policy.strategy === FailedRegisterStrategy.UseCache) {
+        this.index = Object.keys(this.cache.componentTree).reduce(
+          (acc, key) => ({
+            ...acc,
+            [key]: this.cache.getLatestVersion(key)
+          }),
+          {}
+        );
+      }
+
+      console.warn("Couldn't get components index from the registry, working in offline mode");
+
+      this.readyState =
+        policy.strategy === FailedRegisterStrategy.UseCache ? ReadyState.OfflineWithCache : ReadyState.OfflineIgnore;
+
+      if (policy.retries) {
+        setTimeout(() => {
+          this.initialize(
+            {
+              ...policy,
+              retries: policy.retries - 1
+            },
+            versions
+          );
+        }, policy.retryRate);
+      }
     }
+
+    this.requestQueue.forEach(handler => handler());
+    this.requestQueue = [];
   }
 
   async get(name: string, options: Options = {}) {
+    await this.isReady();
+
+    if (this.readyState === ReadyState.OfflineIgnore) {
+      return;
+    }
+
     const code = await this.fetchJs(name, options);
+
     const require = (dep: string) => this.dependencies.resolvers[dep];
     const module: any = {};
     const exports: any = {};

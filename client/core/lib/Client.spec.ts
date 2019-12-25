@@ -1,16 +1,13 @@
 import { DynamicoClient } from './Client';
 import { ComponentGetFailedError, ComponentIntegrityCheckFailed } from './errors';
+
 class MockStorageProvider {
   clear;
-  getItem = jest.fn();
-  setItem;
   removeItem;
   key;
   length;
-  constructor() {
-    this.getItem = jest.fn();
-    this.setItem = jest.fn();
-  }
+  getItem;
+  setItem;
 }
 
 const testIssue = {
@@ -18,9 +15,15 @@ const testIssue = {
   mismatches: {}
 };
 
+const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
+
 describe('Client tests', () => {
   let consoleWarnSpy;
-  beforeEach(() => (consoleWarnSpy = jest.spyOn(global.console, 'warn')));
+  beforeEach(() => {
+    MockStorageProvider.prototype.getItem = jest.fn();
+    MockStorageProvider.prototype.setItem = jest.fn();
+    consoleWarnSpy = jest.spyOn(global.console, 'warn');
+  });
   afterEach(() => consoleWarnSpy.mockRestore());
 
   describe('constructor', () => {
@@ -45,6 +48,7 @@ describe('Client tests', () => {
       });
       expect(bind).toBeCalled();
     });
+
     it('throws error when no fetcher is available', () => {
       expect(
         () =>
@@ -58,31 +62,8 @@ describe('Client tests', () => {
           })
       ).toThrow();
     });
-  });
 
-  describe('get', () => {
     describe('initialize', () => {
-      it('throws error when registration request fails', async () => {
-        const url = 'testUrl';
-        const versions = {};
-        const mockFetch = jest.fn();
-        const expectedError = new Error('test error');
-        mockFetch.mockRejectedValue(expectedError);
-
-        const mockStroageController = new MockStorageProvider();
-
-        const client = new DynamicoClient({
-          url,
-          cache: mockStroageController,
-          dependencies: {
-            resolvers: {},
-            versions
-          },
-          fetcher: mockFetch as GlobalFetch['fetch']
-        });
-        await expect(client.get('some component')).rejects.toEqual(expectedError);
-      });
-
       it('does not register dependency and warns about it when only a resolver is provided', async () => {
         const url = 'testUrl';
         const versions = {
@@ -190,57 +171,6 @@ describe('Client tests', () => {
         expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
       });
 
-      it('gets component code when registration responds with success', async () => {
-        const url = 'testUrl';
-        const versions = {};
-        const componentName1 = 'test component';
-        const componentName2 = 'another test component';
-        const hostId = 'test_id';
-        const request = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(versions)
-        };
-        const mockFetch = jest.fn();
-        const mockRegisterResponse = {
-          json: () => Promise.resolve({ id: hostId, issues: { testComponent: testIssue }, index: {} }),
-          ok: true
-        };
-
-        const mockGetComponentResponse = {
-          text: () => Promise.resolve('true'),
-          headers: {
-            get: () => 'test_header'
-          },
-          status: 200,
-          ok: true
-        };
-        const client = new DynamicoClient({
-          url,
-          cache: new MockStorageProvider(),
-          dependencies: {
-            resolvers: {},
-            versions
-          },
-          fetcher: mockFetch as GlobalFetch['fetch']
-        });
-        mockFetch
-          .mockImplementationOnce(() => {
-            client.get(componentName2);
-            return Promise.resolve(mockRegisterResponse);
-          })
-          .mockImplementationOnce(() => Promise.resolve(mockGetComponentResponse))
-          .mockImplementationOnce(() => Promise.resolve(mockGetComponentResponse));
-
-        await client.get(componentName1);
-
-        expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
-        expect(mockFetch).toBeCalledWith(`${url}/${componentName1}?hostId=${hostId}`);
-        expect(mockFetch).toBeCalledWith(`${url}/${componentName2}?hostId=${hostId}`);
-      });
-
       it('prints out warning when registration response contains issues', async () => {
         const url = 'testUrl';
         const componentName = 'test component';
@@ -310,8 +240,231 @@ describe('Client tests', () => {
         );
         expect(mockFetch).toBeCalledWith(`${url}/${componentName}?hostId=${hostId}`);
       });
-    });
 
+      describe('failed', () => {
+        it('get component returns undefined if no fail policy defined', async () => {
+          const url = 'testUrl';
+          const componentName = 'test component';
+          const versions = {};
+
+          const mockRegisterResponse = {
+            ok: false
+          };
+
+          const mockStroageController = new MockStorageProvider();
+          const mockFetch = jest.fn();
+
+          mockFetch.mockRejectedValue(mockRegisterResponse);
+
+          const client = new DynamicoClient({
+            url,
+            cache: mockStroageController,
+            dependencies: {
+              resolvers: {},
+              versions
+            },
+            fetcher: mockFetch as GlobalFetch['fetch']
+          });
+
+          const exports = await client.get(componentName);
+          expect(exports).toBeUndefined();
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            "Couldn't get components index from the registry, working in offline mode"
+          );
+        });
+
+        it('should use cached component if UseCache policy is defined', async () => {
+          const url = 'testUrl';
+          const componentName = 'component_test';
+          const componentVersion = 'version_test';
+          const prefix = 'test';
+          const versions = {};
+          const request = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(versions)
+          };
+
+          const mockRegisterResponse = {
+            ok: false
+          };
+
+          const mockStroageController = new MockStorageProvider();
+
+          mockStroageController[`${prefix}/${componentName}/${componentVersion}`] = 'test code';
+
+          const mockFetch = jest.fn();
+          mockFetch.mockRejectedValue(mockRegisterResponse);
+
+          const client = new DynamicoClient({
+            prefix,
+            url,
+            cache: mockStroageController,
+            dependencies: {
+              resolvers: {},
+              versions
+            },
+            fetcher: mockFetch as GlobalFetch['fetch'],
+            failedRegisterPolicy: {
+              retries: 0,
+              retryRate: 0,
+              strategy: 'UseCache'
+            }
+          });
+
+          await client.get(componentName);
+
+          expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+          expect(mockStroageController.getItem).toBeCalledWith(`${prefix}/${componentName}/${componentVersion}`);
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            "Couldn't get components index from the registry, working in offline mode"
+          );
+        });
+
+        it('should retry register when retry policy is defined', async () => {
+          const url = 'testUrl';
+          const componentName = 'component_test';
+          const componentVersion = 'version_test';
+          const prefix = 'test';
+          const versions = {};
+          const request = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(versions)
+          };
+
+          const mockRegisterResponse = {
+            ok: false
+          };
+
+          const mockStroageController = new MockStorageProvider();
+
+          mockStroageController[`${prefix}/${componentName}/${componentVersion}`] = 'test code';
+
+          const mockFetch = jest.fn();
+          mockFetch
+            .mockRejectedValue(mockRegisterResponse)
+            .mockRejectedValue(mockRegisterResponse)
+            .mockRejectedValue(mockRegisterResponse);
+
+          const client = new DynamicoClient({
+            prefix,
+            url,
+            cache: mockStroageController,
+            dependencies: {
+              resolvers: {},
+              versions
+            },
+            fetcher: mockFetch as GlobalFetch['fetch'],
+            failedRegisterPolicy: {
+              retries: 3,
+              retryRate: 1,
+              strategy: 'UseCache'
+            }
+          });
+
+          const spy = jest.spyOn(client as any, 'initialize');
+
+          await client.get(componentName);
+
+          await sleep(50);
+
+          expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+          expect(spy).toBeCalledTimes(3);
+          expect(client.index).toEqual({ [componentName]: componentVersion });
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            "Couldn't get components index from the registry, working in offline mode"
+          );
+        });
+
+        it('should use index from server when retry succeeds', async () => {
+          const url = 'testUrl';
+          const componentName = 'component_test';
+          const componentLocalVersion = 'version_test_local';
+          const componentRemoteVersion = 'version_test_remote';
+          const prefix = 'test';
+          const hostId = 'test_id';
+          const versions = {};
+          const request = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(versions)
+          };
+
+          const mockComponentResponse = {
+            text: () => Promise.resolve('true'),
+            headers: {
+              get: () => 'test_header'
+            },
+            status: 200,
+            ok: true
+          };
+
+          const mockFailedRegisterResponse = {
+            ok: false
+          };
+
+          const mockRegisterResponse = {
+            json: () => Promise.resolve({ id: hostId, issues: {}, index: { [componentName]: componentRemoteVersion } }),
+            ok: true
+          };
+
+          const mockStroageController = new MockStorageProvider();
+
+          mockStroageController[`${prefix}/${componentName}/${componentLocalVersion}`] = 'test code';
+          let continuteTest;
+          const lock = new Promise(resolve => {
+            continuteTest = resolve;
+          });
+
+          const mockFetch = jest.fn();
+          mockFetch
+            .mockImplementationOnce(() => Promise.reject(mockFailedRegisterResponse))
+            .mockImplementationOnce(() => {
+              continuteTest();
+              return Promise.resolve(mockRegisterResponse);
+            })
+            .mockResolvedValue(mockComponentResponse);
+          const client = new DynamicoClient({
+            prefix,
+            url,
+            cache: mockStroageController,
+            dependencies: {
+              resolvers: {},
+              versions
+            },
+            fetcher: mockFetch as GlobalFetch['fetch'],
+            failedRegisterPolicy: {
+              retries: 3,
+              retryRate: 1,
+              strategy: 'UseCache'
+            }
+          });
+
+          await client.get(componentName);
+          expect(client.index).toEqual({ [componentName]: componentLocalVersion });
+
+          await lock;
+
+          await client.get(componentName);
+
+          expect(client.index).toEqual({ [componentName]: componentRemoteVersion });
+          expect(mockFetch).toBeCalledWith(`${url}/host/register`, request);
+          expect(consoleWarnSpy).toHaveBeenCalledWith(
+            "Couldn't get components index from the registry, working in offline mode"
+          );
+        });
+      });
+    });
+  });
+
+  describe('get', () => {
     it('sends component version and component name to server when component version is specified and cache is empty', async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
@@ -737,7 +890,7 @@ describe('Client tests', () => {
       }
     });
 
-    it(`doesn't save to cache when status code if response.ok is false`, async () => {
+    it(`doesn't save to cache when status code of response.ok is false`, async () => {
       const url = 'testUrl';
       const componentName = 'component_test';
       const componentVersion = 'version_test';
