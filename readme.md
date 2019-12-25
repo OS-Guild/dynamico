@@ -18,6 +18,11 @@ A remote (web-like) code push work-flow for continuous delivery of specific feat
 * [Getting Started](./getting-started.md)
 * [Tutorial](./tutorial.md)
 
+## What Dynamico does best
+<p align="center">
+<img  src="https://user-images.githubusercontent.com/13674505/71442794-21e77b80-2710-11ea-85e5-9cd4c4d836d9.png" />
+</p>
+
 ## Why?
 <!-- In the growing web of today, when frameworks are constantly changing and it seems hard to keep track of the new trends and -->
 
