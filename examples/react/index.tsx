@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as ReactDOM from 'react-dom';
 import moment from 'moment';
 
-import { DynamicoClient } from '@dynamico/core';
+import { DynamicoClient, FailedRegisterStrategy } from '@dynamico/core';
 import { DynamicoProvider, dynamico, Status } from '@dynamico/react';
 
 import { dependencies } from './package.json';
@@ -15,7 +15,12 @@ const MyComp = dynamico<MyCompProps>('mycomp', {
   // devMode: true,
   // componentVersion: '1.1.2',
   // getLatest: true,
-  fallback: ({username, dynamicoStatus}) => <div>Hey {username}, I'm currently {dynamicoStatus.currentStatus} with {dynamicoStatus.error && dynamicoStatus.error.stack}... </div>
+  fallback: ({ username, dynamicoStatus }) => (
+    <div>
+      Hey {username}, I'm currently {dynamicoStatus.currentStatus} with{' '}
+      {dynamicoStatus.error && dynamicoStatus.error.stack}...{' '}
+    </div>
+  )
 });
 
 const resolvers = {
@@ -30,7 +35,12 @@ const dynamicoClient = new DynamicoClient({
     versions: dependencies,
     resolvers
   },
-  cache: localStorage
+  cache: localStorage,
+  failedRegisterPolicy: {
+    retries: 3,
+    retryRate: 100,
+    strategy: FailedRegisterStrategy.Ignore
+  }
 });
 
 const App = () => {
