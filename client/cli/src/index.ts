@@ -20,6 +20,7 @@ export interface DcmConfig {
   registry: string;
   middleware?: Function;
   modifyRollupConfig?: ExtendRollupConfig;
+  workspaces?: string[];
 }
 
 const Dcm = new Liftoff({

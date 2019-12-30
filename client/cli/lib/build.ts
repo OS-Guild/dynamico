@@ -24,6 +24,7 @@ export default async ({ mode = Mode.development, dir, modifyRollupConfig }: Opti
   const isProd = mode === Mode.production;
   const file = getMainFile(dir);
   const rootDir = resolve(process.cwd(), dir || '.');
+  const distDir = join(rootDir, './dist');
 
   const bundler = new Bundler(
     {
@@ -38,7 +39,8 @@ export default async ({ mode = Mode.development, dir, modifyRollupConfig }: Opti
         typescript2: options => rollupTypescript2({ ...options, tsconfig: join(rootDir, 'tsconfig.json') })
       },
       output: {
-        minify: isProd
+        minify: isProd,
+        dir: distDir
       },
       extendRollupConfig: modifyRollupConfig
     },
@@ -49,7 +51,6 @@ export default async ({ mode = Mode.development, dir, modifyRollupConfig }: Opti
 
   packageJson.main = basename(file, extname(file)) + '.js';
 
-  const distDir = join(rootDir, './dist');
   if (!existsSync(distDir)) {
     mkdirSync(distDir);
   }
