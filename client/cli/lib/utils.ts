@@ -3,16 +3,15 @@ import { writeFileSync } from 'fs';
 
 type Dependencies = Record<string, string>;
 
-const dir = process.cwd();
-export const getPackageJsonPath = () => resolve(dir, `package.json`);
+export const getPackageJsonPath = (dir?: string) => resolve(process.cwd(), dir || '.', 'package.json');
 
-export const getPackageJson = () => require(getPackageJsonPath());
+export const getPackageJson = (dir?: string) => require(getPackageJsonPath(dir));
 
-export const updatePackageJson = newContents =>
-  writeFileSync(getPackageJsonPath(), JSON.stringify(newContents, null, 2));
+export const updatePackageJson = (newContents, dir?: string) =>
+  writeFileSync(getPackageJsonPath(dir), JSON.stringify(newContents, null, 2));
 
-export const getMainFile = (): string => {
-  const { main } = getPackageJson();
+export const getMainFile = (dir?: string): string => {
+  const { main } = getPackageJson(dir);
 
   if (!main) {
     throw `package.json is missing "main" file`;

@@ -1,13 +1,13 @@
 import { Bundler } from 'bili';
 import { ExtendRollupConfig } from 'bili/types/types';
-import { basename, extname, resolve } from 'path';
+import { basename, extname, join, resolve } from 'path';
 import { writeFile, mkdirSync, existsSync } from 'fs';
 import { promisify } from 'util';
 
 import rollupPeerDepsExternal from 'rollup-plugin-peer-deps-external';
 import rollupTypescript2 from 'rollup-plugin-typescript2';
 
-import { getMainFile, getPackageJson } from './utils';
+import { getMainFile, getPackageJson, getPackageJsonPath } from './utils';
 
 export const enum Mode {
   production = 'production',
@@ -16,36 +16,42 @@ export const enum Mode {
 
 export interface Options {
   mode?: Mode;
-  file?: string;
+  dir?: string;
   modifyRollupConfig?: ExtendRollupConfig;
 }
 
-export default async ({ mode = Mode.development, file = getMainFile(), modifyRollupConfig }: Options = {}): Promise<
-  any
-> => {
+export default async ({ mode = Mode.development, dir, modifyRollupConfig }: Options = {}): Promise<any> => {
   const isProd = mode === Mode.production;
-  const bundler = new Bundler({
-    input: resolve(process.cwd(), file),
-    bundleNodeModules: true,
-    plugins: {
-      'peer-deps-external': true
-    },
-    resolvePlugins: {
-      'peer-deps-external': rollupPeerDepsExternal,
-      typescript2: rollupTypescript2
-    },
-    output: {
-      minify: isProd
-    },
-    extendRollupConfig: modifyRollupConfig
-  });
+  const file = getMainFile(dir);
+  const rootDir = resolve(process.cwd(), dir || '.');
 
-  const packageJson = getPackageJson();
+  const bundler = new Bundler(
+    {
+      input: file,
+      bundleNodeModules: true,
+      plugins: {
+        'peer-deps-external': true
+      },
+      resolvePlugins: {
+        'peer-deps-external': (options, ...args) =>
+          rollupPeerDepsExternal({ ...options, packageJsonPath: getPackageJsonPath(dir) }, ...args),
+        typescript2: options => rollupTypescript2({ ...options, tsconfig: join(rootDir, 'tsconfig.json') })
+      },
+      output: {
+        minify: isProd
+      },
+      extendRollupConfig: modifyRollupConfig
+    },
+    { rootDir }
+  );
+
+  const packageJson = getPackageJson(dir);
 
   packageJson.main = basename(file, extname(file)) + '.js';
 
-  if (!existsSync('./dist')) {
-    mkdirSync('./dist');
+  const distDir = join(rootDir, './dist');
+  if (!existsSync(distDir)) {
+    mkdirSync(distDir);
   }
 
   await Promise.all([
@@ -53,7 +59,7 @@ export default async ({ mode = Mode.development, file = getMainFile(), modifyRol
       write: true,
       watch: !isProd
     }),
-    promisify(writeFile)('./dist/package.json', JSON.stringify(packageJson))
+    promisify(writeFile)(join(distDir, './package.json'), JSON.stringify(packageJson))
   ]);
 
   return packageJson;
