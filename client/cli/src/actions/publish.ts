@@ -35,8 +35,7 @@ export default (config: DcmConfig) =>
           });
           logger.info(`Successfully published ${name}@${version}`);
         } catch (err) {
-          logger.error(`Failed publishing ${name}: ${err.message}`);
-          process.exit(1);
+          return logger.error(`Failed publishing ${name}: ${err.message}`);
         }
       }
     }
