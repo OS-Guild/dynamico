@@ -1,5 +1,6 @@
-import { resolve } from 'path';
 import { writeFileSync } from 'fs';
+import glob from 'glob';
+import { resolve } from 'path';
 
 type Dependencies = Record<string, string>;
 
@@ -30,4 +31,25 @@ export const validateDependencies = (host: Dependencies, client: Dependencies) =
       );
     }
   });
+};
+
+export const getComponentDirectories = (dir?: string, workspaces?: string[]) => {
+  let globs: string[];
+  if (dir) {
+    globs = [dir];
+  } else if (workspaces && workspaces.length > 0) {
+    globs = workspaces;
+  } else {
+    return [process.cwd()];
+  }
+
+  return globs.reduce(
+    (acc: string[], dir: string) => {
+      if (!dir.endsWith('/')) {
+        dir += '/';
+      }
+      return [...acc, ...glob.sync(dir)];
+    },
+    [] as string[]
+  );
 };
