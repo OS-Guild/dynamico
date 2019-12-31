@@ -7,7 +7,10 @@ export default (config: DcmConfig) =>
   registerCommand({
     name: 'start',
     description: 'Start dynamic component dev server',
-    options: [['-p, --port <port>', `dev server port`, INT, DEFAULT_DEV_PORT], ['-d --dir <directory>', 'dir', STRING]],
+    options: [
+      ['-p, --port <port>', `dev server port`, INT, DEFAULT_DEV_PORT],
+      ['-d, --dir <directory>', 'dir', STRING]
+    ],
     action: ({ options: { port, dir }, logger }) =>
       start(
         logger,

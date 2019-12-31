@@ -8,7 +8,7 @@ export default (config: DcmConfig) =>
   registerCommand({
     name: 'publish',
     description: 'Publish your dynamic component',
-    options: [['-u, --url <url>', 'url', STRING], ['-d --dir <directory>', 'dir', STRING]],
+    options: [['-u, --url <url>', 'url', STRING], ['-d, --dir <directory>', 'dir', STRING]],
     action: async ({ options: { url, dir }, logger }) => {
       if (!url) {
         if (!config) {

@@ -8,7 +8,7 @@ export default (config: DcmConfig) =>
   registerCommand({
     name: 'build',
     description: 'Build dynamic component',
-    options: [['-m, --mode <mode>', 'mode', STRING, BuildMode.development], ['-d --dir <directory>', 'dir', STRING]],
+    options: [['-m, --mode <mode>', 'mode', STRING, BuildMode.development], ['-d, --dir <directory>', 'dir', STRING]],
     action: async ({ options: { mode, dir }, logger }) => {
       const dirs = getComponentDirectories(dir, config && config.workspaces);
 
