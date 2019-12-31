@@ -12,10 +12,8 @@ export default (config: DcmConfig) =>
       ['-d, --dir <directory>', 'dir', STRING]
     ],
     action: ({ options: { releaseType, dir }, logger }) => {
-      if (config && config.workspaces) {
-        if (!dir) {
-          return logger.error('Please specify component');
-        }
+      if (config && config.workspaces && !dir) {
+        return logger.error('Please specify directory to bump');
       }
 
       return bumpVersion({ releaseType, dir }, logger);

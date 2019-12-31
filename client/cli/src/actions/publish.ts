@@ -10,6 +10,10 @@ export default (config: DcmConfig) =>
     description: 'Publish your dynamic component',
     options: [['-u, --url <url>', 'url', STRING], ['-d, --dir <directory>', 'dir', STRING]],
     action: async ({ options: { url, dir }, logger }) => {
+      if (config && config.workspaces && !dir) {
+        return logger.error('Please specify directory to publish');
+      }
+
       if (!url) {
         if (!config) {
           return logger.error(`Couldn't find 'dcmconfig' file, did you forget to create it?`);
@@ -22,21 +26,17 @@ export default (config: DcmConfig) =>
         url = config.registry;
       }
 
-      const dirs = getComponentDirectories(dir, config && config.workspaces);
+      const { name } = getPackageJson(dir);
+      logger.info(`Publishing ${name}...`);
 
-      for (const dir of dirs) {
-        const { name } = getPackageJson(dir);
-        logger.info(`Publishing ${name}...`);
-
-        try {
-          const { name, version } = await publish(url, config && config.middleware, {
-            dir,
-            modifyRollupConfig: config && config.modifyRollupConfig
-          });
-          logger.info(`Successfully published ${name}@${version}`);
-        } catch (err) {
-          return logger.error(`Failed publishing ${name}: ${err.message}`);
-        }
+      try {
+        const { name, version } = await publish(url, config && config.middleware, {
+          dir,
+          modifyRollupConfig: config && config.modifyRollupConfig
+        });
+        logger.info(`Successfully published ${name}@${version}`);
+      } catch (err) {
+        return logger.error(`Failed publishing ${name}: ${err.message}`);
       }
     }
   });
