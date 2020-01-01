@@ -37,7 +37,7 @@ export interface InitOptions {
     versions: Dependencies;
     resolvers: Record<string, any>;
   };
-  fetcher?: GlobalFetch['fetch'];
+  fetcher?: WindowOrWorkerGlobalScope['fetch'];
   globals?: Record<string, any>;
   checkCodeIntegrity?: (code: string) => Promise<boolean>;
   failedRegisterPolicy?: FailedRegisterPolicy;
@@ -70,7 +70,7 @@ export class DynamicoClient {
     resolvers: Record<string, any>;
   };
   cache: StorageController;
-  fetcher: GlobalFetch['fetch'];
+  fetcher: WindowOrWorkerGlobalScope['fetch'];
   globals: Record<string, any>;
   index: Record<string, string> = {};
   checkCodeIntegrity?: (string) => Promise<boolean>;
@@ -105,7 +105,7 @@ export class DynamicoClient {
     );
   }
 
-  private checkFetcher(fetcher?: GlobalFetch['fetch']) {
+  private checkFetcher(fetcher?: WindowOrWorkerGlobalScope['fetch']) {
     if (!fetcher && typeof fetch === 'undefined') {
       let library: string = 'unfetch';
 

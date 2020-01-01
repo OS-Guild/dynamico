@@ -110,7 +110,7 @@ describe('Client tests', () => {
             resolvers,
             versions
           },
-          fetcher: mockFetch as GlobalFetch['fetch']
+          fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
         });
         await client.get('some component');
 
@@ -164,7 +164,7 @@ describe('Client tests', () => {
             resolvers,
             versions
           },
-          fetcher: mockFetch as GlobalFetch['fetch']
+          fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
         });
         await client.get('some component');
 
@@ -228,7 +228,7 @@ describe('Client tests', () => {
             resolvers: {},
             versions
           },
-          fetcher: mockFetch as GlobalFetch['fetch']
+          fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
         });
         await client.get(componentName);
 
@@ -263,7 +263,7 @@ describe('Client tests', () => {
               resolvers: {},
               versions
             },
-            fetcher: mockFetch as GlobalFetch['fetch']
+            fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
           });
 
           const exports = await client.get(componentName);
@@ -306,7 +306,7 @@ describe('Client tests', () => {
               resolvers: {},
               versions
             },
-            fetcher: mockFetch as GlobalFetch['fetch'],
+            fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch'],
             failedRegisterPolicy: {
               retries: 0,
               retryRate: 0,
@@ -359,7 +359,7 @@ describe('Client tests', () => {
               resolvers: {},
               versions
             },
-            fetcher: mockFetch as GlobalFetch['fetch'],
+            fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch'],
             failedRegisterPolicy: {
               retries: 3,
               retryRate: 1,
@@ -439,7 +439,7 @@ describe('Client tests', () => {
               resolvers: {},
               versions
             },
-            fetcher: mockFetch as GlobalFetch['fetch'],
+            fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch'],
             failedRegisterPolicy: {
               retries: 3,
               retryRate: 1,
@@ -500,7 +500,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName, { componentVersion });
 
@@ -543,7 +543,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName, { getLatest: true, componentVersion });
 
@@ -586,7 +586,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName, { componentVersion });
 
@@ -637,7 +637,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
 
       await client.get(componentName);
@@ -690,7 +690,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
 
       await client.get(componentName);
@@ -742,7 +742,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
 
       await client.get(componentName);
@@ -787,7 +787,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName);
 
@@ -832,7 +832,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await expect(client.get(componentName)).rejects.toEqual(
         new ComponentGetFailedError(statusText, mockResponse as any)
@@ -875,7 +875,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch'],
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch'],
         checkCodeIntegrity: async (code: string) => false
       });
       try {
@@ -928,7 +928,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       try {
         await client.get(componentName);
@@ -977,7 +977,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
 
       await client.get(componentName);
@@ -1024,7 +1024,7 @@ describe('Client tests', () => {
           },
           versions
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName);
 
@@ -1070,7 +1070,7 @@ describe('Client tests', () => {
         globals: {
           someGlobal
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName);
 
@@ -1117,7 +1117,7 @@ describe('Client tests', () => {
         globals: {
           someGlobal: ctorGlobal
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       await client.get(componentName, {
         globals: { someGlobal: getGlobal }
@@ -1167,7 +1167,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions: {}
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       const result = await client.get(componentName);
 
@@ -1213,7 +1213,7 @@ describe('Client tests', () => {
           resolvers: {},
           versions: {}
         },
-        fetcher: mockFetch as GlobalFetch['fetch']
+        fetcher: mockFetch as WindowOrWorkerGlobalScope['fetch']
       });
       const result = await client.get(componentName);
 

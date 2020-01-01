@@ -73,7 +73,7 @@ A cache storage for storing fetched components for offline usage and memoization
 
 **fetcher - (optional)**
 
-- Type: `GlobalFetch['fetch']`
+- Type: `WindowOrWorkerGlobalScope['fetch']`
 
 The fetcher that the client should use. This has to conform to the browser's `fetch` [API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 By default the client will look for the global `window.fetch`. For other environments you can use [node-fetch](https://www.npmjs.com/package/node-fetch)
