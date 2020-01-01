@@ -40,7 +40,7 @@ export const getComponentDirectories = (dir?: string, workspaces?: string[]) => 
   } else if (workspaces && workspaces.length > 0) {
     globs = workspaces;
   } else {
-    return [process.cwd()];
+    return ['.'];
   }
 
   return globs.reduce(

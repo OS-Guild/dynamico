@@ -36,7 +36,11 @@ export default async (
   );
 
   const app = express();
+
+  app.set('etag', 'strong');
+
   app.use(express.json(), cors());
+
   app
     .route('/:component')
     .all((req, res, next) => {
@@ -68,5 +72,6 @@ export default async (
   app.use((req, res) => {
     res.sendStatus(404);
   });
+
   return app.listen(port);
 };
