@@ -6,40 +6,42 @@ export interface DevOptions {
     versions: Dependencies;
     resolvers: Record<string, any>;
   };
-  callback: Function;
   interval?: number;
   urlOverride?: string;
 }
 
-export class DynamicoDevClient extends DynamicoClient {
+export interface DevGetOptions extends Options {
   callback: Function;
+  interval?: number;
+}
+
+export class DynamicoDevClient extends DynamicoClient {
   interval: number;
 
   private shouldRefresh = false;
   private etag = '';
 
-  constructor({ dependencies, urlOverride, callback, interval = 1000 }: DevOptions) {
+  constructor({ dependencies, urlOverride, interval = 1000 }: DevOptions) {
     super({
       url: urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383',
       dependencies,
       cache: new NoopStorage()
     });
 
-    this.callback = callback;
     this.interval = interval;
   }
 
-  async get(name: string, options: Options = {}) {
-    const interval = setInterval(async () => {
+  async get(name: string, { callback, interval, ...options }: DevGetOptions) {
+    const intervalRef = setInterval(async () => {
       const view = await super.get(name, options);
 
       if (this.shouldRefresh) {
-        return this.callback(view);
+        return callback(view);
       }
-    }, this.interval);
+    }, interval || this.interval);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(intervalRef);
     };
   }
 

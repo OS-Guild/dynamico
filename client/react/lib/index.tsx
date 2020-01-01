@@ -29,10 +29,10 @@ interface setComponent {
   (component: Component): void;
 }
 
-type FallbackType<T> = JSX.Element | React.ComponentType<T & DynamicoStatus> |  null;
+type FallbackType<T> = JSX.Element | React.ComponentType<T & DynamicoStatus> | null;
 
 interface ComponentOptions<T> extends Options {
-  devMode?: boolean | Partial<Omit<DevOptions, 'callback'>>;
+  devMode?: boolean | Partial<DevOptions>;
   fallback?: FallbackType<T>;
 }
 
@@ -45,16 +45,16 @@ export const DynamicoProvider: FunctionComponent<{ client: DynamicoClient }> = (
 interface FallbackBuilderProps<T> {
   fallback: FallbackType<T> | null;
   status: Status;
-  [propName: string] : any;
+  [propName: string]: any;
 }
 
-const FallbackBuilder = <T extends {}>({fallback, status, ...props}: FallbackBuilderProps<T>) => {
+const FallbackBuilder = <T extends {}>({ fallback, status, ...props }: FallbackBuilderProps<T>) => {
   if (!fallback || isElement(fallback)) {
     return fallback;
   }
   const FallbackComponent = fallback as React.ComponentType<any>;
   return <FallbackComponent dynamicoStatus={status} {...props} />;
-}
+};
 
 export const dynamico = function<T = any>(
   name: string,
@@ -62,8 +62,8 @@ export const dynamico = function<T = any>(
 ): FunctionComponent<T> {
   return (props: T) => {
     const [Component, setComponent]: [Component, setComponent] = useState({});
-    const [status, setStatus]: [Status, setStatus] = useState<Status>({currentStatus: ComponentStatus.Loading});
-    
+    const [status, setStatus]: [Status, setStatus] = useState<Status>({ currentStatus: ComponentStatus.Loading });
+
     const dynamicoClient = useContext<DynamicoClient | undefined>(DynamicoContext);
     let release = () => {};
 
@@ -74,30 +74,32 @@ export const dynamico = function<T = any>(
       if (devMode) {
         const devClient = new DynamicoDevClient({
           dependencies: dynamicoClient.dependencies,
-          ...(typeof devMode === 'object' ? devMode : {}),
-          callback: (view: any) => setComponent({ view })
+          ...(typeof devMode === 'object' ? devMode : {})
         });
 
-        release = await devClient.get(name, options);
+        release = await devClient.get(name, { ...options, callback: (view: any) => setComponent({ view }) });
 
         return;
       }
-      
+
       setComponent({ view: await dynamicoClient.get(name, options) });
     };
 
     useEffect(() => {
-      
-        getComponent().catch((error) => {
-          setStatus({
-            currentStatus: ComponentStatus.Error,
-            error
-          });
+      getComponent().catch(error => {
+        setStatus({
+          currentStatus: ComponentStatus.Error,
+          error
+        });
       });
 
       return () => release();
     }, []);
 
-    return Component.view ? <Component.view {...props} /> : <FallbackBuilder fallback={fallback} status={status} {...props} />;
+    return Component.view ? (
+      <Component.view {...props} />
+    ) : (
+      <FallbackBuilder fallback={fallback} status={status} {...props} />
+    );
   };
 };
