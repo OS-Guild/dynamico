@@ -1,4 +1,4 @@
-import { writeFileSync } from 'fs';
+import { existsSync, writeFileSync } from 'fs';
 import glob from 'glob';
 import { resolve } from 'path';
 
@@ -43,13 +43,15 @@ export const getComponentDirectories = (dir?: string, workspaces?: string[]) => 
     return ['.'];
   }
 
-  return globs.reduce(
-    (acc: string[], dir: string) => {
-      if (!dir.endsWith('/')) {
-        dir += '/';
-      }
-      return [...acc, ...glob.sync(dir)];
-    },
-    [] as string[]
-  );
+  return globs
+    .reduce(
+      (acc: string[], dir: string) => {
+        if (!dir.endsWith('/')) {
+          dir += '/';
+        }
+        return [...acc, ...glob.sync(dir)];
+      },
+      [] as string[]
+    )
+    .filter(dir => existsSync(resolve(process.cwd(), dir, 'package.json')));
 };
