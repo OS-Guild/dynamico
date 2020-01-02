@@ -36,11 +36,29 @@ interface ComponentOptions<T> extends Options {
   fallback?: FallbackType<T>;
 }
 
-export const DynamicoContext = React.createContext<DynamicoClient | undefined>(undefined);
+export const DynamicoContext = React.createContext<{ client?: DynamicoClient; devClient?: DynamicoDevClient }>({});
 
-export const DynamicoProvider: FunctionComponent<{ client: DynamicoClient }> = ({ client, children }) => (
-  <DynamicoContext.Provider value={client}>{children}</DynamicoContext.Provider>
-);
+export interface DynamicoProviderProps {
+  client: DynamicoClient;
+  devMode?: boolean | Partial<DevOptions>;
+}
+
+export const DynamicoProvider: FunctionComponent<DynamicoProviderProps> = ({ client, devMode, children }) => {
+  const context = React.useMemo(() => {
+    if (!devMode) {
+      return { client };
+    }
+
+    const devClient = new DynamicoDevClient({
+      dependencies: client.dependencies,
+      ...(typeof devMode === 'object' ? devMode : {})
+    });
+
+    return { client, devClient };
+  }, [client, devMode]);
+
+  return <DynamicoContext.Provider value={context}>{children}</DynamicoContext.Provider>;
+};
 
 interface FallbackBuilderProps<T> {
   fallback: FallbackType<T> | null;
@@ -64,34 +82,65 @@ export const dynamico = function<T = any>(
     const [Component, setComponent]: [Component, setComponent] = useState({});
     const [status, setStatus]: [Status, setStatus] = useState<Status>({ currentStatus: ComponentStatus.Loading });
 
-    const dynamicoClient = useContext<DynamicoClient | undefined>(DynamicoContext);
-    let release = () => {};
-
-    const getComponent = async () => {
-      if (!dynamicoClient) {
-        throw `Couldn't find dynamico client in the context, make sure you use DynamicoContext.Provider`;
-      }
-      if (devMode) {
-        const devClient = new DynamicoDevClient({
-          dependencies: dynamicoClient.dependencies,
-          ...(typeof devMode === 'object' ? devMode : {})
-        });
-
-        release = await devClient.get(name, { ...options, callback: (view: any) => setComponent({ view }) });
-
-        return;
-      }
-
-      setComponent({ view: await dynamicoClient.get(name, options) });
-    };
+    const { client: dynamicoClient, devClient } = useContext(DynamicoContext);
 
     useEffect(() => {
-      getComponent().catch(error => {
-        setStatus({
-          currentStatus: ComponentStatus.Error,
-          error
-        });
-      });
+      let release = () => {};
+
+      const setError = (error: Error) => setStatus({ currentStatus: ComponentStatus.Error, error });
+
+      const getComponent = async () => {
+        if (!dynamicoClient) {
+          throw `Couldn't find dynamico client in the context, make sure you use DynamicoContext.Provider`;
+        }
+
+        if (devMode || devClient) {
+          const devOptions = typeof devMode === 'object' ? devMode : {};
+
+          const client =
+            devClient ||
+            new DynamicoDevClient({
+              dependencies: dynamicoClient.dependencies,
+              ...devOptions
+            });
+
+          let usingFallbackComponent = false;
+
+          release = client.get(name, {
+            interval: devOptions.interval,
+            ...options,
+            callback: async (err, view: any) => {
+              if (!err) {
+                usingFallbackComponent = false;
+                return setComponent({ view });
+              }
+
+              console.warn(`failed getting component ${name} from dev server`, err);
+
+              if (!devMode) {
+                return setError(err);
+              }
+
+              if (usingFallbackComponent) {
+                return;
+              }
+              usingFallbackComponent = true;
+
+              try {
+                setComponent({ view: await dynamicoClient.get(name, options) });
+              } catch (e) {
+                return setError(e);
+              }
+            }
+          });
+
+          return;
+        }
+
+        setComponent({ view: await dynamicoClient.get(name, options) });
+      };
+
+      getComponent().catch(setError);
 
       return () => release();
     }, []);

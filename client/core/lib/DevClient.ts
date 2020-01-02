@@ -11,33 +11,38 @@ export interface DevOptions {
 }
 
 export interface DevGetOptions extends Options {
-  callback: Function;
+  callback: (err: Error | undefined, component: any) => void;
   interval?: number;
 }
 
-export class DynamicoDevClient extends DynamicoClient {
+export class DynamicoDevClient {
   interval: number;
 
   private shouldRefresh = false;
   private etag = '';
+  private client: DynamicoClient;
 
   constructor({ dependencies, urlOverride, interval = 1000 }: DevOptions) {
-    super({
+    this.client = new DynamicoClient({
       url: urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383',
       dependencies,
-      cache: new NoopStorage()
+      cache: new NoopStorage(),
+      fetcher: this.fetcher
     });
 
     this.interval = interval;
   }
 
-  async get(name: string, { callback, interval, ...options }: DevGetOptions) {
-    const intervalRef = setInterval(async () => {
-      const view = await super.get(name, options);
-
-      if (this.shouldRefresh) {
-        return callback(view);
-      }
+  get(name: string, { callback, interval, ...options }: DevGetOptions) {
+    const intervalRef = setInterval(() => {
+      this.client.get(name, options).then(
+        view => {
+          if (this.shouldRefresh) {
+            callback(undefined, view);
+          }
+        },
+        err => callback(err, undefined)
+      );
     }, interval || this.interval);
 
     return () => {
