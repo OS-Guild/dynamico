@@ -73,5 +73,5 @@ export default async (
     res.sendStatus(404);
   });
 
-  return app.listen(port);
+  return app.listen(port, () => logger.info(`started dev server on port ${port}`));
 };

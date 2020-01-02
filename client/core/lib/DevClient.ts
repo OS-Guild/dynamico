@@ -1,4 +1,4 @@
-import { DynamicoClient, Options, Dependencies } from '.';
+import { DynamicoClient, Options, Dependencies, InitOptions } from '.';
 import { NoopStorage } from './utils/NoopStorage';
 
 export interface DevOptions {
@@ -16,28 +16,60 @@ export interface DevGetOptions extends Options {
 }
 
 export class DynamicoDevClient {
-  interval: number;
-
-  private shouldRefresh = false;
-  private etag = '';
-  private client: DynamicoClient;
+  private readonly url: string;
+  private readonly cache = new NoopStorage();
+  private readonly dependencies: InitOptions['dependencies'];
+  private readonly interval: number;
 
   constructor({ dependencies, urlOverride, interval = 1000 }: DevOptions) {
-    this.client = new DynamicoClient({
-      url: urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383',
-      dependencies,
-      cache: new NoopStorage(),
-      fetcher: this.fetcher
-    });
-
+    this.url = urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383';
+    this.dependencies = dependencies;
     this.interval = interval;
   }
 
   get(name: string, { callback, interval, ...options }: DevGetOptions) {
+    let shouldRefresh = false;
+    let lastEtag = '';
+
+    const fetcher = async (url: string, init?: RequestInit) => {
+      const controller = new AbortController();
+
+      return fetch(url, {
+        method: 'get',
+        ...init,
+        signal: controller.signal
+      }).then(res => {
+        if (init) {
+          return Promise.resolve(new Response(JSON.stringify({ id: 'dev', issues: [] })));
+        }
+
+        const etag = res.headers.get('etag') as string;
+
+        if (lastEtag === etag) {
+          shouldRefresh = false;
+          controller.abort();
+
+          return new Response();
+        }
+
+        shouldRefresh = true;
+        lastEtag = etag;
+
+        return res;
+      });
+    };
+
+    const client = new DynamicoClient({
+      url: this.url,
+      dependencies: this.dependencies,
+      cache: this.cache,
+      fetcher
+    });
+
     const intervalRef = setInterval(() => {
-      this.client.get(name, options).then(
+      client.get(name, options).then(
         view => {
-          if (this.shouldRefresh) {
+          if (shouldRefresh) {
             callback(undefined, view);
           }
         },
@@ -49,32 +81,4 @@ export class DynamicoDevClient {
       clearInterval(intervalRef);
     };
   }
-
-  fetcher = async (url: string, init?: RequestInit) => {
-    const controller = new AbortController();
-
-    return fetch(url, {
-      method: 'get',
-      ...init,
-      signal: controller.signal
-    }).then(res => {
-      if (init) {
-        return Promise.resolve(new Response(JSON.stringify({ id: 'dev', issues: [] })));
-      }
-
-      const etag = res.headers.get('etag') as string;
-
-      if (this.etag === etag) {
-        this.shouldRefresh = false;
-        controller.abort();
-
-        return new Response();
-      }
-
-      this.shouldRefresh = true;
-      this.etag = etag;
-
-      return res;
-    });
-  };
 }
