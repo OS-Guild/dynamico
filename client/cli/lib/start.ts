@@ -17,7 +17,7 @@ export default async (
   { port = DEFAULT_PORT, workspaces }: StartOptions,
   buildOptions?: Options
 ): Promise<any> => {
-  const dir = buildOptions && buildOptions.dir;
+  const dir = buildOptions?.dir;
 
   const dirs = getComponentDirectories(dir, workspaces);
   const builds = await Promise.all(
