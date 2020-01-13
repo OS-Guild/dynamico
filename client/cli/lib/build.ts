@@ -20,10 +20,10 @@ export interface Options {
   modifyRollupConfig?: ExtendRollupConfig;
 }
 
-export default async ({ mode = Mode.development, dir, modifyRollupConfig }: Options = {}): Promise<any> => {
+export default async ({ mode = Mode.development, dir = '.', modifyRollupConfig }: Options = {}): Promise<any> => {
   const isProd = mode === Mode.production;
   const file = getMainFile(dir);
-  const rootDir = resolve(process.cwd(), dir || '.');
+  const rootDir = resolve(process.cwd(), dir);
   const distDir = join(rootDir, './dist');
 
   const bundler = new Bundler(
