@@ -44,14 +44,12 @@ export const getComponentDirectories = (dir?: string, workspaces?: string[]) => 
   }
 
   return globs
-    .reduce(
-      (acc: string[], dir: string) => {
-        if (!dir.endsWith('/')) {
-          dir += '/';
-        }
-        return [...acc, ...glob.sync(dir)];
-      },
-      [] as string[]
-    )
+    .flatMap(dir => {
+      if (!dir.endsWith('/')) {
+        dir += '/';
+      }
+
+      return glob.sync(dir);
+    })
     .filter(dir => existsSync(resolve(process.cwd(), dir, 'package.json')));
 };
