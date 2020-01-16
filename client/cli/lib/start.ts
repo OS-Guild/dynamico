@@ -41,31 +41,25 @@ export default async (
 
   app.use(express.json(), cors());
 
-  app
-    .route('/:component')
-    .all((req, res, next) => {
-      if (!(req.params.component in index)) {
-        logger.warn(`component "${req.params.component}" was not found`);
-        return res.sendStatus(404);
-      }
-      req.params.component = index[req.params.component];
-      next();
-    })
-    .get((req, res) => {
-      res.setHeader('Access-Control-Expose-Headers', 'ETag');
-      const component = req.params.component;
-      res.sendFile(resolve(process.cwd(), component.dir, 'dist', component.main));
-    })
-    .post((req, res) => {
-      const component = req.params.component;
-      validateDependencies(req.body, component.peerDependencies);
-      res.sendStatus(200);
-    })
-    .all((req, res) => {
+  app.get('/:component', (req, res) => {
+    const componentName = req.params.component;
+
+    if (!(componentName in index)) {
+      logger.warn(`component "${componentName}" was not found`);
       return res.sendStatus(404);
-    });
+    }
+
+    const component = index[componentName];
+
+    res.setHeader('Access-Control-Expose-Headers', 'ETag');
+    res.sendFile(resolve(process.cwd(), component.dir, 'dist', component.main));
+  });
 
   app.post('/host/register', (req, res) => {
+    Object.entries(index).forEach(([componentName, { peerDependencies }]) => {
+      validateDependencies(req.body, peerDependencies, componentName, logger);
+    });
+
     res.sendStatus(200);
   });
 

@@ -21,11 +21,11 @@ export const getMainFile = (dir?: string): string => {
   return main;
 };
 
-export const validateDependencies = (host: Dependencies, client: Dependencies) => {
+export const validateDependencies = (host: Dependencies, client: Dependencies, componentName: string, logger) => {
   Object.entries(client).forEach(([dep, version]) => {
     if (host[dep] && host[dep] !== version) {
-      console.warn(
-        `WARNING: host version recieved for ${dep} was ${host[dep]} but component version is asking for ${version}. Please consider matching the versions in order to prevent problems.`
+      logger.warn(
+        `WARNING: host version received for ${dep} was ${host[dep]} but component ${componentName} is asking for version ${version}. Please consider matching the versions in order to prevent problems.`
       );
     }
   });
