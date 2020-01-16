@@ -16,10 +16,10 @@ export interface DevGetOptions extends Options {
 }
 
 export class DynamicoDevClient {
-  private readonly url: string;
-  private readonly cache = new NoopStorage();
-  private readonly dependencies: InitOptions['dependencies'];
-  private readonly interval: number;
+  url: string;
+  cache = new NoopStorage();
+  dependencies: InitOptions['dependencies'];
+  interval: number;
 
   constructor({ dependencies, urlOverride, interval = 1000 }: DevOptions) {
     this.url = urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383';
