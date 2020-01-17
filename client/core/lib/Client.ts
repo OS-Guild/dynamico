@@ -73,6 +73,7 @@ export class DynamicoClient {
   globals: Record<string, any>;
   index: Record<string, string> = {};
   checkCodeIntegrity?: (string) => Promise<boolean>;
+  failedRegisterPolicy: FailedRegisterPolicy;
   private readyState: ReadyState = ReadyState.Initializing;
   private requestQueue: Function[] = [];
 
@@ -88,13 +89,13 @@ export class DynamicoClient {
 
     this.fetcher = options.fetcher || fetch.bind(window);
     this.checkCodeIntegrity = options.checkCodeIntegrity;
-    const failedRegisterPolicy = options.failedRegisterPolicy
+    this.failedRegisterPolicy = options.failedRegisterPolicy
       ? {
           ...options.failedRegisterPolicy,
           retries: Math.max(options.failedRegisterPolicy.retries, 0)
         }
       : { retries: 0, retryRate: 0, strategy: FailedRegisterStrategy.Ignore };
-    this.initialize(failedRegisterPolicy);
+    this.initialize(this.failedRegisterPolicy);
   }
 
   private handleIssues(issues: Issues): void {
