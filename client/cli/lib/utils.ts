@@ -25,7 +25,7 @@ export const validateDependencies = (host: Dependencies, client: Dependencies, c
   Object.entries(client).forEach(([dep, version]) => {
     if (host[dep] && host[dep] !== version) {
       logger.warn(
-        `WARNING: host version received for ${dep} was ${host[dep]} but component ${componentName} is asking for version ${version}. Please consider matching the versions in order to prevent problems.`
+        `host version received for ${dep} was ${host[dep]} but component ${componentName} is asking for version ${version}. Please consider matching the versions in order to prevent problems.`
       );
     }
   });
@@ -49,5 +49,5 @@ export const getComponentDirectories = (dir?: string, workspaces?: string[]) => 
 
       return glob.sync(dir);
     })
-    .filter(dir => existsSync(resolve(process.cwd(), dir, 'package.json')));
+    .filter(dir => existsSync(getPackageJsonPath(dir)));
 };
