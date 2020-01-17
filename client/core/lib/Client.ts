@@ -30,9 +30,8 @@ interface FailedRegisterPolicy {
 }
 
 export interface InitOptions {
-  prefix?: string;
   url: string;
-  cache: Storage;
+  cache: StorageController | Storage | { storage: Storage; prefix?: string };
   dependencies: {
     versions: Dependencies;
     resolvers: Record<string, any>;
@@ -79,7 +78,10 @@ export class DynamicoClient {
 
   constructor(options: InitOptions) {
     this.url = options.url;
-    this.cache = new StorageController(options.prefix || '@dynamico', options.cache);
+    this.cache =
+      options.cache instanceof StorageController
+        ? options.cache
+        : new StorageController(options.cache.prefix || '@dynamico', options.cache.storage || options.cache);
     this.dependencies = options.dependencies;
     this.globals = options.globals || {};
     this.checkFetcher(options.fetcher);
