@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, FunctionComponent } from 'react
 import { DynamicoClient, DynamicoDevClient, Options, DevOptions } from '@dynamico/core';
 import { Omit } from 'type-fest';
 import { isElement } from 'react-is';
+import { DynamicoContext, DynamicoDevContext } from './DynamicoProvider';
 
 const enum ComponentStatus {
   Loading = 'loading',
@@ -36,30 +37,6 @@ interface ComponentOptions<T> extends Options {
   fallback?: FallbackType<T>;
 }
 
-export const DynamicoContext = React.createContext<{ client?: DynamicoClient; devClient?: DynamicoDevClient }>({});
-
-export interface DynamicoProviderProps {
-  client: DynamicoClient;
-  devMode?: boolean | Partial<DevOptions>;
-}
-
-export const DynamicoProvider: FunctionComponent<DynamicoProviderProps> = ({ client, devMode, children }) => {
-  const context = React.useMemo(() => {
-    if (!devMode) {
-      return { client };
-    }
-
-    const devClient = new DynamicoDevClient({
-      dependencies: client.dependencies,
-      ...(typeof devMode === 'object' ? devMode : {})
-    });
-
-    return { client, devClient };
-  }, [client, devMode]);
-
-  return <DynamicoContext.Provider value={context}>{children}</DynamicoContext.Provider>;
-};
-
 interface FallbackBuilderProps<T> {
   fallback: FallbackType<T> | null;
   status: Status;
@@ -76,13 +53,13 @@ const FallbackBuilder = <T extends {}>({ fallback, status, ...props }: FallbackB
 
 export const dynamico = function<T = any>(
   name: string,
-  { fallback = null, devMode = false, ...options }: ComponentOptions<T> = {}
+  { fallback = null, devMode, ...options }: ComponentOptions<T> = {}
 ): FunctionComponent<T> {
   return (props: T) => {
     const [Component, setComponent]: [Component, setComponent] = useState({});
     const [status, setStatus]: [Status, setStatus] = useState<Status>({ currentStatus: ComponentStatus.Loading });
-
-    const { client: dynamicoClient, devClient } = useContext(DynamicoContext);
+    const dynamicoClient = useContext(DynamicoContext);
+    const globalDevMode = useContext(DynamicoDevContext);
 
     useEffect(() => {
       let release = () => {};
@@ -94,24 +71,20 @@ export const dynamico = function<T = any>(
           throw `Couldn't find dynamico client in the context, make sure you use DynamicoContext.Provider`;
         }
 
-        if (devMode === false || (!devMode && !devClient)) {
+        if (devMode === false || (!devMode && !globalDevMode)) {
           setComponent({ view: await dynamicoClient.get(name, options) });
           return;
         }
 
-        const devOptions = typeof devMode === 'object' ? devMode : {};
-
-        const client =
-          devClient ||
-          new DynamicoDevClient({
-            dependencies: dynamicoClient.dependencies,
-            ...devOptions
-          });
+        const client = new DynamicoDevClient({
+          dependencies: dynamicoClient.dependencies,
+          ...(typeof globalDevMode === 'object' ? globalDevMode : {}),
+          ...(typeof devMode === 'object' ? devMode : {})
+        });
 
         let usingFallbackComponent = false;
 
         release = client.get(name, {
-          interval: devOptions.interval,
           ...options,
           callback: async (err, view: any) => {
             if (!err) {
