@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useContext, useState } from 'react';
-import { DevOptions, DynamicoClient, DynamicoDevClient } from '@dynamico/core';
+import React, { FunctionComponent } from 'react';
+import { DevOptions, DynamicoClient } from '@dynamico/core';
 
 export const DynamicoContext = React.createContext<DynamicoClient | undefined>(undefined);
 
@@ -10,13 +10,8 @@ export interface DynamicoProviderProps {
   devMode?: boolean | Partial<DevOptions>;
 }
 
-export const DynamicoProvider: FunctionComponent<DynamicoProviderProps> = ({ client, devMode, children }) => {
-  const parentDevMode = useContext(DynamicoDevContext);
-  return (
-    <DynamicoContext.Provider value={client}>
-      <DynamicoDevContext.Provider value={devMode === undefined ? parentDevMode : devMode}>
-        {children}
-      </DynamicoDevContext.Provider>
-    </DynamicoContext.Provider>
-  );
-};
+export const DynamicoProvider: FunctionComponent<DynamicoProviderProps> = ({ client, devMode = false, children }) => (
+  <DynamicoContext.Provider value={client}>
+    <DynamicoDevContext.Provider value={devMode}>{children}</DynamicoDevContext.Provider>
+  </DynamicoContext.Provider>
+);
