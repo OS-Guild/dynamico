@@ -62,59 +62,52 @@ export const dynamico = function<T = any>(
     const globalDevMode = useContext(DynamicoDevContext);
 
     useEffect(() => {
-      let release = () => {};
-
       const setError = (error: Error) => setStatus({ currentStatus: ComponentStatus.Error, error });
 
-      const getComponent = async () => {
-        if (!dynamicoClient) {
-          throw `Couldn't find dynamico client in the context, make sure you use DynamicoContext.Provider`;
-        }
+      if (!dynamicoClient) {
+        setError(new Error("Couldn't find dynamico client in the context, make sure you use DynamicoProvider"));
+        return;
+      }
 
-        if (devMode === false || (!devMode && !globalDevMode)) {
-          setComponent({ view: await dynamicoClient.get(name, options) });
-          return;
-        }
+      if (devMode === false || (!devMode && !globalDevMode)) {
+        dynamicoClient.get(name, options).then(view => setComponent({ view }), setError);
+        return;
+      }
 
-        const client = new DynamicoDevClient({
-          dependencies: dynamicoClient.dependencies,
-          ...(typeof globalDevMode === 'object' ? globalDevMode : {}),
-          ...(typeof devMode === 'object' ? devMode : {})
-        });
+      const devClient = new DynamicoDevClient({
+        dependencies: dynamicoClient.dependencies,
+        ...(typeof globalDevMode === 'object' ? globalDevMode : {}),
+        ...(typeof devMode === 'object' ? devMode : {})
+      });
 
-        let usingFallbackComponent = false;
+      let usingFallbackComponent = false;
 
-        release = client.get(name, {
-          ...options,
-          callback: async (err, view: any) => {
-            if (!err) {
-              usingFallbackComponent = false;
-              return setComponent({ view });
-            }
-
-            console.warn(`failed getting component ${name} from dev server`, err);
-
-            if (!devMode) {
-              return setError(err);
-            }
-
-            if (usingFallbackComponent) {
-              return;
-            }
-            usingFallbackComponent = true;
-
-            try {
-              setComponent({ view: await dynamicoClient.get(name, options) });
-            } catch (e) {
-              return setError(e);
-            }
+      return devClient.get(name, {
+        ...options,
+        callback: async (err, view: any) => {
+          if (!err) {
+            usingFallbackComponent = false;
+            return setComponent({ view });
           }
-        });
-      };
 
-      getComponent().catch(setError);
+          console.warn(`failed getting component ${name} from dev server`, err);
 
-      return () => release();
+          if (!devMode) {
+            return setError(err);
+          }
+
+          if (usingFallbackComponent) {
+            return;
+          }
+          usingFallbackComponent = true;
+
+          try {
+            setComponent({ view: await dynamicoClient.get(name, options) });
+          } catch (e) {
+            return setError(e);
+          }
+        }
+      });
     }, []);
 
     return Component.view ? (
