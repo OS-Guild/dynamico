@@ -9,7 +9,7 @@
 A remote (web-like) code push work-flow for continuous delivery of specific features native or web.
 
 [![Known Vulnerabilities](https://snyk.io/test/github/soluto/dynamico/badge.svg)](https://snyk.io/test/github/soluto/dynamico) [![Coverage Status](https://coveralls.io/repos/github/Soluto/dynamico/badge.svg?branch=master)](https://coveralls.io/github/Soluto/dynamico?branch=master) [![npm version](https://badge.fury.io/js/%40dynamico%2Fcore.svg)](https://badge.fury.io/js/%40dynamico%2Fcore)
-[![CircleCI](https://circleci.com/gh/Soluto/dynamico.svg?style=svg)](https://circleci.com/gh/Soluto/dynamico)
+[![CircleCI](https://circleci.com/gh/Soluto/dynamico.svg?style=shield)](https://circleci.com/gh/Soluto/dynamico)
 
 [![React Next 19' talk](https://user-images.githubusercontent.com/6004537/60823639-a8cf8880-a1b0-11e9-9222-3d861d0186d9.png)](http://www.youtube.com/watch?v=skAvHVyfwmo)
 
