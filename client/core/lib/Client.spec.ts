@@ -1,4 +1,4 @@
-import { DynamicoClient } from './Client';
+import { DynamicoClient, FailedRegisterStrategy } from './Client';
 import { ComponentGetFailedError, ComponentIntegrityCheckFailed } from './errors';
 
 class MockStorageProvider {
@@ -310,7 +310,7 @@ describe('Client tests', () => {
             failedRegisterPolicy: {
               retries: 0,
               retryRate: 0,
-              strategy: 'UseCache'
+              strategy: FailedRegisterStrategy.UseCache
             }
           });
 
@@ -363,7 +363,7 @@ describe('Client tests', () => {
             failedRegisterPolicy: {
               retries: 3,
               retryRate: 1,
-              strategy: 'UseCache'
+              strategy: FailedRegisterStrategy.UseCache
             }
           });
 
@@ -443,7 +443,7 @@ describe('Client tests', () => {
             failedRegisterPolicy: {
               retries: 3,
               retryRate: 1,
-              strategy: 'UseCache'
+              strategy: FailedRegisterStrategy.UseCache
             }
           });
 
