@@ -78,6 +78,7 @@ export const dynamico = function<T = any>(
 
       const devClient = new DynamicoDevClient({
         dependencies: dynamicoClient.dependencies,
+        globals: dynamicoClient.globals,
         ...(typeof globalDevMode === 'object' ? globalDevMode : {}),
         ...(typeof devMode === 'object' ? devMode : {})
       });

@@ -6,6 +6,7 @@ export interface DevOptions {
     versions: Dependencies;
     resolvers: Record<string, any>;
   };
+  globals?: Record<string, any>;
   interval?: number;
   urlOverride?: string;
 }
@@ -18,11 +19,13 @@ export interface DevGetOptions extends Options {
 export class DynamicoDevClient {
   url: string;
   dependencies: InitOptions['dependencies'];
+  globals?: Record<string, any>;
   interval: number;
 
-  constructor({ dependencies, urlOverride, interval = 1000 }: DevOptions) {
+  constructor({ dependencies, globals, urlOverride, interval = 1000 }: DevOptions) {
     this.url = urlOverride || process.env.DYNAMICO_DEVELOPMENT_SERVER || 'http://localhost:8383';
     this.dependencies = dependencies;
+    this.globals = globals;
     this.interval = interval;
   }
 
@@ -61,6 +64,7 @@ export class DynamicoDevClient {
     const client = new DynamicoClient({
       url: this.url,
       dependencies: this.dependencies,
+      globals: this.globals,
       cache: new NoopStorage(),
       fetcher
     });
