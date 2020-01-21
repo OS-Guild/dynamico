@@ -2,10 +2,7 @@ import { DynamicoClient, Options, Dependencies, InitOptions } from '.';
 import { NoopStorage } from './utils/NoopStorage';
 
 export interface DevOptions {
-  dependencies: {
-    versions: Dependencies;
-    resolvers: Record<string, any>;
-  };
+  dependencies: Dependencies;
   globals?: Record<string, any>;
   interval?: number;
   urlOverride?: string;

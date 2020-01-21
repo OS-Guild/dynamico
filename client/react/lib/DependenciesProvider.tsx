@@ -1,11 +1,15 @@
 import React, { FunctionComponent, useContext, useMemo } from 'react';
-import { DynamicoClient } from '@dynamico/core';
+import { DynamicoClient, filterDependencies } from '@dynamico/core';
 import { DynamicoContext } from './DynamicoProvider';
 import { DependencyOptions, mergeDependencies } from './utils';
 
-export interface DependenciesProviderProps extends Partial<DependencyOptions> {}
+export interface DependenciesProviderProps extends DependencyOptions {}
 
-export const DependenciesProvider: FunctionComponent<DependenciesProviderProps> = ({ children, ...options }) => {
+export const DependenciesProvider: FunctionComponent<DependenciesProviderProps> = ({
+  children,
+  globals,
+  dependencies
+}) => {
   const client = useContext(DynamicoContext);
   const overrideClient = useMemo(
     () =>
@@ -16,9 +20,9 @@ export const DependenciesProvider: FunctionComponent<DependenciesProviderProps> 
         fetcher: client.fetcher,
         checkCodeIntegrity: client.checkCodeIntegrity,
         failedRegisterPolicy: client.failedRegisterPolicy,
-        ...mergeDependencies(client, options)
+        ...mergeDependencies(client, { dependencies: filterDependencies(dependencies), globals })
       }),
-    [client, options.dependencies, options.globals]
+    [client, dependencies, globals]
   );
 
   return <DynamicoContext.Provider value={overrideClient}>{children}</DynamicoContext.Provider>;

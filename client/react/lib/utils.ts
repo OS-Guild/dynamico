@@ -1,7 +1,7 @@
-import { InitOptions } from '@dynamico/core';
+import { Dependencies } from '@dynamico/core';
 
 export interface DependencyOptions {
-  dependencies: InitOptions['dependencies'];
+  dependencies: Dependencies;
   globals?: Record<string, any>;
 }
 
