@@ -29,9 +29,11 @@ interface FailedRegisterPolicy {
   strategy: FailedRegisterStrategy;
 }
 
+export type CacheOptions = StorageController | Storage | { storage: Storage; prefix?: string };
+
 export interface InitOptions {
   url: string;
-  cache: StorageController | Storage | { storage: Storage; prefix?: string };
+  cache: CacheOptions;
   dependencies: {
     versions: Dependencies;
     resolvers: Record<string, any>;
