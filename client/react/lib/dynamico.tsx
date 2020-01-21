@@ -69,8 +69,10 @@ export const dynamico = function<T = any>(
         return;
       }
 
+      const getComponent = () => dynamicoClient.get(name, options).then(view => setComponent({ view }), setError);
+
       if (devMode === false || (!devMode && !globalDevMode)) {
-        dynamicoClient.get(name, options).then(view => setComponent({ view }), setError);
+        getComponent();
         return;
       }
 
@@ -84,7 +86,7 @@ export const dynamico = function<T = any>(
 
       return devClient.get(name, {
         ...options,
-        callback: async (err, view: any) => {
+        callback: (err, view: any) => {
           if (!err) {
             usingFallbackComponent = false;
             return setComponent({ view });
@@ -92,7 +94,7 @@ export const dynamico = function<T = any>(
 
           console.warn(`failed getting component ${name} from dev server`, err);
 
-          if (!devMode) {
+          if (devMode) {
             return setError(err);
           }
 
@@ -100,12 +102,7 @@ export const dynamico = function<T = any>(
             return;
           }
           usingFallbackComponent = true;
-
-          try {
-            setComponent({ view: await dynamicoClient.get(name, options) });
-          } catch (e) {
-            return setError(e);
-          }
+          getComponent();
         }
       });
     }, []);

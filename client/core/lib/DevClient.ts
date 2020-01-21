@@ -17,7 +17,6 @@ export interface DevGetOptions extends Options {
 
 export class DynamicoDevClient {
   url: string;
-  cache = new NoopStorage();
   dependencies: InitOptions['dependencies'];
   interval: number;
 
@@ -62,7 +61,7 @@ export class DynamicoDevClient {
     const client = new DynamicoClient({
       url: this.url,
       dependencies: this.dependencies,
-      cache: this.cache,
+      cache: new NoopStorage(),
       fetcher
     });
 
