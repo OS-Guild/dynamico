@@ -4,9 +4,6 @@ import { basename, extname, join, resolve } from 'path';
 import { writeFile, mkdirSync, existsSync } from 'fs';
 import { promisify } from 'util';
 
-import rollupPeerDepsExternal from 'rollup-plugin-peer-deps-external';
-import rollupTypescript2 from 'rollup-plugin-typescript2';
-
 import { getMainFile, getPackageJson, getPackageJsonPath } from './utils';
 
 export const enum Mode {
@@ -31,12 +28,8 @@ export default async ({ mode = Mode.development, dir = '.', modifyRollupConfig }
       input: file,
       bundleNodeModules: true,
       plugins: {
-        'peer-deps-external': true
-      },
-      resolvePlugins: {
-        'peer-deps-external': (options, ...args) =>
-          rollupPeerDepsExternal({ ...options, packageJsonPath: getPackageJsonPath(dir) }, ...args),
-        typescript2: options => rollupTypescript2({ ...options, tsconfig: join(rootDir, 'tsconfig.json') })
+        'peer-deps-external': { packageJsonPath: getPackageJsonPath(dir) },
+        typescript2: { tsconfig: join(rootDir, 'tsconfig.json') }
       },
       output: {
         minify: isProd,
