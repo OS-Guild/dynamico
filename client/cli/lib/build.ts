@@ -20,7 +20,7 @@ export interface Options {
 export default async ({ mode = Mode.development, dir = '.', modifyRollupConfig }: Options = {}): Promise<any> => {
   const isProd = mode === Mode.production;
   const file = getMainFile(dir);
-  const rootDir = resolve(process.cwd(), dir);
+  const rootDir = resolve(dir);
   const distDir = join(rootDir, './dist');
 
   const bundler = new Bundler(

@@ -4,7 +4,7 @@ import { resolve } from 'path';
 
 type Dependencies = Record<string, string>;
 
-export const getPackageJsonPath = (dir: string = '.') => resolve(process.cwd(), dir, 'package.json');
+export const getPackageJsonPath = (dir: string = '.') => resolve(dir, 'package.json');
 
 export const getPackageJson = (dir?: string) => require(getPackageJsonPath(dir));
 

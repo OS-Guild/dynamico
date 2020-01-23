@@ -1,12 +1,11 @@
-import Liftoff from 'liftoff';
-import program from 'caporal';
 import { ExtendRollupConfig } from 'bili/types/types';
-import { jsVariants } from 'interpret';
+import program from 'caporal';
 import { tmpdir } from 'os';
+import { description, version } from '../package.json';
+import registerActions from './actions';
+import { getConfig } from './config';
 
 import logger from './logger';
-import registerActions from './actions';
-import { version, description } from '../package.json';
 
 const logDir = `${tmpdir()}\dcm`;
 const logFileName = `dcm-${new Date().toLocaleString().replace(' ', '_')}`;
@@ -23,20 +22,10 @@ export interface DcmConfig {
   workspaces?: string[];
 }
 
-const Dcm = new Liftoff({
-  name: 'dcm',
-  configName: 'dcmconfig',
-  extensions: jsVariants
-});
-
 export default (argv: string[]) =>
-  Dcm.prepare({}, env =>
-    Dcm.execute(env, () => {
-      const config: DcmConfig = env.configPath ? require(env.configPath).default : undefined;
+  getConfig().then(config => {
+    registerActions(config);
 
-      registerActions(config);
-
-      program.logger().info(`You can find the log file in ${logDir}/${logFileName}`);
-      program.parse(argv);
-    })
-  );
+    program.logger().info(`You can find the log file in ${logDir}/${logFileName}`);
+    program.parse(argv);
+  });

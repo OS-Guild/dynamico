@@ -1,28 +1,22 @@
+import { ExtendRollupConfig } from 'bili/types/types';
 import cors from 'cors';
 import express from 'express';
 import { resolve } from 'path';
 
 import build, { Options } from './build';
-import { getComponentDirectories, validateDependencies } from './utils';
+import { validateDependencies } from './utils';
 
 export const DEFAULT_PORT = 8383;
 
 export type StartOptions = {
   port?: number;
-  workspaces?: string[];
+  components: (readonly [string, ExtendRollupConfig | undefined])[];
 };
 
-export default async (
-  logger,
-  { port = DEFAULT_PORT, workspaces }: StartOptions,
-  buildOptions?: Options
-): Promise<any> => {
-  const dir = buildOptions?.dir;
-
-  const dirs = getComponentDirectories(dir, workspaces);
+export default async (logger, { port = DEFAULT_PORT, components }: StartOptions): Promise<any> => {
   const builds = await Promise.all(
-    dirs.map(async dir => {
-      const result = await build({ ...buildOptions, dir });
+    components.map(async ([dir, modifyRollupConfig]) => {
+      const result = await build({ dir, modifyRollupConfig });
       return { ...result, dir };
     })
   );
@@ -52,7 +46,7 @@ export default async (
     const component = index[componentName];
 
     res.setHeader('Access-Control-Expose-Headers', 'ETag');
-    res.sendFile(resolve(process.cwd(), component.dir, 'dist', component.main));
+    res.sendFile(resolve(component.dir, 'dist', component.main));
   });
 
   app.post('/host/register', (req, res) => {

@@ -1,18 +1,24 @@
 import { STRING } from 'caporal';
-import { getComponentDirectories, getPackageJson } from '../../lib/utils';
+import { getPackageJson } from '../../lib/utils';
 import { registerCommand } from '../util';
 import { publish } from '../../lib';
 import { DcmConfig } from '..';
+import { mergeConfigs } from '../config';
 
-export default (config: DcmConfig) =>
+export default (config?: DcmConfig) =>
   registerCommand({
     name: 'publish',
     description: 'Publish your dynamic component',
-    options: [['-u, --url <url>', 'url', STRING], ['-d, --dir <directory>', 'dir', STRING]],
+    options: [
+      ['-u, --url <url>', 'url', STRING],
+      ['-d, --dir <directory>', 'dir', STRING]
+    ],
     action: async ({ options: { url, dir }, logger }) => {
       if (config && config.workspaces && !dir) {
         return logger.error('Please specify directory to publish');
       }
+
+      config = await mergeConfigs(config, dir);
 
       if (!url) {
         if (!config) {
@@ -30,9 +36,9 @@ export default (config: DcmConfig) =>
       logger.info(`Publishing ${name}...`);
 
       try {
-        const { name, version } = await publish(url, config && config.middleware, {
+        const { name, version } = await publish(url, config?.middleware, {
           dir,
-          modifyRollupConfig: config && config.modifyRollupConfig
+          modifyRollupConfig: config?.modifyRollupConfig
         });
         logger.info(`Successfully published ${name}@${version}`);
       } catch (err) {
