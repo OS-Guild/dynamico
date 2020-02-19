@@ -14,8 +14,9 @@ export default async (basePath: string, middleware?: Function, buildOptions?: Op
   const file = join(tmpdir(), filename);
 
   const { name, version, main, peerDependencies } = await build({ ...buildOptions, mode: Mode.production });
+  const distDir = join(buildOptions?.dir || '.', './dist');
 
-  await promisePipe(tar.create({ gzip: true, cwd: './dist' }, [main, 'package.json']), createWriteStream(file));
+  await promisePipe(tar.create({ gzip: true, cwd: distDir }, [main, 'package.json']), createWriteStream(file));
 
   body.append('peerDependencies', JSON.stringify(peerDependencies));
   body.append('package', createReadStream(file));

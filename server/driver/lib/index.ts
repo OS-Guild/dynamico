@@ -187,9 +187,7 @@ export class Driver {
     const componentTree = await this.storage.getComponentTree();
 
     if (componentTree[component.name]) {
-      const componentGetter = componentTree[component.name][component.version];
-
-      if (componentGetter) {
+      if (component.version in componentTree[component.name]) {
         throw new ComponentExistsError({ component });
       }
     }

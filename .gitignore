@@ -8,3 +8,4 @@ dist
 .rpt2_cache
 coverage
 .npmrc
+.idea

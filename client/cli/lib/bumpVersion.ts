@@ -5,13 +5,14 @@ import { writeFileSync } from 'fs';
 
 interface Options {
   releaseType?: ReleaseType;
+  dir?: string;
 }
 
 export const releaseTypes = ['major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'] as const;
 type ReleaseType = typeof releaseTypes[number];
 
-export default async ({ releaseType }: Options = {}, logger: any) => {
-  const packageJson = getPackageJson();
+export default async ({ releaseType, dir }: Options = {}, logger: any) => {
+  const packageJson = getPackageJson(dir);
   const currentVersion = packageJson.version;
   if (!semver.valid(currentVersion)) {
     return logger.error(`Component's version (${currentVersion}) is not in a valid semver format`);
@@ -27,6 +28,6 @@ export default async ({ releaseType }: Options = {}, logger: any) => {
   }
 
   packageJson.version = semver.inc(currentVersion, releaseType);
-  updatePackageJson(packageJson);
+  updatePackageJson(packageJson, dir);
   logger.info(`Updated package version to ${packageJson.version}`);
 };

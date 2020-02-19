@@ -37,7 +37,7 @@ export interface InitOptions {
     versions: Dependencies;
     resolvers: Record<string, any>;
   };
-  fetcher?: GlobalFetch['fetch'];
+  fetcher?: WindowOrWorkerGlobalScope['fetch'];
   globals?: Record<string, any>;
   checkCodeIntegrity?: (code: string) => Promise<boolean>;
   failedRegisterPolicy?: FailedRegisterPolicy;
@@ -70,7 +70,7 @@ export class DynamicoClient {
     resolvers: Record<string, any>;
   };
   cache: StorageController;
-  fetcher: GlobalFetch['fetch'];
+  fetcher: WindowOrWorkerGlobalScope['fetch'];
   globals: Record<string, any>;
   index: Record<string, string> = {};
   checkCodeIntegrity?: (string) => Promise<boolean>;
@@ -105,7 +105,7 @@ export class DynamicoClient {
     );
   }
 
-  private checkFetcher(fetcher?: GlobalFetch['fetch']) {
+  private checkFetcher(fetcher?: WindowOrWorkerGlobalScope['fetch']) {
     if (!fetcher && typeof fetch === 'undefined') {
       let library: string = 'unfetch';
 
@@ -170,20 +170,17 @@ export class DynamicoClient {
       }
     });
 
-    const { version, code } = await this.fetcher(url).then(async (res: Response) => {
-      if (!res.ok) {
-        throw new ComponentGetFailedError(res.statusText, res);
-      }
-      const code = await res.text();
-      const version = componentVersion || (res.headers.get('dynamico-component-version') as string);
-      if (this.checkCodeIntegrity && !(await this.checkCodeIntegrity(code))) {
-        throw new ComponentIntegrityCheckFailed({ name, version });
-      }
-      return {
-        version,
-        code
-      };
-    });
+    const res = await this.fetcher(url);
+    if (!res.ok) {
+      throw new ComponentGetFailedError(res.statusText, res);
+    }
+
+    const code = await res.text();
+    const version = componentVersion || (res.headers.get('dynamico-component-version') as string);
+
+    if (this.checkCodeIntegrity && !(await this.checkCodeIntegrity(code))) {
+      throw new ComponentIntegrityCheckFailed({ name, version });
+    }
 
     await this.cache.setItem(name, version, code);
 
