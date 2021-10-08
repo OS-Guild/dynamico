@@ -58,7 +58,7 @@
     "p-try": "^2.0.0",
     "plop": "^2.3.0",
     "promisepipe": "^3.0.0",
-    "prompts": "^2.1.0",
+    "prompts": "^2.4.2",
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-typescript2": "^0.20.1",
     "semver": "^6.3.0",
