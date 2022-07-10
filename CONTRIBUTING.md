@@ -1,6 +1,6 @@
-# Contributing to DYNAMICO
+# Contributing to Dynamico
 
-Welcome, and thank you for your interest in contributing to DYNAMICO!
+Welcome, and thank you for your interest in contributing to Dynamico!
 
 There are many ways in which you can contribute, beyond writing code. The goal of this document is to provide a high-level overview of how you can get involved.
 
@@ -19,7 +19,7 @@ Your comments and feedback are welcome, and the development team is available vi
 
 ## Reporting Issues
 
-Have you identified a reproducible problem in DYNAMICO? Have a feature request? We want to hear about it! Here's how you can make reporting your issue as effective as possible.
+Have you identified a reproducible problem in Dynamico? Have a feature request? We want to hear about it! Here's how you can make reporting your issue as effective as possible.
 
 ### Look For an Existing Issue
 
@@ -37,7 +37,7 @@ The more information you can provide, the more likely someone will be successful
 
 Please include the following with each issue:
 
-- Version of DYNAMICO
+- Version of Dynamico
 - Your operating system
 - Reproducible steps (1... 2... 3...) that cause the issue
 - What you expected to see, versus what you actually saw
@@ -56,7 +56,7 @@ Don't feel bad if the developers can't reproduce the issue right away. They will
 
 ## Contributing Fixes
 
-There are many ways to contribute to the DYNAMICO project: logging bugs, submitting pull requests, reporting issues, and creating suggestions.
+There are many ways to contribute to the Dynamico project: logging bugs, submitting pull requests, reporting issues, and creating suggestions.
 
 After cloning and building the repo, check out the issues list. Issues labeled `help wanted` are good issues to submit a PR for. Issues labeled `good first issue` are great candidates to pick up if you are in the code for the first time. If you are contributing significant changes, or if the issue is already assigned to a specific month milestone, please discuss with the issue assignee first before starting to work on the issue
 
