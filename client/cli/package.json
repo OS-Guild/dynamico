@@ -46,7 +46,7 @@
     "copyfiles": "^2.1.0"
   },
   "dependencies": {
-    "bili": "^4.5.2",
+    "bili": "^5.0.0",
     "caporal": "^1.1.0",
     "cors": "^2.8.5",
     "cosmiconfig": "^6.0.0",
@@ -56,7 +56,7 @@
     "glob": "^7.1.6",
     "node-fetch": "^2.3.0",
     "p-try": "^2.0.0",
-    "plop": "^2.3.0",
+    "plop": "^2.5.0",
     "promisepipe": "^3.0.0",
     "prompts": "^2.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
@@ -65,7 +65,7 @@
     "tar": "^4.4.8",
     "ts-node": "^8.6.2",
     "typescript": "^3.3.3333",
-    "update-notifier": "^2.5.0",
+    "update-notifier": "^4.0.0",
     "uppercamelcase": "^3.0.0",
     "url-join": "^4.0.0",
     "winston": "^3.2.1"
