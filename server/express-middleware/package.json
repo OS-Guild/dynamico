@@ -38,7 +38,7 @@
     "readable-stream-clone": "^0.0.4",
     "sanitize-filename": "^1.6.1",
     "semver": "^6.0.0",
-    "tar": "^4.4.8",
+    "tar": "^6.1.4",
     "tar-stream": "^2.0.1"
   },
   "devDependencies": {
